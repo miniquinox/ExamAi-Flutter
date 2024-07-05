@@ -1,0 +1,9 @@
+List of commands to run app:
+- flutter clean
+- flutter pub get
+- flutter pub get outdated
+- flutter run -d chrome 
+
+Commands to build website:
+- flutter build web
+- npm run deploy
