@@ -82,8 +82,12 @@ class ProfessorScreen extends StatelessWidget {
                   child: Row(
                     children: [
                       CircleAvatar(
-                        backgroundImage:
-                            NetworkImage('https://via.placeholder.com/150'),
+                        backgroundColor: Colors.grey
+                            .shade200, // Optional: Background color of the avatar
+                        child: Icon(
+                          Icons.person, // Generic person icon
+                          color: Colors.blue, // Optional: Icon color
+                        ),
                       ),
                       SizedBox(width: 10),
                       Text('Joaquin Carretero',
@@ -140,7 +144,7 @@ class ProfessorScreen extends StatelessWidget {
                                       child: Container(
                                         margin: EdgeInsets.only(left: 8),
                                         child: StatisticBox(
-                                            icon: Icons.today,
+                                            icon: Icons.assessment,
                                             label: 'Today\'s exams taken',
                                             value: '150'),
                                       ),
@@ -152,7 +156,7 @@ class ProfessorScreen extends StatelessWidget {
                                       child: Container(
                                         margin: EdgeInsets.only(left: 8),
                                         child: StatisticBox(
-                                            icon: Icons.score,
+                                            icon: Icons.assessment,
                                             label: 'Average Exam Score',
                                             value: '85%'),
                                       ),
@@ -249,29 +253,18 @@ class ProfessorScreen extends StatelessWidget {
                                   // Container with a fixed height
                                   Container(
                                     height: 375, // Set a fixed height
-                                    child: Column(
-                                      children: [
-                                        StudentRow(
-                                            name: 'Umar Islam',
-                                            avatarUrl:
-                                                'https://via.placeholder.com/50'),
-                                        StudentRow(
-                                            name: 'Giring Furqon',
-                                            avatarUrl:
-                                                'https://via.placeholder.com/50'),
-                                        StudentRow(
-                                            name: 'Andra Mahmud',
-                                            avatarUrl:
-                                                'https://via.placeholder.com/50'),
-                                        StudentRow(
-                                            name: 'Lukman Farhan',
-                                            avatarUrl:
-                                                'https://via.placeholder.com/50'),
-                                        StudentRow(
-                                            name: 'Lukman Farhan',
-                                            avatarUrl:
-                                                'https://via.placeholder.com/50'),
-                                      ],
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 16.0), // Added left padding
+                                      child: Column(
+                                        children: [
+                                          StudentRow(name: 'Umar Islam'),
+                                          StudentRow(name: 'Giring Furqon'),
+                                          StudentRow(name: 'Andra Mahmud'),
+                                          StudentRow(name: 'Lukman Farhan'),
+                                          StudentRow(name: 'Lukman Farhan'),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                   Row(
@@ -478,9 +471,8 @@ class StatisticBox extends StatelessWidget {
 
 class StudentRow extends StatelessWidget {
   final String name;
-  final String avatarUrl;
 
-  const StudentRow({required this.name, required this.avatarUrl});
+  const StudentRow({required this.name});
 
   @override
   Widget build(BuildContext context) {
@@ -489,7 +481,9 @@ class StudentRow extends StatelessWidget {
       child: Row(
         children: [
           CircleAvatar(
-            backgroundImage: NetworkImage(avatarUrl),
+            child: Icon(Icons.person,
+                color: Colors.white), // Google icon or similar
+            backgroundColor: Colors.blue, // Optional: Change to preferred color
           ),
           SizedBox(width: 10),
           Text(name),
