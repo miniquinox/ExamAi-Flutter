@@ -115,7 +115,7 @@ class _SignInScreenState extends State<SignInScreen> {
           // Left Side
           Expanded(
             child: Container(
-              color: Colors.purple[600],
+              color: Color(0xFF6938ef),
               child: Padding(
                 padding: const EdgeInsets.all(32.0),
                 child: Column(
@@ -186,7 +186,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   ToggleButtons(
                     isSelected: isSelected,
                     selectedColor: Colors.white,
-                    fillColor: Colors.purple,
+                    fillColor: Color(0xFF6938ef),
                     borderRadius: BorderRadius.circular(10),
                     children: [
                       Padding(
