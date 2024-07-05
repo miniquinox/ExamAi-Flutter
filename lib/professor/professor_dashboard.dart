@@ -137,18 +137,18 @@ class ProfessorScreen extends StatelessWidget {
                                           label: 'Total exams created',
                                           value: '60'),
                                     ),
-                                    // SizedBox(
-                                    //     width:
-                                    //         8), // Spacing between statistic boxes
-                                    // Expanded(
-                                    //   child: Container(
-                                    //     margin: EdgeInsets.only(left: 8),
-                                    //     child: StatisticBox(
-                                    //         icon: Icons.assessment,
-                                    //         label: 'Today\'s exams taken',
-                                    //         value: '150'),
-                                    //   ),
-                                    // ),
+                                    SizedBox(
+                                        width:
+                                            8), // Spacing between statistic boxes
+                                    Expanded(
+                                      child: Container(
+                                        margin: EdgeInsets.only(left: 8),
+                                        child: StatisticBox(
+                                            icon: Icons.assessment,
+                                            label: 'Today\'s exams taken',
+                                            value: '150'),
+                                      ),
+                                    ),
                                     // SizedBox(
                                     //     width:
                                     //         8), // Spacing between statistic boxes
