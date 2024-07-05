@@ -18,6 +18,8 @@ class ProfessorScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(
+          0xFFFCFCFD), // Set the background color of the Scaffold to #fcfcfd
       body: Row(
         children: [
           // Left menu
@@ -82,11 +84,12 @@ class ProfessorScreen extends StatelessWidget {
                   child: Row(
                     children: [
                       CircleAvatar(
-                        backgroundColor: Colors.grey
-                            .shade200, // Optional: Background color of the avatar
+                        backgroundColor:
+                            Color(0xFF6938EF), // Updated background color
                         child: Icon(
                           Icons.person, // Generic person icon
-                          color: Colors.blue, // Optional: Icon color
+                          color: Colors
+                              .white, // Updated icon color for better contrast
                         ),
                       ),
                       SizedBox(width: 10),
@@ -111,14 +114,49 @@ class ProfessorScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Header
-                      Text(
-                        'Hello Mr. Vista',
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        'Lorem ipsum dolor sit amet consectetur. Odio ut nec donec sed.',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Hello Mr. Vista',
+                                style: TextStyle(
+                                    fontSize: 24, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                'Lorem ipsum dolor sit amet consectetur. Odio ut nec donec sed.',
+                                style:
+                                    TextStyle(fontSize: 16, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              // Add your onPressed functionality here
+                            },
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.resolveWith<Color>(
+                                      (Set<MaterialState> states) {
+                                if (states.contains(MaterialState.hovered))
+                                  return Color(0xFF6938EF).withOpacity(
+                                      0.8); // Slightly lighter on hover
+                                return Color(0xFF6938EF); // Default color
+                              }),
+                              foregroundColor: MaterialStateProperty.all(
+                                  Colors.white), // Button text color
+                              shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      10), // Less rounded corners
+                                ),
+                              ),
+                            ),
+                            child: Text('+ Create new exam'),
+                          ),
+                        ],
                       ),
                       SizedBox(height: 20),
                       // Statistic boxes and Graph container alignment
@@ -164,14 +202,11 @@ class ProfessorScreen extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(10),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.5),
-                                        spreadRadius: 2,
-                                        blurRadius: 5,
-                                        offset: Offset(0, 3),
-                                      ),
-                                    ],
+                                    border: Border.all(
+                                      color: Color(
+                                          0xFFD0D5DD), // Thin border color #d0d5dd
+                                      width: 1, // Border width 1 pixel
+                                    ),
                                   ),
                                   child: Column(
                                     crossAxisAlignment:
@@ -228,14 +263,11 @@ class ProfessorScreen extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(10),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 2,
-                                    blurRadius: 5,
-                                    offset: Offset(0, 3),
-                                  ),
-                                ],
+                                border: Border.all(
+                                  color: Color(
+                                      0xFFD0D5DD), // Thin border color #d0d5dd
+                                  width: 1, // Border width 1 pixel
+                                ),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,7 +278,7 @@ class ProfessorScreen extends StatelessWidget {
                                   SizedBox(height: 10),
                                   // Container with a fixed height
                                   Container(
-                                    height: 375, // Set a fixed height
+                                    height: 380, // Set a fixed height
                                     child: Padding(
                                       padding: const EdgeInsets.only(
                                           left: 16.0), // Added left padding
@@ -286,14 +318,12 @@ class ProfessorScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              spreadRadius: 2,
-                              blurRadius: 5,
-                              offset: Offset(0, 3),
-                            ),
-                          ],
+                          border: Border.all(
+                            color:
+                                Color(0xFFD0D5DD), // Thin border color #d0d5dd
+                            width: 1, // Border width 1 pixel
+                          ),
+                          boxShadow: [], // Removed shadow
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -430,20 +460,16 @@ class StatisticBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        height: 146, // Fixed height for better layout consistency
+        height: 150, // Fixed height for better layout consistency
         margin: EdgeInsets.symmetric(horizontal: 8.0),
         padding: EdgeInsets.all(16.0),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: Offset(0, 3),
-            ),
-          ],
+          border: Border.all(
+            color: Color(0xFFD0D5DD), // Thin border color #d0d5dd
+            width: 1, // Border width 1 pixel
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -477,7 +503,7 @@ class StudentRow extends StatelessWidget {
           CircleAvatar(
             child: Icon(Icons.person,
                 color: Colors.white), // Google icon or similar
-            backgroundColor: Colors.blue, // Optional: Change to preferred color
+            backgroundColor: Color(0xFF6938EF), // Updated to preferred color
           ),
           SizedBox(width: 10),
           Text(name),
@@ -487,7 +513,7 @@ class StudentRow extends StatelessWidget {
   }
 }
 
-class ExamRow extends StatelessWidget {
+class ExamRow extends StatefulWidget {
   final String examName;
   final String examId;
   final String course;
@@ -503,89 +529,68 @@ class ExamRow extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    double score = double.tryParse(averageScore.replaceAll('%', '')) ?? 0;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          Expanded(child: Text(examName)),
-          Expanded(child: Text(examId)),
-          Expanded(child: Text(course)),
-          Expanded(child: Text(dateCreated)),
-          Expanded(
-            child: Row(
-              children: [
-                // Simulated donut chart
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    SizedBox(
-                      width: 40,
-                      height: 40,
-                      child: CircularProgressIndicator(
-                        value: score / 100,
-                        backgroundColor: Colors.grey.shade300,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                        strokeWidth: 5,
-                      ),
-                    ),
-                    Text('$score%', style: TextStyle(fontSize: 10)),
-                  ],
-                ),
-                Spacer(),
-                // Buttons inside a ButtonBar for minimal alignment
-                ButtonBar(
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.edit, color: Colors.grey),
-                      onPressed: () {},
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.delete, color: Colors.red),
-                      onPressed: () {},
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  _ExamRowState createState() => _ExamRowState();
 }
 
-class Box extends StatelessWidget {
-  final String title;
-  final String content;
-
-  const Box({required this.title, required this.content});
+class _ExamRowState extends State<ExamRow> {
+  bool _isHovered = false;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 8.0),
-      padding: EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
-          SizedBox(height: 10),
-          Text(content, style: TextStyle(fontSize: 24)),
-        ],
+    double score =
+        double.tryParse(widget.averageScore.replaceAll('%', '')) ?? 0;
+    return MouseRegion(
+      onEnter: (event) => setState(() => _isHovered = true),
+      onExit: (event) => setState(() => _isHovered = false),
+      child: Container(
+        color: _isHovered
+            ? Colors.grey[200]
+            : Colors.white, // Slight gray when hovered, white otherwise
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: Row(
+          children: [
+            Expanded(child: Text(widget.examName)),
+            Expanded(child: Text(widget.examId)),
+            Expanded(child: Text(widget.course)),
+            Expanded(child: Text(widget.dateCreated)),
+            Expanded(
+              child: Row(
+                children: [
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        width: 40,
+                        height: 40,
+                        child: CircularProgressIndicator(
+                          value: score / 100,
+                          backgroundColor: Colors.grey.shade300,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Color(0xFF6938EF)),
+                          strokeWidth: 5,
+                        ),
+                      ),
+                      Text('$score%', style: TextStyle(fontSize: 10)),
+                    ],
+                  ),
+                  Spacer(),
+                  ButtonBar(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.edit, color: Colors.grey),
+                        onPressed: () {},
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete, color: Colors.red),
+                        onPressed: () {},
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
