@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
-void main() => runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -14,7 +20,27 @@ class MyApp extends StatelessWidget {
 
 // Assuming MenuButton, StatisticBox, StudentRow, and ExamRow are defined elsewhere
 
-class StudentScreen extends StatelessWidget {
+class StudentScreen extends StatefulWidget {
+  @override
+  _StudentScreenState createState() => _StudentScreenState();
+}
+
+class _StudentScreenState extends State<StudentScreen> {
+  User? user;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUser();
+  }
+
+  Future<void> fetchUser() async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    setState(() {
+      user = currentUser;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +56,8 @@ class StudentScreen extends StatelessWidget {
               children: [
                 // Exam AI header
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.only(
+                      left: 16.0, top: 16.0, bottom: 16.0),
                   child: Row(
                     children: [
                       Icon(Icons.school, color: Colors.white),
@@ -78,26 +105,34 @@ class StudentScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Profile image
+                // Profile image and name from Google Sign-In
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.only(
+                      left: 16.0, top: 16.0, bottom: 16.0),
                   child: Row(
                     children: [
                       CircleAvatar(
-                        backgroundColor:
-                            Color(0xFF6938EF), // Updated background color
-                        child: Icon(
-                          Icons.person, // Generic person icon
-                          color: Colors
-                              .white, // Updated icon color for better contrast
-                        ),
+                        backgroundImage: user?.photoURL != null
+                            ? NetworkImage(user!.photoURL!)
+                            : null,
+                        backgroundColor: user?.photoURL == null
+                            ? Color(0xFF6938EF)
+                            : Colors.transparent,
+                        child: user?.photoURL == null
+                            ? Icon(
+                                Icons.person,
+                                color: Colors.white,
+                              )
+                            : null,
                       ),
                       SizedBox(width: 10),
-                      Text('Joaquin Carretero',
-                          style: TextStyle(color: Colors.white)),
+                      Text(
+                        user?.displayName?.substring(0, 17) ?? 'No Name',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ],
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -114,12 +149,12 @@ class StudentScreen extends StatelessWidget {
                     children: [
                       // Header
                       Text(
-                        'Welcome back, Umar',
+                        'Welcome back, ${user?.displayName}!',
                         style: TextStyle(
                             fontSize: 24, fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        'Lorem ipsum dolor sit amet consectetur. Odio ut nec donec sed.',
+                        'Here\'s what\'s happening with your exams today.',
                         style: TextStyle(fontSize: 16, color: Colors.grey),
                       ),
                       SizedBox(height: 20),
