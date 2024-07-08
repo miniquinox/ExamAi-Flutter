@@ -206,50 +206,56 @@ class CreateExamReview extends StatelessWidget {
                       style: TextStyle(
                           fontSize: 24.0, fontWeight: FontWeight.bold)),
                   SizedBox(height: 16),
-                  _buildExamDetails(),
-                  SizedBox(height: 16),
-                  _buildAddQuestions(),
-                  Spacer(),
-                  Padding(
-                    padding: EdgeInsets.only(top: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          style: TextButton.styleFrom(
-                            foregroundColor: Colors.black,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 24, vertical: 12),
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                          ),
-                          child: Text('Back'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            // Handle Publish
-                          },
-                          style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            backgroundColor: Color(0xFF6938EF),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 24, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                          ),
-                          child: Text('Publish'),
-                        ),
-                      ],
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildExamDetails(),
+                          SizedBox(height: 16),
+                          _buildAddQuestions(),
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.black,
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  child: Text('Back'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    // Handle Publish
+                  },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Color(0xFF6938EF),
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  child: Text('Publish'),
+                ),
+              ],
             ),
           ),
         ],
@@ -259,8 +265,8 @@ class CreateExamReview extends StatelessWidget {
 
   Widget _buildExamDetails() {
     return ExpansionTile(
-      title:
-          Text('Exam Details', style: TextStyle(fontWeight: FontWeight.bold)),
+      title: Text('Exam Details',
+          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
       children: [
         ListTile(
           title: Text('Exam name'),
@@ -334,21 +340,73 @@ class CreateExamReview extends StatelessWidget {
 
   Widget _buildAddQuestions() {
     return ExpansionTile(
-      title: Text('Add Questions'),
+      title: Text(
+        'Add Questions',
+        style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+      ),
       children: questions.map((question) {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: ListTile(
-            title: Text(question['question']),
-            subtitle: Column(
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Color(0xfffcfcfd),
+              borderRadius: BorderRadius.circular(8.0),
+              border: Border.all(color: Color(0xffcbcfd7)),
+            ),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${question['weight']} pts'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Question ${questions.indexOf(question) + 1}',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      '${question['weight']} pts',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 8),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: Color(0xfff1f1f5),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Text(
+                    question['question'],
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                ),
                 ...question['rubrics'].map<Widget>((rubric) {
                   return Padding(
-                    padding: const EdgeInsets.only(left: 16.0, top: 4.0),
-                    child:
-                        Text('${rubric['rubric']} (${rubric['weight']} pts)'),
+                    padding: const EdgeInsets.only(left: 16.0, top: 16.0),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: Color(0xfff1f1f5),
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            rubric['rubric'],
+                            style: TextStyle(fontSize: 16.0),
+                          ),
+                          Text(
+                            '${rubric['weight']} pts',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
                   );
                 }).toList(),
               ],
