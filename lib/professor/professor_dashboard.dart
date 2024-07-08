@@ -1,3 +1,4 @@
+import 'package:examai_flutter/professor/createExam_examDetails.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -167,17 +168,22 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                           ),
                           ElevatedButton(
                             onPressed: () {
-                              // Add your onPressed functionality here
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => CreateExamDetails()),
+                              );
                             },
                             style: ButtonStyle(
                               backgroundColor:
                                   MaterialStateProperty.resolveWith<Color>(
-                                      (Set<MaterialState> states) {
-                                if (states.contains(MaterialState.hovered))
-                                  return Color(0xFF6938EF).withOpacity(
-                                      0.8); // Slightly lighter on hover
-                                return Color(0xFF6938EF); // Default color
-                              }),
+                                (Set<MaterialState> states) {
+                                  if (states.contains(MaterialState.hovered))
+                                    return Color(0xFF6938EF).withOpacity(
+                                        0.8); // Slightly lighter on hover
+                                  return Color(0xFF6938EF); // Default color
+                                },
+                              ),
                               foregroundColor: MaterialStateProperty.all(
                                   Colors.white), // Button text color
                               shape: MaterialStateProperty.all(
@@ -188,7 +194,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                               ),
                             ),
                             child: Text('+ Create new exam'),
-                          ),
+                          )
                         ],
                       ),
                       SizedBox(height: 20),
