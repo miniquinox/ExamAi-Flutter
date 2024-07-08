@@ -62,7 +62,7 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
       body: Row(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 80.0),
+            padding: const EdgeInsets.symmetric(horizontal: 60.0),
             child: _buildProgressColumn(),
           ),
           Expanded(
@@ -78,8 +78,8 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
 
   Widget _buildProgressColumn() {
     return Container(
-      width: 200,
-      padding: const EdgeInsets.all(16.0),
+      width: 225,
+      padding: const EdgeInsets.only(top: 16.0, right: 16.0, bottom: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -177,7 +177,7 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
 
   Widget _buildFormColumn() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 100.0),
+      padding: const EdgeInsets.only(top: 25.0, bottom: 50.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
