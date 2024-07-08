@@ -140,7 +140,9 @@ class CreateExamReview extends StatelessWidget {
                         ? Colors.green
                         : Colors.grey,
                 child: Icon(
-                  isActive ? Icons.check_circle : Icons.circle,
+                  isActive
+                      ? Icons.check_circle_outline
+                      : Icons.radio_button_unchecked, // Use alternative icons
                   color: Colors.white,
                   size: 16,
                 ),
@@ -332,7 +334,7 @@ class CreateExamReview extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                Icons.check_circle,
+                Icons.check_circle_outline, // Changed to a different icon
                 color: Colors.green,
                 size: 50,
               ),
