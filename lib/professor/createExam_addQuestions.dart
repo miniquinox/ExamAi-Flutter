@@ -81,7 +81,10 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
             SizedBox(width: 4),
             Text(
               'Home',
-              style: TextStyle(color: Colors.black),
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
             ),
             SizedBox(width: 4),
             Icon(Icons.chevron_right, color: Colors.black),
@@ -90,20 +93,18 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
             SizedBox(width: 4),
             Text(
               'Create new exam',
-              style: TextStyle(color: Color(0xFF6938EF)),
+              style: TextStyle(
+                  color: Color(0xFF6938EF),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
             ),
             Spacer(),
             CircleAvatar(
-              backgroundImage:
-                  user?.photoURL != null ? NetworkImage(user!.photoURL!) : null,
-              backgroundColor: user?.photoURL == null
-                  ? Color(0xFF6938EF)
-                  : Colors.transparent,
-              child: user?.photoURL == null
-                  ? Icon(
-                      Icons.person,
-                      color: Colors.white,
-                    )
+              backgroundImage: NetworkImage(
+                  FirebaseAuth.instance.currentUser?.photoURL ?? ''),
+              backgroundColor: Colors.transparent,
+              child: FirebaseAuth.instance.currentUser?.photoURL == null
+                  ? Icon(Icons.person, color: Colors.white)
                   : null,
             ),
           ],
@@ -163,13 +164,7 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
           subtitle: 'Check and review the exam',
           isActive: false,
           isCompleted: false,
-        ),
-        _buildStep(
-          title: 'Publish',
-          subtitle: 'Publish the exam to students',
-          isActive: false,
-          isCompleted: false,
-        ),
+        )
       ],
     );
   }
@@ -188,7 +183,7 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
               CircleAvatar(
                 radius: 12,
                 backgroundColor: isActive
-                    ? Colors.purple
+                    ? Color(0xFF6938EF)
                     : isCompleted
                         ? Colors.green
                         : Colors.grey,
@@ -211,13 +206,13 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: isActive ? Colors.purple : Colors.black),
+                    color: isActive ? Color(0xFF6938EF) : Colors.black),
               ),
               Text(
                 subtitle,
                 style: TextStyle(
                     fontSize: 14,
-                    color: isActive ? Colors.purpleAccent : Colors.grey),
+                    color: isActive ? Color(0xFF6938EF) : Colors.grey),
               ),
             ],
           ),

@@ -1,3 +1,4 @@
+import 'package:examai_flutter/professor/professor_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -31,7 +32,10 @@ class CreateExamReview extends StatelessWidget {
             SizedBox(width: 4),
             Text(
               'Home',
-              style: TextStyle(color: Colors.black),
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
             ),
             SizedBox(width: 4),
             Icon(Icons.chevron_right, color: Colors.black),
@@ -40,7 +44,10 @@ class CreateExamReview extends StatelessWidget {
             SizedBox(width: 4),
             Text(
               'Create new exam',
-              style: TextStyle(color: Color(0xFF6938EF)),
+              style: TextStyle(
+                  color: Color(0xFF6938EF),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
             ),
             Spacer(),
             CircleAvatar(
@@ -108,13 +115,7 @@ class CreateExamReview extends StatelessWidget {
           subtitle: 'Check and review the exam',
           isActive: true,
           isCompleted: false,
-        ),
-        _buildStep(
-          title: 'Publish',
-          subtitle: 'Publish the exam to students',
-          isActive: false,
-          isCompleted: false,
-        ),
+        )
       ],
     );
   }
@@ -134,7 +135,7 @@ class CreateExamReview extends StatelessWidget {
               CircleAvatar(
                 radius: 12,
                 backgroundColor: isActive
-                    ? Colors.purple
+                    ? Color(0xFF6938EF)
                     : isCompleted
                         ? Colors.green
                         : Colors.grey,
@@ -160,14 +161,14 @@ class CreateExamReview extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: isActive ? Colors.purple : Colors.black,
+                  color: isActive ? Color(0xFF6938EF) : Colors.black,
                 ),
               ),
               Text(
                 subtitle,
                 style: TextStyle(
                   fontSize: 14,
-                  color: isActive ? Colors.purpleAccent : Colors.grey,
+                  color: isActive ? Color(0xFF6938EF) : Colors.grey,
                 ),
               ),
             ],
@@ -209,7 +210,6 @@ class CreateExamReview extends StatelessWidget {
                   Expanded(
                     child: SingleChildScrollView(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildExamDetails(),
                           SizedBox(height: 16),
@@ -218,48 +218,172 @@ class CreateExamReview extends StatelessWidget {
                       ),
                     ),
                   ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.black,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 12),
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                          ),
+                          child: Text('Back'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            _showPublishDialog(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Color(0xFF6938EF),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                          ),
+                          child: Text('Publish'),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        ],
+      ),
+    );
+  }
+
+  void _showPublishDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white, // Set background color to white
+          title: Text('Publish Exam?'),
+          content: Text(
+              'Please, confirm publishing. Students will be able to take and can participate in this exam.'),
+          actions: [
+            // Removed the "Don't show again" Checkbox and Text
+            Row(
+              mainAxisAlignment:
+                  MainAxisAlignment.end, // Align buttons to the end
               children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.black,
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    backgroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  child: Text('Back'),
-                ),
                 ElevatedButton(
                   onPressed: () {
-                    // Handle Publish
+                    Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Color(0xFF6938EF),
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    foregroundColor: Colors.black,
+                    backgroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 16), // Reduced horizontal padding
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: Text('Publish'),
+                  child: Text('Cancel'),
+                ),
+                SizedBox(width: 16), // Increased space
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _showSuccessDialog(
+                        context); // Show success dialog after publishing
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF6938EF),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 16), // Reduced horizontal padding
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text('Confirm Publish',
+                      style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          contentPadding: EdgeInsets.all(40), // Added padding
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.check_circle,
+                color: Colors.green,
+                size: 50,
+              ),
+              SizedBox(height: 16),
+              Center(
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Exam ',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      TextSpan(
+                        text: '"$examName"',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(
+                        text: '\nSuccessfully created!',
+                        style: TextStyle(
+                          fontSize: 18,
+                        ),
+                      ),
+                    ],
+                  ),
+                  textAlign:
+                      TextAlign.center, // This applies to the Text widget
+                ),
+              )
+            ],
           ),
-        ],
-      ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => ProfessorScreen()));
+              },
+              child: Text('Back to home'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Color(0xFF6938EF),
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(8), // Set corner radius to 9
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
