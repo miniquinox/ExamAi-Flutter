@@ -1,6 +1,7 @@
 import 'package:examai_flutter/professor/professor_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class CreateExamReview extends StatelessWidget {
   final String examName;
@@ -141,8 +142,8 @@ class CreateExamReview extends StatelessWidget {
                         : Colors.grey,
                 child: Icon(
                   isActive
-                      ? Icons.check_circle_outline
-                      : Icons.radio_button_unchecked, // Use alternative icons
+                      ? MdiIcons.checkCircle
+                      : MdiIcons.checkboxBlankCircle,
                   color: Colors.white,
                   size: 16,
                 ),
@@ -334,7 +335,8 @@ class CreateExamReview extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                Icons.check_circle_outline, // Changed to a different icon
+                MdiIcons
+                    .checkCircleOutline, // Updated to use an icon from the material_design_icons_flutter package
                 color: Colors.green,
                 size: 50,
               ),
