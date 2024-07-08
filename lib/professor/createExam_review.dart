@@ -259,29 +259,75 @@ class CreateExamReview extends StatelessWidget {
 
   Widget _buildExamDetails() {
     return ExpansionTile(
-      title: Text('Exam Details'),
+      title:
+          Text('Exam Details', style: TextStyle(fontWeight: FontWeight.bold)),
       children: [
         ListTile(
           title: Text('Exam name'),
-          subtitle: Text(examName),
+          subtitle: TextField(
+            controller: TextEditingController(text: examName),
+            decoration: InputDecoration(
+              fillColor: Color(0xfff2f4f7),
+              filled: true,
+              border: OutlineInputBorder(
+                borderSide: BorderSide.none,
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+            ),
+            enabled: false, // Lock the input box
+          ),
         ),
         ListTile(
           title: Text('Course'),
-          subtitle: Text(course),
+          subtitle: TextField(
+            controller: TextEditingController(text: course),
+            decoration: InputDecoration(
+              fillColor: Color(0xfff2f4f7),
+              filled: true,
+              border: OutlineInputBorder(
+                borderSide: BorderSide.none,
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+            ),
+            enabled: false, // Lock the input box
+          ),
         ),
         ListTile(
           title: Text('Date & time'),
-          subtitle: Text('$date at $time'),
+          subtitle: TextField(
+            controller: TextEditingController(text: '$date at $time'),
+            decoration: InputDecoration(
+              fillColor: Color(0xfff2f4f7),
+              filled: true,
+              border: OutlineInputBorder(
+                borderSide: BorderSide.none,
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+            ),
+            enabled: false, // Lock the input box
+          ),
         ),
         ListTile(
           title: Text('Students'),
-          subtitle: Wrap(
-            spacing: 8.0,
-            runSpacing: 4.0,
-            children:
-                students.map((student) => Chip(label: Text(student))).toList(),
+          subtitle: Container(
+            padding: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Color(0xfff2f4f7),
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Wrap(
+              spacing: 8.0, // gap between adjacent chips
+              runSpacing: 4.0, // gap between lines
+              children: students
+                  .map((student) => Chip(
+                        label: Text(student),
+                        backgroundColor: Colors.white,
+                      ))
+                  .toList(),
+            ),
           ),
         ),
+        SizedBox(height: 16),
       ],
     );
   }
