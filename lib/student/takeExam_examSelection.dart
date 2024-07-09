@@ -113,7 +113,9 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
         margin: const EdgeInsets.symmetric(vertical: 10),
         color: Colors.white, // Set the background color to white
         shape: RoundedRectangleBorder(
-          side: const BorderSide(color: Colors.grey, width: 1.0), // Add outline
+          side: BorderSide(
+              color: Color(0xFFEEEEEE),
+              width: 1.0), // Add outline with #EEEEEE color
           borderRadius: BorderRadius.circular(16.0),
         ),
         elevation: 0, // Remove shadow
@@ -286,6 +288,6 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
   }
 }
 
-void main() => runApp(MaterialApp(
+void main() => runApp(const MaterialApp(
       home: StudentPortalScreen(),
     ));

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'takeExam_final.dart';
 
 class IntroductionPage extends StatelessWidget {
   final String examId;
@@ -16,22 +17,22 @@ class IntroductionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFCFCFD),
+      backgroundColor: const Color(0xFFFCFCFD),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         title: Row(
           children: [
-            Icon(Icons.home, color: Colors.black),
-            SizedBox(width: 4),
-            Text(
+            const Icon(Icons.home, color: Colors.black),
+            const SizedBox(width: 4),
+            const Text(
               'Home',
               style: TextStyle(
                   color: Colors.black,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             const Icon(Icons.chevron_right, color: Colors.black),
             const SizedBox(width: 4),
             const Icon(Icons.assignment, color: Color.fromARGB(255, 0, 0, 0)),
@@ -43,25 +44,25 @@ class IntroductionPage extends StatelessWidget {
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
-            SizedBox(width: 4),
-            Icon(Icons.chevron_right, color: Colors.black),
-            SizedBox(width: 4),
-            Icon(Icons.assignment, color: Color(0xFF6938EF)),
-            SizedBox(width: 4),
-            Text(
+            const SizedBox(width: 4),
+            const Icon(Icons.chevron_right, color: Colors.black),
+            const SizedBox(width: 4),
+            const Icon(Icons.assignment, color: Color(0xFF6938EF)),
+            const SizedBox(width: 4),
+            const Text(
               'Instructions',
               style: TextStyle(
                   color: Color(0xFF6938EF),
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
-            Spacer(),
+            const Spacer(),
             CircleAvatar(
               backgroundImage: NetworkImage(
                   FirebaseAuth.instance.currentUser?.photoURL ?? ''),
               backgroundColor: Colors.transparent,
               child: FirebaseAuth.instance.currentUser?.photoURL == null
-                  ? Icon(Icons.person, color: Colors.white)
+                  ? const Icon(Icons.person, color: Colors.white)
                   : null,
             ),
           ],
@@ -71,7 +72,7 @@ class IntroductionPage extends StatelessWidget {
         future: _fetchExamDetails(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           var exam = snapshot.data!;
@@ -84,73 +85,73 @@ class IntroductionPage extends StatelessWidget {
           String timeCap = exam['timeCap'] ?? 'Placeholder time';
 
           return Container(
-            margin: EdgeInsets.only(top: 80, left: 300, right: 300),
-            padding: EdgeInsets.all(20),
+            margin: const EdgeInsets.only(top: 80, left: 200, right: 200),
+            padding: const EdgeInsets.all(40),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 5,
-                  blurRadius: 7,
-                  offset: Offset(0, 3), // changes position of shadow
-                ),
-              ],
+              border: Border.all(
+                  color: Color(0xFFEEEEEE),
+                  width: 1), // Added outline with #EEEEEE color
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize:
                   MainAxisSize.min, // Adjusts the box size based on content
               children: [
-                Text(
+                const Text(
                   'Introduction',
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 20),
-                Text(
+                const SizedBox(height: 20),
+                const Text(
                   'About',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Text(
                   about,
-                  style: TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16),
                 ),
-                SizedBox(height: 20),
-                Text(
+                const SizedBox(height: 20),
+                const Text(
                   'Instructions',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 10),
-                Text(instructions, style: TextStyle(fontSize: 16)),
-                SizedBox(height: 20),
-                Text(
+                const SizedBox(height: 10),
+                Text(instructions, style: const TextStyle(fontSize: 16)),
+                const SizedBox(height: 20),
+                const Text(
                   'Time',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Text(
                   timeCap,
-                  style: TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16),
                 ),
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
                 Align(
                   alignment: Alignment.bottomRight,
                   child: ElevatedButton(
                     onPressed: () {
-                      // Navigate to the exam page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TakeExamFinal(examId: examId),
+                        ),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
-                      backgroundColor: Color(0xFF6938EF),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      backgroundColor: const Color(0xFF6938EF),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                     ),
-                    child: Text('Start'),
+                    child: const Text('Start'),
                   ),
                 ),
               ],
