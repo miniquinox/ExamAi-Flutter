@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,12 +27,12 @@ class ProfessorScreen extends StatefulWidget {
 class _ProfessorScreenState extends State<ProfessorScreen> {
   User? user;
   int totalExamsCreated = 0;
+  int totalExamsTaken = 0;
 
   @override
   void initState() {
     super.initState();
     fetchUser();
-    fetchTotalExamsCreated();
   }
 
   Future<void> fetchUser() async {
@@ -41,21 +40,50 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
     setState(() {
       user = currentUser;
     });
+    fetchTotalExams();
+    fetchTotalExamsTaken();
   }
 
-  Future<void> fetchTotalExamsCreated() async {
-    String? professorEmail = FirebaseAuth.instance.currentUser?.email;
-    if (professorEmail != null) {
+  Future<void> fetchTotalExams() async {
+    if (user != null) {
       DocumentSnapshot professorSnapshot = await FirebaseFirestore.instance
           .collection('Professors')
-          .doc(professorEmail)
+          .doc(user!.email)
           .get();
-
       if (professorSnapshot.exists) {
         List<dynamic> currentExams =
             professorSnapshot.get('currentExams') ?? [];
         setState(() {
           totalExamsCreated = currentExams.length;
+        });
+      }
+    }
+  }
+
+  Future<void> fetchTotalExamsTaken() async {
+    if (user != null) {
+      DocumentSnapshot professorSnapshot = await FirebaseFirestore.instance
+          .collection('Professors')
+          .doc(user!.email)
+          .get();
+      if (professorSnapshot.exists) {
+        List<dynamic> currentExams =
+            professorSnapshot.get('currentExams') ?? [];
+        int totalTaken = 0;
+
+        for (String examId in currentExams) {
+          DocumentSnapshot examSnapshot = await FirebaseFirestore.instance
+              .collection('Exams')
+              .doc(examId)
+              .get();
+          if (examSnapshot.exists) {
+            List<dynamic> students = examSnapshot.get('students') ?? [];
+            totalTaken += students.length;
+          }
+        }
+
+        setState(() {
+          totalExamsTaken = totalTaken;
         });
       }
     }
@@ -239,8 +267,8 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                     Expanded(
                                       child: StatisticBox(
                                           icon: Icons.today,
-                                          label: "Total Exams taken",
-                                          value: '150'),
+                                          label: "Total exams taken",
+                                          value: '$totalExamsTaken'),
                                     ),
                                     SizedBox(
                                         width:
