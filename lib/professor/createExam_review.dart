@@ -304,7 +304,14 @@ class CreateExamReview extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () async {
                     Navigator.of(dialogContext).pop();
-                    await _publishExam(context);
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext loadingContext) {
+                        _publishExam(context, loadingContext);
+                        return Center(child: CircularProgressIndicator());
+                      },
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF6938EF),
@@ -325,7 +332,8 @@ class CreateExamReview extends StatelessWidget {
     );
   }
 
-  Future<void> _publishExam(BuildContext parentContext) async {
+  Future<void> _publishExam(
+      BuildContext parentContext, BuildContext loadingContext) async {
     try {
       final examData = {
         'examName': examName,
@@ -367,6 +375,7 @@ class CreateExamReview extends StatelessWidget {
       });
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(loadingContext).pop(); // Close the loading dialog
         _showSuccessDialog(parentContext);
       });
     } catch (e, stackTrace) {
@@ -374,6 +383,7 @@ class CreateExamReview extends StatelessWidget {
       print('Stack Trace: $stackTrace');
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(loadingContext).pop(); // Close the loading dialog
         showDialog(
           context: parentContext,
           builder: (context) => AlertDialog(
