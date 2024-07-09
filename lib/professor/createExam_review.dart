@@ -374,6 +374,28 @@ class CreateExamReview extends StatelessWidget {
         }
       });
 
+      // Update each student's current exams
+      for (String studentEmail in students) {
+        DocumentReference studentRef =
+            FirebaseFirestore.instance.collection('Students').doc(studentEmail);
+
+        await FirebaseFirestore.instance.runTransaction((transaction) async {
+          DocumentSnapshot snapshot = await transaction.get(studentRef);
+
+          if (!snapshot.exists) {
+            transaction.set(studentRef, {
+              'currentExams': [examRef.id]
+            });
+          } else {
+            List<dynamic> currentExams = snapshot.get('currentExams') ?? [];
+            if (!currentExams.contains(examRef.id)) {
+              currentExams.add(examRef.id);
+            }
+            transaction.update(studentRef, {'currentExams': currentExams});
+          }
+        });
+      }
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(loadingContext).pop(); // Close the loading dialog
         _showSuccessDialog(parentContext);

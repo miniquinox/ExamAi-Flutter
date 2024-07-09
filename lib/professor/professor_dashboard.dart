@@ -2,6 +2,7 @@ import 'package:examai_flutter/professor/createExam_examDetails.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 void main() async {
@@ -26,11 +27,13 @@ class ProfessorScreen extends StatefulWidget {
 
 class _ProfessorScreenState extends State<ProfessorScreen> {
   User? user;
+  int totalExamsCreated = 0;
 
   @override
   void initState() {
     super.initState();
     fetchUser();
+    fetchTotalExamsCreated();
   }
 
   Future<void> fetchUser() async {
@@ -38,6 +41,24 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
     setState(() {
       user = currentUser;
     });
+  }
+
+  Future<void> fetchTotalExamsCreated() async {
+    String? professorEmail = FirebaseAuth.instance.currentUser?.email;
+    if (professorEmail != null) {
+      DocumentSnapshot professorSnapshot = await FirebaseFirestore.instance
+          .collection('Professors')
+          .doc(professorEmail)
+          .get();
+
+      if (professorSnapshot.exists) {
+        List<dynamic> currentExams =
+            professorSnapshot.get('currentExams') ?? [];
+        setState(() {
+          totalExamsCreated = currentExams.length;
+        });
+      }
+    }
   }
 
   @override
@@ -210,7 +231,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                       child: StatisticBox(
                                           icon: Icons.assessment,
                                           label: 'Total exams created',
-                                          value: '60'),
+                                          value: '$totalExamsCreated'),
                                     ),
                                     SizedBox(
                                         width:
@@ -218,7 +239,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                     Expanded(
                                       child: StatisticBox(
                                           icon: Icons.today,
-                                          label: "Today's Exams taken",
+                                          label: "Total Exams taken",
                                           value: '150'),
                                     ),
                                     SizedBox(
