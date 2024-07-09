@@ -1,3 +1,4 @@
+import 'package:examai_flutter/student/takeExam_examSelection.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -70,7 +71,16 @@ class _StudentScreenState extends State<StudentScreen> {
                 SizedBox(height: 20),
                 // Menu items
                 MenuButton(icon: Icons.dashboard, label: 'Dashboard'),
-                MenuButton(icon: Icons.assignment, label: 'Exams'),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => StudentPortalScreen()),
+                    );
+                  },
+                  child: MenuButton(icon: Icons.assignment, label: 'Exams'),
+                ),
                 MenuButton(icon: Icons.people, label: 'Students'),
                 MenuButton(icon: Icons.class_, label: 'Classes'),
                 MenuButton(icon: Icons.settings, label: 'Settings'),

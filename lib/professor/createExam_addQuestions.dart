@@ -370,6 +370,9 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                     fillColor: Colors.white,
                     filled: true,
                   ),
+                  keyboardType: TextInputType.multiline,
+                  maxLines:
+                      null, // Allows the text field to expand vertically based on content
                 ),
                 SizedBox(height: 8),
                 ..._buildRubricFields(i),
@@ -434,6 +437,9 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                       fillColor: Colors.white,
                       filled: true,
                     ),
+                    keyboardType: TextInputType.multiline,
+                    maxLines:
+                        null, // Allows the text field to expand vertically based on content
                   ),
                 ),
                 SizedBox(width: 8),
