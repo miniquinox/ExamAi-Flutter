@@ -19,8 +19,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Assuming MenuButton, StatisticBox, StudentRow, and ExamRow are defined elsewhere
-
 class ProfessorScreen extends StatefulWidget {
   @override
   _ProfessorScreenState createState() => _ProfessorScreenState();

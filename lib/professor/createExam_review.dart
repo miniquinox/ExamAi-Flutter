@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:examai_flutter/professor/professor_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'dart:math';
 
 class CreateExamReview extends StatelessWidget {
   final String examName;
@@ -271,7 +273,7 @@ class CreateExamReview extends StatelessWidget {
   void _showPublishDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           backgroundColor: Colors.white, // Set background color to white
           title: Text('Publish Exam?'),
@@ -285,7 +287,7 @@ class CreateExamReview extends StatelessWidget {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    Navigator.of(dialogContext).pop();
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.black,
@@ -300,10 +302,9 @@ class CreateExamReview extends StatelessWidget {
                 ),
                 SizedBox(width: 16), // Increased space
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    _showSuccessDialog(
-                        context); // Show success dialog after publishing
+                  onPressed: () async {
+                    Navigator.of(dialogContext).pop();
+                    await _publishExam(context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF6938EF),
@@ -324,10 +325,76 @@ class CreateExamReview extends StatelessWidget {
     );
   }
 
+  Future<void> _publishExam(BuildContext parentContext) async {
+    try {
+      final examData = {
+        'examName': examName,
+        'course': course,
+        'date': date,
+        'time': time,
+        'students': students,
+        'questions': questions,
+      };
+
+      DocumentReference examRef =
+          await FirebaseFirestore.instance.collection('Exams').add(examData);
+      print('Exam added with ID: ${examRef.id}');
+
+      String? professorEmail = FirebaseAuth.instance.currentUser?.email;
+      if (professorEmail == null) {
+        throw Exception("Professor email is null");
+      }
+      print('Professor email: $professorEmail');
+
+      DocumentReference professorRef = FirebaseFirestore.instance
+          .collection('Professors')
+          .doc(professorEmail);
+
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        DocumentSnapshot snapshot = await transaction.get(professorRef);
+
+        if (!snapshot.exists) {
+          transaction.set(professorRef, {
+            'currentExams': [examRef.id]
+          });
+        } else {
+          List<dynamic> currentExams = snapshot.get('currentExams') ?? [];
+          if (!currentExams.contains(examRef.id)) {
+            currentExams.add(examRef.id);
+          }
+          transaction.update(professorRef, {'currentExams': currentExams});
+        }
+      });
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showSuccessDialog(parentContext);
+      });
+    } catch (e, stackTrace) {
+      print('Error publishing exam: $e');
+      print('Stack Trace: $stackTrace');
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: parentContext,
+          builder: (context) => AlertDialog(
+            title: Text('Error'),
+            content: Text('Failed to publish exam. Please try again.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+        );
+      });
+    }
+  }
+
   void _showSuccessDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           backgroundColor: Colors.white,
           contentPadding: EdgeInsets.all(40), // Added padding
@@ -371,8 +438,8 @@ class CreateExamReview extends StatelessWidget {
           actions: [
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).popUntil((route) => route.isFirst);
-                Navigator.of(context).pushReplacement(
+                Navigator.of(dialogContext).popUntil((route) => route.isFirst);
+                Navigator.of(dialogContext).pushReplacement(
                     MaterialPageRoute(builder: (context) => ProfessorScreen()));
               },
               child: Text('Back to home'),
