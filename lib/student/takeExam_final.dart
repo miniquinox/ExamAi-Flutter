@@ -13,6 +13,140 @@ class TakeExamFinal extends StatelessWidget {
     return examSnapshot.data() as Map<String, dynamic>;
   }
 
+  void _showSubmissionConfirmationDialog(BuildContext context,
+      Map<String, dynamic> exam, Map<String, String> answers) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text('Submit Assessment?'),
+          content: Text(
+              'Are you sure you want to submit your assessment? You will not be able to make any changes after submission.'),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.black,
+                    backgroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text('Cancel'),
+                ),
+                SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: () async {
+                    Navigator.of(dialogContext).pop();
+                    await _saveStudentAnswers(context, exam, answers);
+                    _showThankYouDialog(context, exam);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF6938EF),
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text('Submit', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _saveStudentAnswers(BuildContext context,
+      Map<String, dynamic> exam, Map<String, String> answers) async {
+    String userEmail = FirebaseAuth.instance.currentUser?.email ?? 'anonymous';
+    DocumentReference studentRef =
+        FirebaseFirestore.instance.collection('Students').doc(userEmail);
+
+    DocumentSnapshot studentSnapshot = await studentRef.get();
+    if (!studentSnapshot.exists) {
+      await studentRef.set({'completedExams': {}});
+    }
+
+    await studentRef.update({
+      'completedExams.${examId}': {
+        'examName': exam['examName'],
+        'course': exam['course'],
+        'answers': answers,
+      }
+    });
+  }
+
+  void _showThankYouDialog(BuildContext context, Map<String, dynamic> exam) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: Center(
+            child: Icon(
+              Icons.check_circle,
+              color: Colors.green,
+              size: 50,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Thank you for taking the test for the',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16),
+              ),
+              Text(
+                '"${exam['course']} - ${exam['examName']}"',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF6938EF)),
+              ),
+              SizedBox(height: 10),
+              Text(
+                "Please choose 'Finish' to go back to your dashboard.",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+          actions: [
+            Align(
+              alignment: Alignment.bottomRight,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(dialogContext)
+                      .popUntil((route) => route.isFirst);
+                },
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Color(0xFF6938EF),
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                child: Text('Finish'),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,6 +198,8 @@ class TakeExamFinal extends StatelessWidget {
 
           var exam = snapshot.data!;
           var questions = exam['questions'] ?? [];
+          Map<String, String> answers = {};
+
           return Center(
             child: Container(
               width: MediaQuery.of(context).size.width - 160,
@@ -101,36 +237,61 @@ class TakeExamFinal extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'Question ${index + 1}: ${question['question']}',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  height: 1.2, // Adjust line spacing
-                                ),
-                                textAlign: TextAlign
-                                    .left, // Optional: Ensures text alignment
-                                strutStyle: const StrutStyle(
-                                  height: 1.2, // Adjust the height
-                                  forceStrutHeight:
-                                      true, // Forces the height to be applied
-                                ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      'Question ${index + 1}: ${question['question']}',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        height: 1.2, // Adjust line spacing
+                                      ),
+                                      textAlign: TextAlign
+                                          .left, // Ensures text alignment
+                                      strutStyle: const StrutStyle(
+                                        height: 1.2, // Adjust the height
+                                        forceStrutHeight:
+                                            true, // Forces the height to be applied
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 2.0,
+                                        right:
+                                            8), // Adjust this value as needed
+                                    child: Text(
+                                      '${question['weight']} pts',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                               const SizedBox(height: 10),
-                              const TextField(
+                              TextField(
                                 maxLines: null,
-                                decoration: InputDecoration(
+                                onChanged: (value) {
+                                  answers[question['question']] = value;
+                                },
+                                decoration: const InputDecoration(
                                   hintText: 'Enter your answer here...',
-                                  fillColor: Color(0xFFFFFFFF),
+                                  fillColor: Color(0xFFF2F4F7),
                                   filled: true,
                                   border: OutlineInputBorder(
                                     borderSide: BorderSide(
-                                      color: Color(0xFFD0D5DD),
+                                      color: Color(0xFFD1D6DC),
                                     ),
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderSide: BorderSide(
-                                      color: Color(0xFFD0D5DD),
+                                      color: Color(0xFFD1D6DC),
                                     ),
                                   ),
                                   focusedBorder: OutlineInputBorder(
@@ -142,6 +303,9 @@ class TakeExamFinal extends StatelessWidget {
                                   ),
                                 ),
                               ),
+                              const SizedBox(
+                                  height:
+                                      20), // Add 20 pixels box between questions
                             ],
                           ),
                         );
@@ -152,7 +316,8 @@ class TakeExamFinal extends StatelessWidget {
                     alignment: Alignment.bottomRight,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Handle submission and navigate to the next question or finish the exam
+                        _showSubmissionConfirmationDialog(
+                            context, exam, answers); // Pass the exam data here
                       },
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
