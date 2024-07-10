@@ -115,14 +115,14 @@ class _SignInScreenState extends State<SignInScreen> {
           // Left Side
           Expanded(
             child: Container(
-              color: Color(0xFF6938ef),
+              color: const Color(0xFF6938ef),
               child: Padding(
                 padding: const EdgeInsets.all(32.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       "Exam AI",
                       style: TextStyle(
                         fontSize: 32,
@@ -130,8 +130,8 @@ class _SignInScreenState extends State<SignInScreen> {
                         color: Colors.white,
                       ),
                     ),
-                    SizedBox(height: 20),
-                    Text(
+                    const SizedBox(height: 20),
+                    const Text(
                       "Unlock Seamless Exam Creation and Intelligent Grading",
                       style: TextStyle(
                         fontSize: 24,
@@ -139,15 +139,15 @@ class _SignInScreenState extends State<SignInScreen> {
                         color: Colors.white,
                       ),
                     ),
-                    SizedBox(height: 20),
-                    Text(
+                    const SizedBox(height: 20),
+                    const Text(
                       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus lectus viverra non fringilla lobortis dignissim lorem enim.",
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.white,
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Center(
                       child: Image.asset(
                         'assets/images/login_image.png',
@@ -162,39 +162,39 @@ class _SignInScreenState extends State<SignInScreen> {
           // Right Side
           Expanded(
             child: Container(
-              padding: EdgeInsets.all(32),
+              padding: const EdgeInsets.all(32),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     "Welcome back",
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 10),
-                  Text(
+                  const SizedBox(height: 10),
+                  const Text(
                     "Welcome back! Please enter your details.",
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey,
                     ),
                   ),
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
                   ToggleButtons(
                     isSelected: isSelected,
                     selectedColor: Colors.white,
-                    fillColor: Color(0xFF6938ef),
+                    fillColor: const Color(0xFF6938ef),
                     borderRadius: BorderRadius.circular(10),
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
                         child: Text("Professor"),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
                         child: Text("Student"),
                       ),
                     ],
@@ -208,18 +208,18 @@ class _SignInScreenState extends State<SignInScreen> {
                       });
                     },
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   TextField(
                     controller: emailController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Email / ID',
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   TextField(
                     controller: passwordController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Password',
                       border: OutlineInputBorder(),
                       suffixIcon: Icon(Icons.visibility),
@@ -232,29 +232,29 @@ class _SignInScreenState extends State<SignInScreen> {
                       Row(
                         children: [
                           Checkbox(value: false, onChanged: (bool? value) {}),
-                          Text("Remember for 30 days"),
+                          const Text("Remember for 30 days"),
                         ],
                       ),
                       TextButton(
                         onPressed: () {},
-                        child: Text("Forgot password"),
+                        child: const Text("Forgot password"),
                       ),
                     ],
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {
                       _signInWithEmailAndPassword();
                     },
                     child: Container(
                       width: double.infinity,
-                      child: Center(child: Text("Sign in")),
+                      child: const Center(child: Text("Sign in")),
                     ),
                     style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 15),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   SignInButton(
                     Buttons.Google,
                     text: "Sign in with Gmail",
@@ -262,14 +262,14 @@ class _SignInScreenState extends State<SignInScreen> {
                       _signInWithGoogle();
                     },
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Don’t have an account?"),
+                      const Text("Don’t have an account?"),
                       TextButton(
                         onPressed: () {},
-                        child: Text("Sign up"),
+                        child: const Text("Sign up"),
                       ),
                     ],
                   ),

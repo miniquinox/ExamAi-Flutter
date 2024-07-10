@@ -1,36 +1,42 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:examai_flutter/student/takeExam_instructions.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'firebase_service.dart';
 
 class StudentPortalScreen extends StatefulWidget {
-  const StudentPortalScreen({super.key});
+  const StudentPortalScreen({Key? key}) : super(key: key);
 
   @override
   _StudentPortalScreenState createState() => _StudentPortalScreenState();
 }
 
 class _StudentPortalScreenState extends State<StudentPortalScreen> {
+  final FirebaseService _firebaseService = FirebaseService();
   User? user;
   List<Map<String, dynamic>> exams = [];
 
   @override
   void initState() {
     super.initState();
-    fetchUserAndExams();
+    _firebaseService.authStateChanges.listen((user) {
+      if (user != null) {
+        setState(() {
+          this.user = user;
+        });
+        fetchUserAndExams(user.email!);
+      } else {
+        print('No user is currently signed in.');
+      }
+    });
   }
 
-  Future<void> fetchUserAndExams() async {
-    user = FirebaseAuth.instance.currentUser;
-
-    if (user != null) {
-      final studentDoc = await FirebaseFirestore.instance
-          .collection('Students')
-          .doc(user!.email)
-          .get();
-
-      final currentExams =
-          List<String>.from(studentDoc.data()?['currentExams'] ?? []);
+  Future<void> fetchUserAndExams(String email) async {
+    print('Fetching exams for user: $email');
+    final userData = await _firebaseService.getUserData(email);
+    if (userData != null) {
+      final currentExams = List<String>.from(userData['currentExams'] ?? []);
+      print('Current exams: $currentExams');
 
       for (String examId in currentExams) {
         final examDoc = await FirebaseFirestore.instance
@@ -39,14 +45,19 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
             .get();
 
         if (examDoc.exists) {
-          exams.add({
-            'id': examDoc.id,
-            ...examDoc.data()!,
+          print('Exam document exists for ID: $examId');
+          setState(() {
+            exams.add({
+              'id': examDoc.id,
+              ...examDoc.data()!,
+            });
           });
+        } else {
+          print('Exam document does not exist for ID: $examId');
         }
       }
-
-      setState(() {});
+    } else {
+      print('No user data found.');
     }
   }
 
@@ -96,7 +107,7 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 60.0, vertical: 40.0),
         child: SingleChildScrollView(
           child: Wrap(
-            alignment: WrapAlignment.start, // Aligns children to the start
+            alignment: WrapAlignment.start,
             spacing: 16,
             runSpacing: 16,
             children: exams.map((exam) => buildExamCard(exam)).toList(),
@@ -111,39 +122,29 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
       width: 500,
       child: Card(
         margin: const EdgeInsets.symmetric(vertical: 10),
-        color: Colors.white, // Set the background color to white
+        color: Colors.white,
         shape: RoundedRectangleBorder(
-          side: BorderSide(
-              color: Color(0xFFEEEEEE),
-              width: 1.0), // Add outline with #EEEEEE color
+          side: BorderSide(color: Color(0xFFEEEEEE), width: 1.0),
           borderRadius: BorderRadius.circular(16.0),
         ),
-        elevation: 0, // Remove shadow
+        elevation: 0,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                exam['course'] ?? 'Placeholder',
-                style: const TextStyle(fontSize: 16),
-              ),
+              Text(exam['course'] ?? 'Placeholder',
+                  style: const TextStyle(fontSize: 16)),
               const SizedBox(height: 10),
-              Text(
-                exam['examName'] ?? 'Placeholder',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              Text(exam['examName'] ?? 'Placeholder',
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               Row(
-                mainAxisAlignment:
-                    MainAxisAlignment.start, // Align to the start
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment
-                        .start, // Align column contents to the start
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text('Professor',
                           style: TextStyle(
@@ -155,15 +156,12 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
                               ? CircleAvatar(
                                   backgroundImage:
                                       NetworkImage(exam['professorURL']),
-                                  radius: 24,
-                                )
+                                  radius: 24)
                               : const CircleAvatar(
-                                  backgroundColor:
-                                      Colors.blue, // Or any other color
+                                  backgroundColor: Colors.blue,
                                   radius: 24,
                                   child:
-                                      Icon(Icons.person, color: Colors.white),
-                                ),
+                                      Icon(Icons.person, color: Colors.white)),
                           const SizedBox(width: 10),
                           Text(
                             exam['professorName'] != null &&
@@ -177,19 +175,18 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(width: 40), // Space between columns
+                  const SizedBox(width: 40),
                   Align(
                     alignment: Alignment.topLeft,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment
-                          .start, // Align column contents to the start
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text('Students',
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 5),
                         Wrap(
-                          spacing: 8, // Gap between each circle avatar
+                          spacing: 8,
                           children: [
                             ...List.generate(
                               (exam['students']?.length ?? 0) > 4
@@ -200,10 +197,9 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
                                   Colors.red,
                                   Colors.green,
                                   Colors.blue,
-                                  Colors.purple,
+                                  Colors.purple
                                 ][index % 4],
-                                radius:
-                                    12, // Corrected modulus based on the actual number of colors
+                                radius: 12,
                                 child: const Icon(Icons.person,
                                     color: Colors.white, size: 16),
                               ),
@@ -226,11 +222,8 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
                 ],
               ),
               const SizedBox(height: 10),
-              // text Date and Time
-              const Text(
-                "Date and Time",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              const Text("Date and Time",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               Row(
                 children: [
                   const Icon(Icons.calendar_today, size: 16),
@@ -243,20 +236,16 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
                 ],
               ),
               const SizedBox(height: 10),
-              const Text(
-                'Descriptions',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              const Text('Descriptions',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
-              Text(
-                exam['description'] ?? 'Placeholder',
-                style: const TextStyle(color: Colors.grey),
-              ),
+              Text(exam['description'] ?? 'Placeholder',
+                  style: const TextStyle(color: Colors.grey)),
               const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 10.0),
                 child: SizedBox(
-                  width: double.infinity, // Expand to the width of the card
+                  width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.push(
@@ -273,8 +262,7 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 24, vertical: 12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
+                          borderRadius: BorderRadius.circular(8.0)),
                     ),
                     child: const Text('Start'),
                   ),
@@ -288,6 +276,4 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
   }
 }
 
-void main() => runApp(const MaterialApp(
-      home: StudentPortalScreen(),
-    ));
+void main() => runApp(const MaterialApp(home: StudentPortalScreen()));
