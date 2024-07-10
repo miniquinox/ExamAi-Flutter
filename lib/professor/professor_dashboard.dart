@@ -7,19 +7,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: ProfessorScreen(),
     );
   }
 }
 
 class ProfessorScreen extends StatefulWidget {
+  const ProfessorScreen({super.key});
+
   @override
   _ProfessorScreenState createState() => _ProfessorScreenState();
 }
@@ -28,6 +32,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
   User? user;
   int totalExamsCreated = 0;
   int totalExamsTaken = 0;
+  List<Map<String, dynamic>> exams = [];
 
   @override
   void initState() {
@@ -42,6 +47,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
     });
     fetchTotalExams();
     fetchTotalExamsTaken();
+    fetchExams();
   }
 
   Future<void> fetchTotalExams() async {
@@ -89,22 +95,51 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
     }
   }
 
+  Future<void> fetchExams() async {
+    if (user != null) {
+      DocumentSnapshot professorSnapshot = await FirebaseFirestore.instance
+          .collection('Professors')
+          .doc(user!.email)
+          .get();
+      if (professorSnapshot.exists) {
+        List<dynamic> currentExams =
+            professorSnapshot.get('currentExams') ?? [];
+
+        for (String examId in currentExams) {
+          DocumentSnapshot examSnapshot = await FirebaseFirestore.instance
+              .collection('Exams')
+              .doc(examId)
+              .get();
+
+          if (examSnapshot.exists) {
+            setState(() {
+              exams.add({
+                'id': examSnapshot.id,
+                ...(examSnapshot.data() as Map<String, dynamic>),
+              });
+            });
+          }
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(
+      backgroundColor: const Color(
           0xFFFCFCFD), // Set the background color of the Scaffold to #fcfcfd
       body: Row(
         children: [
           // Left menu
           Container(
             width: 250,
-            color: Color(0xFF6938EF),
+            color: const Color(0xFF6938EF),
             child: Column(
               children: [
                 // Exam AI header
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
                   child: Row(
                     children: [
                       Icon(Icons.school, color: Colors.white),
@@ -114,20 +149,21 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 // Menu items
-                MenuButton(icon: Icons.dashboard, label: 'Dashboard'),
-                MenuButton(icon: Icons.assignment, label: 'Exams'),
-                MenuButton(icon: Icons.people, label: 'Students'),
-                MenuButton(icon: Icons.class_, label: 'Classes'),
-                MenuButton(icon: Icons.settings, label: 'Settings'),
-                MenuButton(icon: Icons.notifications, label: 'Notifications'),
-                Spacer(),
+                const MenuButton(icon: Icons.dashboard, label: 'Dashboard'),
+                const MenuButton(icon: Icons.assignment, label: 'Exams'),
+                const MenuButton(icon: Icons.people, label: 'Students'),
+                const MenuButton(icon: Icons.class_, label: 'Classes'),
+                const MenuButton(icon: Icons.settings, label: 'Settings'),
+                const MenuButton(
+                    icon: Icons.notifications, label: 'Notifications'),
+                const Spacer(),
                 // Usage card
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Container(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(10),
@@ -137,17 +173,17 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                         CircularProgressIndicator(
                           value: 0.8,
                           backgroundColor: Colors.grey[200],
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Color(0xFF6938EF)),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              Color(0xFF6938EF)),
                         ),
-                        SizedBox(height: 10),
-                        Text('Used space',
+                        const SizedBox(height: 10),
+                        const Text('Used space',
                             style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text(
+                        const Text(
                             'Your team has used 80% of your available space. Need more?'),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         ElevatedButton(
-                            onPressed: () {}, child: Text('Upgrade plan'))
+                            onPressed: () {}, child: const Text('Upgrade plan'))
                       ],
                     ),
                   ),
@@ -162,19 +198,19 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                             ? NetworkImage(user!.photoURL!)
                             : null,
                         backgroundColor: user?.photoURL == null
-                            ? Color(0xFF6938EF)
+                            ? const Color(0xFF6938EF)
                             : Colors.transparent,
                         child: user?.photoURL == null
-                            ? Icon(
+                            ? const Icon(
                                 Icons.person,
                                 color: Colors.white,
                               )
                             : null,
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       Text(
                         user?.displayName?.substring(0, 17) ?? 'No Name',
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ],
                   ),
@@ -189,7 +225,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                   const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
               child: SingleChildScrollView(
                 child: Container(
-                  margin: EdgeInsets.only(
+                  margin: const EdgeInsets.only(
                       left: 16.0, right: 16.0), // Added margin here
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,10 +239,10 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                             children: [
                               Text(
                                 'Welcome back, ${user?.displayName}!',
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 24, fontWeight: FontWeight.bold),
                               ),
-                              Text(
+                              const Text(
                                 'Here\'s what\'s happening with your exams today.',
                                 style:
                                     TextStyle(fontSize: 16, color: Colors.grey),
@@ -223,28 +259,30 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                             },
                             style: ButtonStyle(
                               backgroundColor:
-                                  MaterialStateProperty.resolveWith<Color>(
-                                (Set<MaterialState> states) {
-                                  if (states.contains(MaterialState.hovered))
-                                    return Color(0xFF6938EF).withOpacity(
+                                  WidgetStateProperty.resolveWith<Color>(
+                                (Set<WidgetState> states) {
+                                  if (states.contains(WidgetState.hovered)) {
+                                    return const Color(0xFF6938EF).withOpacity(
                                         0.8); // Slightly lighter on hover
-                                  return Color(0xFF6938EF); // Default color
+                                  }
+                                  return const Color(
+                                      0xFF6938EF); // Default color
                                 },
                               ),
-                              foregroundColor: MaterialStateProperty.all(
+                              foregroundColor: WidgetStateProperty.all(
                                   Colors.white), // Button text color
-                              shape: MaterialStateProperty.all(
+                              shape: WidgetStateProperty.all(
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(
                                       10), // Less rounded corners
                                 ),
                               ),
                             ),
-                            child: Text('+ Create new exam'),
+                            child: const Text('+ Create new exam'),
                           )
                         ],
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       // Statistic boxes and Graph container alignment
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,7 +299,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                           label: 'Total exams created',
                                           value: '$totalExamsCreated'),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                         width:
                                             8), // Spacing between statistic boxes
                                     Expanded(
@@ -270,10 +308,10 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                           label: "Total exams taken",
                                           value: '$totalExamsTaken'),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                         width:
                                             8), // Spacing between statistic boxes
-                                    Expanded(
+                                    const Expanded(
                                       child: StatisticBox(
                                           icon: Icons.assignment_turned_in,
                                           label: 'Average Exam Score',
@@ -281,15 +319,15 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                     ),
                                   ],
                                 ),
-                                SizedBox(height: 20),
+                                const SizedBox(height: 20),
                                 // Graph
                                 Container(
-                                  padding: EdgeInsets.all(16),
+                                  padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
-                                      color: Color(
+                                      color: const Color(
                                           0xFFD0D5DD), // Thin border color #d0d5dd
                                       width: 1, // Border width 1 pixel
                                     ),
@@ -300,27 +338,27 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                     children: [
                                       Row(
                                         children: [
-                                          Text(
+                                          const Text(
                                             'Exams report',
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold),
                                           ),
-                                          Spacer(),
+                                          const Spacer(),
                                           TextButton(
                                               onPressed: () {},
-                                              child: Text('View report')),
+                                              child: const Text('View report')),
                                         ],
                                       ),
-                                      SizedBox(height: 10),
+                                      const SizedBox(height: 10),
                                       Container(
                                         height: 200,
                                         color: Colors
                                             .grey[200], // Placeholder for graph
-                                        child: Center(
+                                        child: const Center(
                                             child: Text('Graph Placeholder')),
                                       ),
-                                      SizedBox(height: 10),
-                                      Row(
+                                      const SizedBox(height: 10),
+                                      const Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceAround,
                                         children: [
@@ -334,23 +372,23 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                     ],
                                   ),
                                 ),
-                                SizedBox(height: 20),
+                                const SizedBox(height: 20),
                               ],
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                               width:
                                   16), // Spacing between left and right content
                           Expanded(
                             flex:
                                 1, // Reduce space for right side to make it narrower
                             child: Container(
-                              padding: EdgeInsets.all(16),
+                              padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
-                                  color: Color(
+                                  color: const Color(
                                       0xFFD0D5DD), // Thin border color #d0d5dd
                                   width: 1, // Border width 1 pixel
                                 ),
@@ -358,15 +396,15 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Students took the exams',
+                                  const Text('Students took the exams',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
-                                  SizedBox(height: 10),
+                                  const SizedBox(height: 10),
                                   // Container with a fixed height
-                                  Container(
+                                  const SizedBox(
                                     height: 380, // Set a fixed height
                                     child: Padding(
-                                      padding: const EdgeInsets.only(
+                                      padding: EdgeInsets.only(
                                           left: 16.0), // Added left padding
                                       child: Column(
                                         children: [
@@ -383,12 +421,12 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       Padding(
-                                        padding: EdgeInsets.only(
+                                        padding: const EdgeInsets.only(
                                             right:
                                                 8.0), // Adjust the padding value as needed
                                         child: TextButton(
                                             onPressed: () {},
-                                            child: Text('Show more')),
+                                            child: const Text('Show more')),
                                       ),
                                     ],
                                   ),
@@ -400,86 +438,71 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                       ),
                       // Your Exams table
                       Container(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color:
-                                Color(0xFFD0D5DD), // Thin border color #d0d5dd
+                            color: const Color(
+                                0xFFD0D5DD), // Thin border color #d0d5dd
                             width: 1, // Border width 1 pixel
                           ),
-                          boxShadow: [], // Removed shadow
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Your Exams',
+                            const Text('Your Exams',
                                 style: TextStyle(fontWeight: FontWeight.bold)),
-                            SizedBox(height: 10),
-                            Row(
+                            const SizedBox(height: 10),
+                            const Row(
                               children: [
-                                Expanded(child: Text('Exam name')),
-                                Expanded(child: Text('Exam ID')),
-                                Expanded(child: Text('Course')),
-                                Expanded(child: Text('Date created')),
-                                Expanded(child: Text('Average score')),
+                                Expanded(
+                                    flex: 3,
+                                    child: Text(
+                                        'Exam name')), // Adjusted flex value
+                                Expanded(
+                                    flex: 3,
+                                    child:
+                                        Text('Exam ID')), // Adjusted flex value
+                                Expanded(
+                                    flex: 2,
+                                    child:
+                                        Text('Course')), // Adjusted flex value
+                                Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                        'Date created')), // Adjusted flex value
+                                Expanded(
+                                  flex: 2,
+                                  child: Center(
+                                    // Center the text within the Expanded widget
+                                    child: Text('Average score'),
+                                  ),
+                                ), // Adjusted flex value
+                                Expanded(
+                                  flex: 2,
+                                  child: Center(
+                                    // Center the text within the Expanded widget
+                                    child: Text('Grade Status'),
+                                  ),
+                                ), // Adjusted flex value
                                 SizedBox(
-                                    width: 24), // Space for edit/delete icons
+                                  width: 110,
+                                )
                               ],
                             ),
-                            Divider(),
-                            // Example row
-                            ExamRow(
-                              examName: 'Math 101',
-                              examId: '66277431',
-                              course: 'Mathematics',
-                              dateCreated: 'May 9, 2024',
-                              averageScore: '80%',
-                            ),
-                            ExamRow(
-                              examName: 'Physics 201',
-                              examId: '66277432',
-                              course: 'Physics',
-                              dateCreated: 'May 10, 2024',
-                              averageScore: '85%',
-                            ),
-                            ExamRow(
-                              examName: 'Chemistry 101',
-                              examId: '66277433',
-                              course: 'Chemistry',
-                              dateCreated: 'May 11, 2024',
-                              averageScore: '75%',
-                            ),
-                            ExamRow(
-                              examName: 'Biology 202',
-                              examId: '66277434',
-                              course: 'Biology',
-                              dateCreated: 'May 12, 2024',
-                              averageScore: '90%',
-                            ),
-                            ExamRow(
-                              examName: 'English Literature 101',
-                              examId: '66277435',
-                              course: 'English',
-                              dateCreated: 'May 13, 2024',
-                              averageScore: '82%',
-                            ),
-                            ExamRow(
-                              examName: 'World History 101',
-                              examId: '66277436',
-                              course: 'History',
-                              dateCreated: 'May 14, 2024',
-                              averageScore: '78%',
-                            ),
-                            ExamRow(
-                              examName: 'Computer Science 101',
-                              examId: '66277437',
-                              course: 'Computer Science',
-                              dateCreated: 'May 15, 2024',
-                              averageScore: '95%',
-                            ),
-                            // Add more rows as needed
+                            const Divider(),
+                            // Example rows
+                            ...exams.map((exam) => ExamRow(
+                                  examName: exam['examName'] ?? 'Placeholder',
+                                  examId: exam['id'] ?? 'Placeholder',
+                                  course: exam['course'] ?? 'Placeholder',
+                                  dateCreated:
+                                      exam['dateCreated'] ?? 'Placeholder',
+                                  averageScore:
+                                      exam['avgScore'] ?? 'Placeholder',
+                                  graded: exam['graded'] ?? false,
+                                )),
                           ],
                         ),
                       ),
@@ -499,8 +522,7 @@ class MenuButton extends StatefulWidget {
   final IconData icon;
   final String label;
 
-  const MenuButton({Key? key, required this.icon, required this.label})
-      : super(key: key);
+  const MenuButton({super.key, required this.icon, required this.label});
 
   @override
   _MenuButtonState createState() => _MenuButtonState();
@@ -511,22 +533,22 @@ class _MenuButtonState extends State<MenuButton> {
 
   @override
   Widget build(BuildContext context) {
-    final hoverColor =
+    const hoverColor =
         Color(0xFF7A56FF); // A bit lighter purple for hover state
-    final color = Color(0xFF6938EF); // Normal purple color
+    const color = Color(0xFF6938EF); // Normal purple color
 
     return MouseRegion(
       onEnter: (event) => setState(() => _isHovered = true),
       onExit: (event) => setState(() => _isHovered = false),
       child: Container(
         color: _isHovered ? hoverColor : color,
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
             vertical: 10, horizontal: 20), // Adjust padding for bigger spacing
         child: Row(
           children: [
             Icon(widget.icon, color: Colors.white),
-            SizedBox(width: 16), // Increased spacing
-            Text(widget.label, style: TextStyle(color: Colors.white)),
+            const SizedBox(width: 16), // Increased spacing
+            Text(widget.label, style: const TextStyle(color: Colors.white)),
           ],
         ),
       ),
@@ -540,20 +562,23 @@ class StatisticBox extends StatelessWidget {
   final String value;
 
   const StatisticBox(
-      {required this.icon, required this.label, required this.value});
+      {super.key,
+      required this.icon,
+      required this.label,
+      required this.value});
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
         height: 150, // Fixed height for better layout consistency
-        margin: EdgeInsets.symmetric(horizontal: 8.0),
-        padding: EdgeInsets.all(16.0),
+        margin: const EdgeInsets.symmetric(horizontal: 8.0),
+        padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: Color(0xFFD0D5DD), // Thin border color #d0d5dd
+            color: const Color(0xFFD0D5DD), // Thin border color #d0d5dd
             width: 1, // Border width 1 pixel
           ),
         ),
@@ -561,12 +586,12 @@ class StatisticBox extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(icon, color: Colors.grey, size: 40),
-            SizedBox(height: 10),
-            Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
             Text(
               value,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -578,7 +603,7 @@ class StatisticBox extends StatelessWidget {
 class StudentRow extends StatelessWidget {
   final String name;
 
-  const StudentRow({required this.name});
+  const StudentRow({super.key, required this.name});
 
   @override
   Widget build(BuildContext context) {
@@ -586,12 +611,12 @@ class StudentRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          CircleAvatar(
+          const CircleAvatar(
+            backgroundColor: Color(0xFF6938EF),
             child: Icon(Icons.person,
-                color: Colors.white), // Google icon or similar
-            backgroundColor: Color(0xFF6938EF), // Updated to preferred color
+                color: Colors.white), // Updated to preferred color
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Text(name),
         ],
       ),
@@ -605,13 +630,16 @@ class ExamRow extends StatefulWidget {
   final String course;
   final String dateCreated;
   final String averageScore;
+  final bool graded;
 
   const ExamRow({
+    super.key,
     required this.examName,
     required this.examId,
     required this.course,
     required this.dateCreated,
     required this.averageScore,
+    required this.graded,
   });
 
   @override
@@ -635,46 +663,77 @@ class _ExamRowState extends State<ExamRow> {
         padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: Row(
           children: [
-            Expanded(child: Text(widget.examName)),
-            Expanded(child: Text(widget.examId)),
-            Expanded(child: Text(widget.course)),
-            Expanded(child: Text(widget.dateCreated)),
             Expanded(
-              child: Row(
-                children: [
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      SizedBox(
-                        width: 40,
-                        height: 40,
-                        child: CircularProgressIndicator(
-                          value: score / 100,
-                          backgroundColor: Colors.grey.shade300,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Color(0xFF6938EF)),
-                          strokeWidth: 5,
-                        ),
+                flex: 3, child: Text(widget.examName)), // Adjusted flex value
+            Expanded(
+                flex: 3, child: Text(widget.examId)), // Adjusted flex value
+            Expanded(
+                flex: 2, child: Text(widget.course)), // Adjusted flex value
+            Expanded(
+                flex: 2,
+                child: Text(widget.dateCreated)), // Adjusted flex value
+            Expanded(
+              flex: 2, // Adjusted flex value
+              child: Center(
+                // Center the content within the Expanded widget
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: CircularProgressIndicator(
+                        value: score / 100,
+                        backgroundColor: Colors.grey.shade300,
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                            Color(0xFF6938EF)),
+                        strokeWidth: 5,
                       ),
-                      Text('$score%', style: TextStyle(fontSize: 10)),
-                    ],
+                    ),
+                    Text('$score%', style: const TextStyle(fontSize: 10)),
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 2, // Adjusted flex value
+              child: Center(
+                // Center the content within the Expanded widget
+                child: SizedBox(
+                  width: 100, // Set the width of the button
+                  child: TextButton(
+                    onPressed: () {},
+                    style: TextButton.styleFrom(
+                      backgroundColor:
+                          widget.graded ? Colors.grey : Colors.green,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4), // Adjust padding as needed
+                    ),
+                    child: Text(
+                      widget.graded ? 'Graded' : 'Grade',
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ),
-                  Spacer(),
-                  ButtonBar(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.edit, color: Colors.grey),
-                        onPressed: () {},
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {},
-                      ),
-                    ],
+                ),
+              ),
+            ),
+            // Assuming ButtonBar does not need flex as it contains fixed-size buttons
+            SizedBox(
+              width: 110,
+              child: ButtonBar(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.grey),
+                    onPressed: () {},
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () {},
                   ),
                 ],
               ),
-            ),
+            )
           ],
         ),
       ),
