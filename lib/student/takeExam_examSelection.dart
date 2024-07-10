@@ -33,31 +33,35 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
 
   Future<void> fetchUserAndExams(String email) async {
     print('Fetching exams for user: $email');
-    final userData = await _firebaseService.getUserData(email);
-    if (userData != null) {
-      final currentExams = List<String>.from(userData['currentExams'] ?? []);
-      print('Current exams: $currentExams');
+    try {
+      final userData = await _firebaseService.getUserData(email);
+      if (userData != null) {
+        final currentExams = List<String>.from(userData['currentExams'] ?? []);
+        print('Current exams: $currentExams');
 
-      for (String examId in currentExams) {
-        final examDoc = await FirebaseFirestore.instance
-            .collection('Exams')
-            .doc(examId)
-            .get();
+        for (String examId in currentExams) {
+          final examDoc = await FirebaseFirestore.instance
+              .collection('Exams')
+              .doc(examId)
+              .get();
 
-        if (examDoc.exists) {
-          print('Exam document exists for ID: $examId');
-          setState(() {
-            exams.add({
-              'id': examDoc.id,
-              ...examDoc.data()!,
+          if (examDoc.exists) {
+            print('Exam document exists for ID: $examId');
+            setState(() {
+              exams.add({
+                'id': examDoc.id,
+                ...examDoc.data()!,
+              });
             });
-          });
-        } else {
-          print('Exam document does not exist for ID: $examId');
+          } else {
+            print('Exam document does not exist for ID: $examId');
+          }
         }
+      } else {
+        print('No user data found.');
       }
-    } else {
-      print('No user data found.');
+    } catch (e) {
+      print('Error fetching user or exams: $e');
     }
   }
 

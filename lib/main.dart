@@ -8,7 +8,6 @@ import 'student/student_dashboard.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Firebase options for web
   const firebaseConfig = FirebaseOptions(
     apiKey: "AIzaSyBsFTP5FgFSDjvy59ckkjP796deHYpXLSA",
     authDomain: "examai-2024.firebaseapp.com",
