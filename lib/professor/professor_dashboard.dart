@@ -656,7 +656,7 @@ class _ExamRowState extends State<ExamRow> {
   bool _isHovered = false;
 
   Future<void> triggerGrading(String examId) async {
-    final url =
+    const url =
         'https://api.github.com/repos/miniquinox/ExamAi-Flutter/actions/workflows/grading.yml/dispatches';
 
     String part1 = 'ghp_EtvGjr';
@@ -667,7 +667,7 @@ class _ExamRowState extends State<ExamRow> {
     final response = await http.post(
       Uri.parse(url),
       headers: {
-        'Authorization': 'Bearer ' + concatenatedToken,
+        'Authorization': 'Bearer $concatenatedToken',
         'Accept': 'application/vnd.github.v3+json',
       },
       body: json.encode({
@@ -755,28 +755,28 @@ class _ExamRowState extends State<ExamRow> {
                                   return AlertDialog(
                                     title: Column(
                                       children: [
-                                        Text('Start Grading'),
-                                        SizedBox(height: 10),
+                                        const Text('Start Grading'),
+                                        const SizedBox(height: 10),
                                         Image.asset(
                                           'assets/images/aiGrade.png',
                                           height: 200.0, // Set the image height
                                         ),
                                       ],
                                     ),
-                                    content: Text(
+                                    content: const Text(
                                       'The AI will start grading after you click "Submit". \nEnsure all students have submitted their exams to avoid early feedback.',
                                       textAlign:
                                           TextAlign.center, // Center align
                                     ),
                                     actions: <Widget>[
                                       TextButton(
-                                        child: Text('Cancel'),
+                                        child: const Text('Cancel'),
                                         onPressed: () {
                                           Navigator.of(context).pop();
                                         },
                                       ),
                                       TextButton(
-                                        child: Text('Submit'),
+                                        child: const Text('Submit'),
                                         onPressed: () async {
                                           Navigator.of(context).pop();
                                           triggerGrading(widget.examId);

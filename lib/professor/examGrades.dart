@@ -11,39 +11,45 @@ class ExamDetailsScreen extends StatelessWidget {
 
   Future<List<Map<String, dynamic>>> fetchStudentDetails() async {
     List<Map<String, dynamic>> studentDetails = [];
-    final examSnapshot = await FirebaseFirestore.instance
-        .collection('Exams')
-        .doc(examId)
-        .collection('graded')
-        .get();
+    try {
+      final examSnapshot = await FirebaseFirestore.instance
+          .collection('Exams')
+          .doc(examId)
+          .collection('graded')
+          .get();
 
-    final questionsSnapshot =
-        await FirebaseFirestore.instance.collection('Exams').doc(examId).get();
+      final questionsSnapshot = await FirebaseFirestore.instance
+          .collection('Exams')
+          .doc(examId)
+          .get();
 
-    List<String> questionTitles = [];
-    if (questionsSnapshot.exists) {
-      final examData = questionsSnapshot.data();
-      final questions = examData?['questions'] ?? [];
-      for (var question in questions) {
-        questionTitles.add(question['question'] ?? 'Placeholder');
-      }
-    }
-
-    for (var doc in examSnapshot.docs) {
-      final data = doc.data();
-      final grades = data['grades'] ?? [];
-      Map<String, dynamic> studentDetail = {
-        'email': doc.id,
-        'finalGrade': data['final_grade']?.toString() ?? 'Placeholder',
-      };
-
-      for (var i = 0; i < questionTitles.length; i++) {
-        studentDetail['q${i + 1}'] = grades.length > i
-            ? grades[i]['total_score']?.toString() ?? 'Placeholder'
-            : 'Placeholder';
+      List<String> questionTitles = [];
+      if (questionsSnapshot.exists) {
+        final examData = questionsSnapshot.data();
+        final questions = examData?['questions'] ?? [];
+        for (var question in questions) {
+          questionTitles.add(question['question'] ?? 'Placeholder');
+        }
       }
 
-      studentDetails.add(studentDetail);
+      for (var doc in examSnapshot.docs) {
+        final data = doc.data();
+        final grades = data['grades'] ?? [];
+        Map<String, dynamic> studentDetail = {
+          'email': doc.id,
+          'finalGrade': data['final_grade']?.toString() ?? 'Placeholder',
+        };
+
+        for (var i = 0; i < questionTitles.length; i++) {
+          studentDetail['q${i + 1}'] = grades.length > i
+              ? grades[i]['total_score']?.toString() ?? 'Placeholder'
+              : 'Placeholder';
+        }
+
+        studentDetails.add(studentDetail);
+      }
+    } catch (e) {
+      // Handle error
     }
     return studentDetails;
   }
@@ -51,8 +57,10 @@ class ExamDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFCFCFD),
       appBar: AppBar(
         title: const Text('Your exams details'),
+        backgroundColor: const Color(0xFFFCFCFD),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: fetchStudentDetails(),
@@ -63,6 +71,31 @@ class ExamDetailsScreen extends StatelessWidget {
             return const Center(child: Text('Error loading exam details'));
           } else {
             final studentDetails = snapshot.data ?? [];
+            if (studentDetails.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisSize:
+                      MainAxisSize.min, // Align the children to the center
+                  children: <Widget>[
+                    Text(
+                      'No exam data yet',
+                      style: TextStyle(
+                        fontSize: 24, // Adjust the font size as needed
+                        fontWeight: FontWeight.bold, // Make the text bold
+                        color: Colors.grey, // Set the text color
+                      ),
+                    ),
+                    SizedBox(
+                        height:
+                            20), // Add some space between the text and the image
+                    Image.asset(
+                      'assets/images/noExams.png',
+                      height: 300,
+                    ),
+                  ],
+                ),
+              );
+            }
             final questionColumns = studentDetails.isNotEmpty
                 ? List.generate(
                     studentDetails[0].length - 2,
@@ -95,16 +128,22 @@ class ExamDetailsScreen extends StatelessWidget {
                             DataCell(Row(
                               children: [
                                 Expanded(
-                                  child: LinearProgressIndicator(
-                                    value:
-                                        (student['finalGrade'] != 'Placeholder'
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    child: SizedBox(
+                                      height: 10,
+                                      child: LinearProgressIndicator(
+                                        value: (student['finalGrade'] !=
+                                                    'Placeholder'
                                                 ? double.parse(
                                                         student['finalGrade']) /
                                                     100
                                                 : 0.0)
                                             .toDouble(),
-                                    backgroundColor: Colors.grey.shade300,
-                                    color: Colors.purple,
+                                        backgroundColor: Colors.grey.shade300,
+                                        color: Color(0xFF6539EF),
+                                      ),
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
