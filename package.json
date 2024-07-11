@@ -19,6 +19,7 @@
     "gh-pages": "^6.1.1"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.14.1",
     "array-union": "^1.0.2",
     "array-uniq": "^1.0.3",
     "async": "^3.2.5",

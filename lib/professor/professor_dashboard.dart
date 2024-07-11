@@ -471,7 +471,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                 Expanded(
                                     flex: 2,
                                     child: Text(
-                                        'Date created')), // Adjusted flex value
+                                        'Date last graded')), // Adjusted flex value
                                 Expanded(
                                   flex: 2,
                                   child: Center(
@@ -497,15 +497,16 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                   examName: exam['examName'] ?? 'Placeholder',
                                   examId: exam['id'] ?? 'Placeholder',
                                   course: exam['course'] ?? 'Placeholder',
-                                  dateCreated:
-                                      exam['dateCreated'] ?? 'Placeholder',
-                                  averageScore:
-                                      exam['avgScore'] ?? 'Placeholder',
+                                  dateLastGraded:
+                                      exam['dateLastGraded'] ?? 'No grades yet',
+                                  averageScore: exam['avgScore']?.toString() ??
+                                      'Placeholder',
                                   graded: exam['graded'] ?? false,
                                 )),
                           ],
                         ),
                       ),
+                      const SizedBox(height: 30),
                     ],
                   ),
                 ),
@@ -628,7 +629,7 @@ class ExamRow extends StatefulWidget {
   final String examName;
   final String examId;
   final String course;
-  final String dateCreated;
+  final String dateLastGraded;
   final String averageScore;
   final bool graded;
 
@@ -637,7 +638,7 @@ class ExamRow extends StatefulWidget {
     required this.examName,
     required this.examId,
     required this.course,
-    required this.dateCreated,
+    required this.dateLastGraded,
     required this.averageScore,
     required this.graded,
   });
@@ -671,7 +672,7 @@ class _ExamRowState extends State<ExamRow> {
                 flex: 2, child: Text(widget.course)), // Adjusted flex value
             Expanded(
                 flex: 2,
-                child: Text(widget.dateCreated)), // Adjusted flex value
+                child: Text(widget.dateLastGraded)), // Adjusted flex value
             Expanded(
               flex: 2, // Adjusted flex value
               child: Center(
