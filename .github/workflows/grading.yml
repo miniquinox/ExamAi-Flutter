@@ -26,7 +26,7 @@ jobs:
           pip install requests firebase-admin google-generativeai
 
       - name: Decode FIREBASE_ADMINSDK_JSON
-        run: echo "${{ secrets.FIREBASE_ADMINSDK_JSON }}" | base64 --decode > firebase-adminsdk.json
+        run: echo "${{ secrets.FIREBASE_ADMINSDK_JSON }}" | base64 -d > firebase-adminsdk.json
 
       - name: Set environment variables
         run: |
