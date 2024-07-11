@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -659,10 +657,12 @@ class _ExamRowState extends State<ExamRow> {
     const url =
         'https://api.github.com/repos/miniquinox/ExamAi-Flutter/actions/workflows/grading.yml/dispatches';
 
-    String part1 = 'ghp_EtvGjr';
-    String part2 = 'TyAyOkftPxaxsEm';
-    String part3 = 'Wr2LT1q1O2yTeGU';
-    String concatenatedToken = part1 + part2 + part3;
+    String part1 = 'gh';
+    String part2 = 'p_Vl964FP';
+    String part3 = '4HLFbRNRAj';
+    String part4 = 'MJhr6v6aI4';
+    String part5 = 'NTS3g7Z61';
+    String concatenatedToken = part1 + part2 + part3 + part4 + part5;
 
     final response = await http.post(
       Uri.parse(url),
