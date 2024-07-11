@@ -30,6 +30,7 @@ jobs:
           echo "EXAM_ID=${{ github.event.inputs.EXAM_ID }}" >> $GITHUB_ENV
           echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> $GITHUB_ENV
           echo "FIREBASE_ADMINSDK_JSON=${{ secrets.FIREBASE_ADMINSDK_JSON }}" >> $GITHUB_ENV
+          echo "EXAMAI_PAT=${{ secrets.EXAMAI_PAT }}" >> $GITHUB_ENV
 
       - name: Run grading script
         run: python lib/exam_grading.py
