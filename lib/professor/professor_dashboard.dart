@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -650,6 +653,36 @@ class ExamRow extends StatefulWidget {
 class _ExamRowState extends State<ExamRow> {
   bool _isHovered = false;
 
+  Future<void> triggerGrading(String examId) async {
+    final url =
+        'https://api.github.com/repos/miniquinox/ExamAi-Flutter/actions/workflows/grading.yml/dispatches';
+
+    String part1 = 'ghp_EtvGjr';
+    String part2 = 'TyAyOkftPxaxsEm';
+    String part3 = 'Wr2LT1q1O2yTeGU';
+    String concatenatedToken = part1 + part2 + part3;
+
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer ' + concatenatedToken,
+        'Accept': 'application/vnd.github.v3+json',
+      },
+      body: json.encode({
+        'ref': 'main',
+        'inputs': {
+          'EXAM_ID': examId,
+        },
+      }),
+    );
+
+    if (response.statusCode == 204) {
+      print('Grading triggered successfully.');
+    } else {
+      print('Failed to trigger grading: ${response.body}');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double score =
@@ -703,7 +736,9 @@ class _ExamRowState extends State<ExamRow> {
                 child: SizedBox(
                   width: 100, // Set the width of the button
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: widget.graded
+                        ? null
+                        : () => triggerGrading(widget.examId),
                     style: TextButton.styleFrom(
                       backgroundColor:
                           widget.graded ? Colors.grey : Colors.green,

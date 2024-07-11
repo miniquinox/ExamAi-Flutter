@@ -1,46 +1,44 @@
-import os
 import json
+import requests
 import firebase_admin
 from firebase_admin import credentials, firestore
 import google.generativeai as genai
+import os
 from datetime import datetime
 
 # Retrieve the API key and other sensitive information from environment variables
-gemini_api_key = os.environ.get('GEMINI_API_KEY')
-firebase_adminsdk_json = os.environ.get('FIREBASE_ADMINSDK_JSON')
+gemini_api_key = os.getenv('GEMINI_API_KEY')
+firebase_adminsdk_json_path = os.getenv('FIREBASE_ADMINSDK_JSON_PATH')
 
 # Ensure the environment variables are set
 if not gemini_api_key:
     raise ValueError("Environment variable GEMINI_API_KEY is not set")
-if not firebase_adminsdk_json:
-    raise ValueError("Environment variable FIREBASE_ADMINSDK_JSON is not set")
+if not firebase_adminsdk_json_path:
+    raise ValueError("Environment variable FIREBASE_ADMINSDK_JSON_PATH is not set")
 
 # Initialize Firebase
-cred = credentials.Certificate(json.loads(firebase_adminsdk_json))
+cred = credentials.Certificate(firebase_adminsdk_json_path)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
-# Configure Google Generative AI SDK
 genai.configure(api_key=gemini_api_key)
 
 # Create the model
 generation_config = {
-    "temperature": 1,
-    "top_p": 0.95,
-    "top_k": 64,
-    "max_output_tokens": 8192,
-    "response_mime_type": "text/plain",
+  "temperature": 1,
+  "top_p": 0.95,
+  "top_k": 64,
+  "max_output_tokens": 8192,
+  "response_mime_type": "text/plain",
 }
 
 model = genai.GenerativeModel(
-    model_name="gemini-1.5-pro",
-    generation_config=generation_config,
+  model_name="gemini-1.5-pro",
+  generation_config=generation_config,
 )
 
 def ask_gemini(question):
-    chat_session = model.start_chat(
-        history=[]
-    )
+    chat_session = model.start_chat(history=[])
     response = chat_session.send_message(question)
     return response.text
 
@@ -53,11 +51,13 @@ def load_firebase(collection, document_id=None):
     else:
         return [doc.to_dict() for doc in ref.get()]
 
-def format_date():
-    now = datetime.now()
-    return now.strftime("%B %dth at %I:%M%p").replace('AM', 'am').replace('PM', 'pm')
-
 def grade_exam(exam_id):
+    # Process each student's data
+    exam_results = {
+        "exam_id": exam_id,
+        "students": []
+    }
+
     # Load exam data
     exam_data = load_firebase("Exams", exam_id)
     if not exam_data:
@@ -66,15 +66,13 @@ def grade_exam(exam_id):
 
     students = exam_data.get("students", [])
     questions = exam_data.get("questions", [])
-    total_scores = []
-    
+
     for student_email in students:
-        student_email = student_email.strip()  # Remove any leading/trailing whitespace
         student_exam_data = load_firebase("Students", student_email)
         if not student_exam_data:
             print(f"No data found for student {student_email}")
             continue
-        
+
         completed_exam_data = student_exam_data.get("completedExams", {}).get(exam_id, {}).get("answers", {})
         if not completed_exam_data:
             print(f"No completed exam data found for student {student_email} and exam {exam_id}")
@@ -86,11 +84,12 @@ def grade_exam(exam_id):
             "final_grade": 0
         }
 
+        total_score = 0
         for question_data in questions:
             question_text = question_data.get("question")
             rubrics = question_data.get("rubrics")
             student_answer = completed_exam_data.get(question_text)
-            
+
             if not student_answer:
                 print(f"No answer found for question '{question_text}' from student {student_email}")
                 continue
@@ -123,29 +122,28 @@ def grade_exam(exam_id):
 
             result_dict["answer"] = student_answer  # Add the student's answer
             result_dict["question_id"] = question_text
+            total_score += result_dict["total_score"]
             student_result["grades"].append(result_dict)
-            student_result["final_grade"] += result_dict["total_score"]
-            print(f"Graded question '{question_text}' for student {student_email}")
 
-        total_scores.append(student_result["final_grade"])
-        
-        # Update the document in Firestore for the individual student
-        doc_ref = db.collection('Exams').document(exam_id).collection('graded').document(student_email)
-        doc_ref.set(student_result, merge=True)
+        student_result["final_grade"] = total_score
+        exam_results["students"].append(student_result)
 
-    # Calculate average score
-    if total_scores:
-        avg_score = sum(total_scores) / len(total_scores)
-    else:
-        avg_score = 0
+        # Save graded data to student's entry
+        student_ref = db.collection("Exams").document(exam_id).collection("graded").document(student_email)
+        student_ref.set(student_result, merge=True)
+        print(f"Graded data saved for student {student_email}")
 
-    # Update the main exam document with the average score, graded status, and date last graded
-    exam_doc_ref = db.collection('Exams').document(exam_id)
-    exam_doc_ref.update({
-        "avgScore": avg_score,
-        "graded": True,
-        "dateLastGraded": format_date()
-    })
+    # Calculate average score and update exam document
+    avg_score = sum(student["final_grade"] for student in exam_results["students"]) / len(exam_results["students"])
+    exam_data["avgScore"] = avg_score
+    exam_data["graded"] = True
+    exam_data["dateLastGraded"] = datetime.now().strftime('%B %dth at %I:%M%p')
+    exam_ref = db.collection("Exams").document(exam_id)
+    exam_ref.set(exam_data, merge=True)
+
+    # Output the final JSON
+    exam_results_json = json.dumps(exam_results, indent=4)
+    print(exam_results_json)
 
 exam_id = os.getenv('EXAM_ID')
 print(f"Grading exam {exam_id}")
