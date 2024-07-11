@@ -1,0 +1,34 @@
+name: Grade Exam
+
+on:
+  workflow_dispatch:
+    inputs:
+      EXAM_ID:
+        description: 'ID of the exam to grade'
+        required: true
+        default: 'default_exam_id'
+
+jobs:
+  grade_exam:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install requests firebase-admin google-generativeai
+
+    - name: Run grading script
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        FIREBASE_ADMINSDK_JSON: ${{ secrets.FIREBASE_ADMINSDK_JSON }}
+        EXAM_ID: ${{ github.event.inputs.EXAM_ID }}
+      run: |
+        python lib/exam_grading.py
