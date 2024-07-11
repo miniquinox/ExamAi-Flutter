@@ -1,9 +1,11 @@
 import 'package:examai_flutter/professor/createExam_examDetails.dart';
+import 'package:examai_flutter/professor/examGrades.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -464,13 +466,13 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                     child: Text(
                                         'Exam name')), // Adjusted flex value
                                 Expanded(
-                                    flex: 3,
-                                    child:
-                                        Text('Exam ID')), // Adjusted flex value
-                                Expanded(
                                     flex: 2,
                                     child:
                                         Text('Course')), // Adjusted flex value
+                                Expanded(
+                                    flex: 3,
+                                    child:
+                                        Text('Exam ID')), // Adjusted flex value
                                 Expanded(
                                     flex: 2,
                                     child: Text(
@@ -690,87 +692,133 @@ class _ExamRowState extends State<ExamRow> {
     return MouseRegion(
       onEnter: (event) => setState(() => _isHovered = true),
       onExit: (event) => setState(() => _isHovered = false),
-      child: Container(
-        color: _isHovered
-            ? Colors.grey[200]
-            : Colors.white, // Slight gray when hovered, white otherwise
-        padding: const EdgeInsets.symmetric(vertical: 4.0),
-        child: Row(
-          children: [
-            Expanded(
-                flex: 3, child: Text(widget.examName)), // Adjusted flex value
-            Expanded(
-                flex: 3, child: Text(widget.examId)), // Adjusted flex value
-            Expanded(
-                flex: 2, child: Text(widget.course)), // Adjusted flex value
-            Expanded(
-                flex: 2,
-                child: Text(widget.dateLastGraded)), // Adjusted flex value
-            Expanded(
-              flex: 2, // Adjusted flex value
-              child: Center(
-                // Center the content within the Expanded widget
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    SizedBox(
-                      width: 40,
-                      height: 40,
-                      child: CircularProgressIndicator(
-                        value: score / 100,
-                        backgroundColor: Colors.grey.shade300,
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                            Color(0xFF6938EF)),
-                        strokeWidth: 5,
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ExamDetailsScreen(examId: widget.examId),
+            ),
+          );
+        },
+        child: Container(
+          color: _isHovered
+              ? Colors.grey[200]
+              : Colors.white, // Slight gray when hovered, white otherwise
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          child: Row(
+            children: [
+              Expanded(
+                  flex: 3, child: Text(widget.examName)), // Adjusted flex value
+              Expanded(
+                  flex: 2, child: Text(widget.course)), // Adjusted flex value
+              Expanded(
+                  flex: 3, child: Text(widget.examId)), // Adjusted flex value
+              Expanded(
+                  flex: 2,
+                  child: Text(widget.dateLastGraded)), // Adjusted flex value
+              Expanded(
+                flex: 2, // Adjusted flex value
+                child: Center(
+                  // Center the content within the Expanded widget
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        width: 40,
+                        height: 40,
+                        child: CircularProgressIndicator(
+                          value: score / 100,
+                          backgroundColor: Colors.grey.shade300,
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              Color(0xFF6938EF)),
+                          strokeWidth: 5,
+                        ),
+                      ),
+                      Text('$score%', style: const TextStyle(fontSize: 10)),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 2, // Adjusted flex value
+                child: Center(
+                  // Center the content within the Expanded widget
+                  child: SizedBox(
+                    width: 100, // Set the width of the button
+                    child: TextButton(
+                      onPressed: widget.graded
+                          ? null
+                          : () => showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Column(
+                                      children: [
+                                        Text('Start Grading'),
+                                        SizedBox(height: 10),
+                                        Image.asset(
+                                          'assets/images/aiGrade.png',
+                                          height: 200.0, // Set the image height
+                                        ),
+                                      ],
+                                    ),
+                                    content: Text(
+                                      'The AI will start grading after you click "Submit". \nEnsure all students have submitted their exams to avoid early feedback.',
+                                      textAlign:
+                                          TextAlign.center, // Center align
+                                    ),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        child: Text('Cancel'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                      TextButton(
+                                        child: Text('Submit'),
+                                        onPressed: () async {
+                                          Navigator.of(context).pop();
+                                          triggerGrading(widget.examId);
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                      style: TextButton.styleFrom(
+                        backgroundColor:
+                            widget.graded ? Colors.grey : Colors.green,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4), // Adjust padding as needed
+                      ),
+                      child: Text(
+                        widget.graded ? 'Graded' : 'Grade',
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
-                    Text('$score%', style: const TextStyle(fontSize: 10)),
+                  ),
+                ),
+              ),
+              // Assuming ButtonBar does not need flex as it contains fixed-size buttons
+              SizedBox(
+                width: 110,
+                child: ButtonBar(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.grey),
+                      onPressed: () {},
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {},
+                    ),
                   ],
                 ),
-              ),
-            ),
-            Expanded(
-              flex: 2, // Adjusted flex value
-              child: Center(
-                // Center the content within the Expanded widget
-                child: SizedBox(
-                  width: 100, // Set the width of the button
-                  child: TextButton(
-                    onPressed: widget.graded
-                        ? null
-                        : () => triggerGrading(widget.examId),
-                    style: TextButton.styleFrom(
-                      backgroundColor:
-                          widget.graded ? Colors.grey : Colors.green,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4), // Adjust padding as needed
-                    ),
-                    child: Text(
-                      widget.graded ? 'Graded' : 'Grade',
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            // Assuming ButtonBar does not need flex as it contains fixed-size buttons
-            SizedBox(
-              width: 110,
-              child: ButtonBar(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.grey),
-                    onPressed: () {},
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );

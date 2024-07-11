@@ -3,7 +3,6 @@ import 'package:examai_flutter/professor/professor_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'dart:math';
 
 class CreateExamReview extends StatelessWidget {
   final String examName;
@@ -14,6 +13,7 @@ class CreateExamReview extends StatelessWidget {
   final List<Map<String, dynamic>> questions;
 
   const CreateExamReview({
+    super.key,
     required this.examName,
     required this.course,
     required this.date,
@@ -25,40 +25,40 @@ class CreateExamReview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFCFCFD),
+      backgroundColor: const Color(0xFFFCFCFD),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         title: Row(
           children: [
-            Icon(Icons.home, color: Colors.black),
-            SizedBox(width: 4),
-            Text(
+            const Icon(Icons.home, color: Colors.black),
+            const SizedBox(width: 4),
+            const Text(
               'Home',
               style: TextStyle(
                   color: Colors.black,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
-            SizedBox(width: 4),
-            Icon(Icons.chevron_right, color: Colors.black),
-            SizedBox(width: 4),
-            Icon(Icons.assignment, color: Color(0xFF6938EF)),
-            SizedBox(width: 4),
-            Text(
+            const SizedBox(width: 4),
+            const Icon(Icons.chevron_right, color: Colors.black),
+            const SizedBox(width: 4),
+            const Icon(Icons.assignment, color: Color(0xFF6938EF)),
+            const SizedBox(width: 4),
+            const Text(
               'Create new exam',
               style: TextStyle(
                   color: Color(0xFF6938EF),
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
-            Spacer(),
+            const Spacer(),
             CircleAvatar(
               backgroundImage: NetworkImage(
                   FirebaseAuth.instance.currentUser?.photoURL ?? ''),
               backgroundColor: Colors.transparent,
               child: FirebaseAuth.instance.currentUser?.photoURL == null
-                  ? Icon(Icons.person, color: Colors.white)
+                  ? const Icon(Icons.person, color: Colors.white)
                   : null,
             ),
           ],
@@ -88,9 +88,9 @@ class CreateExamReview extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Steps',
+          const Text('Steps',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildStepper(),
         ],
       ),
@@ -138,7 +138,7 @@ class CreateExamReview extends StatelessWidget {
               CircleAvatar(
                 radius: 12,
                 backgroundColor: isActive
-                    ? Color(0xFF6938EF)
+                    ? const Color(0xFF6938EF)
                     : isCompleted
                         ? Colors.green
                         : Colors.grey,
@@ -157,7 +157,7 @@ class CreateExamReview extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -166,14 +166,14 @@ class CreateExamReview extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: isActive ? Color(0xFF6938EF) : Colors.black,
+                  color: isActive ? const Color(0xFF6938EF) : Colors.black,
                 ),
               ),
               Text(
                 subtitle,
                 style: TextStyle(
                   fontSize: 14,
-                  color: isActive ? Color(0xFF6938EF) : Colors.grey,
+                  color: isActive ? const Color(0xFF6938EF) : Colors.grey,
                 ),
               ),
             ],
@@ -208,23 +208,23 @@ class CreateExamReview extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  Text('Review',
+                  const Text('Review',
                       style: TextStyle(
                           fontSize: 24.0, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Expanded(
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
                           _buildExamDetails(),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           _buildAddQuestions(),
                         ],
                       ),
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(top: 16),
+                    padding: const EdgeInsets.only(top: 16),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -234,14 +234,14 @@ class CreateExamReview extends StatelessWidget {
                           },
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.black,
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 24, vertical: 12),
                             backgroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8.0),
                             ),
                           ),
-                          child: Text('Back'),
+                          child: const Text('Back'),
                         ),
                         ElevatedButton(
                           onPressed: () {
@@ -249,14 +249,14 @@ class CreateExamReview extends StatelessWidget {
                           },
                           style: ElevatedButton.styleFrom(
                             foregroundColor: Colors.white,
-                            backgroundColor: Color(0xFF6938EF),
-                            padding: EdgeInsets.symmetric(
+                            backgroundColor: const Color(0xFF6938EF),
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 24, vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8.0),
                             ),
                           ),
-                          child: Text('Publish'),
+                          child: const Text('Publish'),
                         ),
                       ],
                     ),
@@ -276,8 +276,8 @@ class CreateExamReview extends StatelessWidget {
       builder: (BuildContext dialogContext) {
         return AlertDialog(
           backgroundColor: Colors.white, // Set background color to white
-          title: Text('Publish Exam?'),
-          content: Text(
+          title: const Text('Publish Exam?'),
+          content: const Text(
               'Please, confirm publishing. Students will be able to take and can participate in this exam.'),
           actions: [
             // Removed the "Don't show again" Checkbox and Text
@@ -292,15 +292,15 @@ class CreateExamReview extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.black,
                     backgroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(
+                    padding: const EdgeInsets.symmetric(
                         horizontal: 16), // Reduced horizontal padding
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
-                SizedBox(width: 16), // Increased space
+                const SizedBox(width: 16), // Increased space
                 ElevatedButton(
                   onPressed: () async {
                     Navigator.of(dialogContext).pop();
@@ -309,19 +309,19 @@ class CreateExamReview extends StatelessWidget {
                       barrierDismissible: false,
                       builder: (BuildContext loadingContext) {
                         _publishExam(context, loadingContext);
-                        return Center(child: CircularProgressIndicator());
+                        return const Center(child: CircularProgressIndicator());
                       },
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF6938EF),
-                    padding: EdgeInsets.symmetric(
+                    backgroundColor: const Color(0xFF6938EF),
+                    padding: const EdgeInsets.symmetric(
                         horizontal: 16), // Reduced horizontal padding
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: Text('Confirm Publish',
+                  child: const Text('Confirm Publish',
                       style: TextStyle(color: Colors.white)),
                 ),
               ],
@@ -346,13 +346,11 @@ class CreateExamReview extends StatelessWidget {
 
       DocumentReference examRef =
           await FirebaseFirestore.instance.collection('Exams').add(examData);
-      print('Exam added with ID: ${examRef.id}');
 
       String? professorEmail = FirebaseAuth.instance.currentUser?.email;
       if (professorEmail == null) {
         throw Exception("Professor email is null");
       }
-      print('Professor email: $professorEmail');
 
       DocumentReference professorRef = FirebaseFirestore.instance
           .collection('Professors')
@@ -400,20 +398,17 @@ class CreateExamReview extends StatelessWidget {
         Navigator.of(loadingContext).pop(); // Close the loading dialog
         _showSuccessDialog(parentContext);
       });
-    } catch (e, stackTrace) {
-      print('Error publishing exam: $e');
-      print('Stack Trace: $stackTrace');
-
+    } catch (e) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(loadingContext).pop(); // Close the loading dialog
         showDialog(
           context: parentContext,
           builder: (context) => AlertDialog(
-            title: Text('Error'),
-            content: Text('Failed to publish exam. Please try again.'),
+            title: const Text('Error'),
+            content: const Text('Failed to publish exam. Please try again.'),
             actions: <Widget>[
               TextButton(
-                child: Text('OK'),
+                child: const Text('OK'),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ],
@@ -429,7 +424,7 @@ class CreateExamReview extends StatelessWidget {
       builder: (BuildContext dialogContext) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          contentPadding: EdgeInsets.all(40), // Added padding
+          contentPadding: const EdgeInsets.all(40), // Added padding
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -439,21 +434,21 @@ class CreateExamReview extends StatelessWidget {
                 color: Colors.green,
                 size: 50,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Center(
                 child: Text.rich(
                   TextSpan(
                     children: [
-                      TextSpan(
+                      const TextSpan(
                         text: 'Exam ',
                         style: TextStyle(fontSize: 18),
                       ),
                       TextSpan(
                         text: '"$examName"',
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                      TextSpan(
+                      const TextSpan(
                         text: '\nSuccessfully created!',
                         style: TextStyle(
                           fontSize: 18,
@@ -471,18 +466,18 @@ class CreateExamReview extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(dialogContext).popUntil((route) => route.isFirst);
-                Navigator.of(dialogContext).pushReplacement(
-                    MaterialPageRoute(builder: (context) => ProfessorScreen()));
+                Navigator.of(dialogContext).pushReplacement(MaterialPageRoute(
+                    builder: (context) => const ProfessorScreen()));
               },
-              child: Text('Back to home'),
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,
-                backgroundColor: Color(0xFF6938EF),
+                backgroundColor: const Color(0xFF6938EF),
                 shape: RoundedRectangleBorder(
                   borderRadius:
                       BorderRadius.circular(8), // Set corner radius to 9
                 ),
               ),
+              child: const Text('Back to home'),
             ),
           ],
         );
@@ -492,15 +487,15 @@ class CreateExamReview extends StatelessWidget {
 
   Widget _buildExamDetails() {
     return ExpansionTile(
-      title: Text('Exam Details',
+      title: const Text('Exam Details',
           style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
       children: [
         ListTile(
-          title: Text('Exam name'),
+          title: const Text('Exam name'),
           subtitle: TextField(
             controller: TextEditingController(text: examName),
             decoration: InputDecoration(
-              fillColor: Color(0xfff2f4f7),
+              fillColor: const Color(0xfff2f4f7),
               filled: true,
               border: OutlineInputBorder(
                 borderSide: BorderSide.none,
@@ -511,11 +506,11 @@ class CreateExamReview extends StatelessWidget {
           ),
         ),
         ListTile(
-          title: Text('Course'),
+          title: const Text('Course'),
           subtitle: TextField(
             controller: TextEditingController(text: course),
             decoration: InputDecoration(
-              fillColor: Color(0xfff2f4f7),
+              fillColor: const Color(0xfff2f4f7),
               filled: true,
               border: OutlineInputBorder(
                 borderSide: BorderSide.none,
@@ -526,11 +521,11 @@ class CreateExamReview extends StatelessWidget {
           ),
         ),
         ListTile(
-          title: Text('Date & time'),
+          title: const Text('Date & time'),
           subtitle: TextField(
             controller: TextEditingController(text: '$date at $time'),
             decoration: InputDecoration(
-              fillColor: Color(0xfff2f4f7),
+              fillColor: const Color(0xfff2f4f7),
               filled: true,
               border: OutlineInputBorder(
                 borderSide: BorderSide.none,
@@ -541,11 +536,11 @@ class CreateExamReview extends StatelessWidget {
           ),
         ),
         ListTile(
-          title: Text('Students'),
+          title: const Text('Students'),
           subtitle: Container(
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Color(0xfff2f4f7),
+              color: const Color(0xfff2f4f7),
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: Wrap(
@@ -560,14 +555,14 @@ class CreateExamReview extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
       ],
     );
   }
 
   Widget _buildAddQuestions() {
     return ExpansionTile(
-      title: Text(
+      title: const Text(
         'Add Questions',
         style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
       ),
@@ -577,9 +572,9 @@ class CreateExamReview extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: Color(0xfffcfcfd),
+              color: const Color(0xfffcfcfd),
               borderRadius: BorderRadius.circular(8.0),
-              border: Border.all(color: Color(0xffcbcfd7)),
+              border: Border.all(color: const Color(0xffcbcfd7)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -589,25 +584,25 @@ class CreateExamReview extends StatelessWidget {
                   children: [
                     Text(
                       'Question ${questions.indexOf(question) + 1}',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
                       '${question['weight']} pts',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
-                    color: Color(0xfff1f1f5),
+                    color: const Color(0xfff1f1f5),
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                   child: Text(
                     question['question'],
-                    style: TextStyle(fontSize: 16.0),
+                    style: const TextStyle(fontSize: 16.0),
                   ),
                 ),
                 ...question['rubrics'].map<Widget>((rubric) {
@@ -617,7 +612,7 @@ class CreateExamReview extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
-                        color: Color(0xfff1f1f5),
+                        color: const Color(0xfff1f1f5),
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                       child: Row(
@@ -625,11 +620,11 @@ class CreateExamReview extends StatelessWidget {
                         children: [
                           Text(
                             rubric['rubric'],
-                            style: TextStyle(fontSize: 16.0),
+                            style: const TextStyle(fontSize: 16.0),
                           ),
                           Text(
                             '${rubric['weight']} pts',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -645,7 +640,7 @@ class CreateExamReview extends StatelessWidget {
   }
 }
 
-void main() => runApp(MaterialApp(
+void main() => runApp(const MaterialApp(
       home: CreateExamReview(
         examName: 'Mathematics 101',
         course: 'Math',

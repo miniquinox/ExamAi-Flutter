@@ -1,0 +1,282 @@
+[
+    {
+        "examName": "First Exam",
+        "date": "2024-07-31",
+        "students": [
+            "quinocarreteromartinez@gmail.com",
+            " anaica@gmail.com",
+            " irem@gmail.com",
+            " anthony@gmail.com",
+            " mamasita@gmail.com",
+            " sam@gmail.com",
+            " nobody@gmail.com",
+            " samantha@gmail.com",
+            " eric@gmail.com"
+        ],
+        "time": "9:26 AM",
+        "course": "Greek Mythology",
+        "questions": [
+            {
+                "rubrics": [
+                    {
+                        "rubric": "iyuiyu",
+                        "weight": 10
+                    }
+                ],
+                "question": "iuyui",
+                "weight": 20
+            }
+        ]
+    },
+    {
+        "examName": "MidTerm",
+        "date": "2024-07-08",
+        "students": [
+            "quino@gmail.com",
+            " irem@gmail.com",
+            " anaica@gmail.com"
+        ],
+        "time": "5:36 PM",
+        "course": "Spanish",
+        "questions": [
+            {
+                "rubrics": [
+                    {
+                        "rubric": "sdfsdf",
+                        "weight": 10
+                    },
+                    {
+                        "rubric": "fsdsd",
+                        "weight": 10
+                    }
+                ],
+                "question": "fsdfsd",
+                "weight": 20
+            },
+            {
+                "rubrics": [],
+                "question": "sdffdsfds",
+                "weight": 20
+            }
+        ]
+    },
+    {
+        "examName": "QUino Examination",
+        "date": "2024-07-08",
+        "students": [
+            "quino@gmail.com",
+            " perlita@gmail.com",
+            " mamasita@gmail.com",
+            " anaica@gmail.com",
+            " samuel@gmail.com",
+            " irem@gmail.com",
+            " mehrotra@gmail.com"
+        ],
+        "time": "6:31 PM",
+        "course": "dasd",
+        "questions": [
+            {
+                "rubrics": [
+                    {
+                        "rubric": "fdsfsd",
+                        "weight": 10
+                    }
+                ],
+                "question": "fdssd",
+                "weight": 20
+            }
+        ]
+    },
+    {
+        "examName": "Math101",
+        "date": "2024-07-18",
+        "students": [
+            "quinocarreteromartinez@gmail.com",
+            " miniquinox@gmail.com",
+            " kkayaiirem@gmail.com",
+            " jcmar@ucdavis.edu"
+        ],
+        "time": "3:15 PM",
+        "course": "Very Simple Exam",
+        "questions": [
+            {
+                "rubrics": [
+                    {
+                        "rubric": "Correctly isolates x in the equation",
+                        "weight": 15
+                    },
+                    {
+                        "rubric": "Correctly solves for x",
+                        "weight": 15
+                    }
+                ],
+                "question": "Solve for x: 2x + 3 = 11",
+                "weight": 30
+            },
+            {
+                "rubrics": [
+                    {
+                        "rubric": "Correctly distributes terms",
+                        "weight": 15
+                    },
+                    {
+                        "rubric": "Combines like terms accurately",
+                        "weight": 15
+                    }
+                ],
+                "question": "Simplify: 3(4x - 5) + 2(x + 6)",
+                "weight": 30
+            },
+            {
+                "rubrics": [
+                    {
+                        "rubric": "Identifies correct factors",
+                        "weight": 20
+                    },
+                    {
+                        "rubric": "Writes the expression in factored form correctly",
+                        "weight": 20
+                    }
+                ],
+                "question": "Factor the quadratic expression: x^2 - 5x + 6",
+                "weight": 40
+            }
+        ]
+    },
+    {
+        "examName": "Final Exam",
+        "date": "2024-07-09",
+        "students": [
+            "quinocarreteromartinez@gmail.com",
+            " kkayaiirem@gmail.com"
+        ],
+        "time": "12:58 PM",
+        "course": "ECE451",
+        "questions": [
+            {
+                "rubrics": [
+                    {
+                        "rubric": "Correct choice, C) Dijkstra's Algorithm",
+                        "weight": 10
+                    }
+                ],
+                "question": "Which of the following algorithms is used for finding the shortest path in a graph?\n\nA) Depth-First Search (DFS)\n\nB) Breadth-First Search (BFS)\n\nC) Dijkstra's Algorithm\n\nD) Kruskal's Algorithm",
+                "weight": 10
+            },
+            {
+                "rubrics": [
+                    {
+                        "rubric": "Definition of static typing",
+                        "weight": 5
+                    },
+                    {
+                        "rubric": "Definition of dynamic typing",
+                        "weight": 5
+                    },
+                    {
+                        "rubric": "Examples",
+                        "weight": 5
+                    },
+                    {
+                        "rubric": "Comparison and key differences",
+                        "weight": 5
+                    }
+                ],
+                "question": "Explain the difference between static and dynamic typing in programming languages. Provide examples of each.",
+                "weight": 20
+            },
+            {
+                "rubrics": [
+                    {
+                        "rubric": "Function definition and syntax",
+                        "weight": 5
+                    },
+                    {
+                        "rubric": "Correct logic for checking duplicates",
+                        "weight": 10
+                    },
+                    {
+                        "rubric": "Efficient and optimized code",
+                        "weight": 5
+                    },
+                    {
+                        "rubric": "Proper use of conditionals and loops",
+                        "weight": 5
+                    },
+                    {
+                        "rubric": "Explanation of the code",
+                        "weight": 5
+                    }
+                ],
+                "question": "Write a function in Python to check if a given list of numbers contains any duplicates.",
+                "weight": 30
+            },
+            {
+                "rubrics": [
+                    {
+                        "rubric": "Introduction to cloud computing",
+                        "weight": 5
+                    },
+                    {
+                        "rubric": "Advantages of cloud computing with examples",
+                        "weight": 7
+                    },
+                    {
+                        "rubric": "Disadvantages of cloud computing with examples",
+                        "weight": 7
+                    },
+                    {
+                        "rubric": "Conclusion summarizing the discussion",
+                        "weight": 1
+                    }
+                ],
+                "question": "Discuss the advantages and disadvantages of cloud computing. Provide examples to support your arguments.",
+                "weight": 20
+            },
+            {
+                "rubrics": [
+                    {
+                        "rubric": "High-level description of the algorithm",
+                        "weight": 3
+                    },
+                    {
+                        "rubric": "Step-by-step explanation",
+                        "weight": 4
+                    },
+                    {
+                        "rubric": "Mention of time and space complexity",
+                        "weight": 3
+                    }
+                ],
+                "question": "Describe an efficient algorithm to reverse a linked list. Provide a high-level description and the main steps involved.",
+                "weight": 10
+            }
+        ]
+    },
+    {
+        "examName": "Quiz1",
+        "date": "2024-07-15",
+        "students": [
+            "quinocarreteromartinez@gmail.com",
+            " anaica@gmail.com",
+            " irem@gmail.com",
+            " anthony@gmail.com",
+            " mamasita@gmail.com",
+            " eric@gmail.com"
+        ],
+        "time": "12:27 PM",
+        "course": "Math101",
+        "questions": [
+            {
+                "rubrics": [
+                    {
+                        "rubric": "fdsfd",
+                        "weight": 10
+                    }
+                ],
+                "question": "dfsdf",
+                "weight": 20
+            }
+        ]
+    }
+]

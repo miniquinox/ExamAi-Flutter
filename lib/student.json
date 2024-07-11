@@ -1,0 +1,118 @@
+[
+    {
+        "currentExams": [
+            "Kr38UGBwu1NoNTFKXAOJ",
+            "THJB6A2lel36M4ENC2K3",
+            "FR3OSvsohYns0tchMs3P",
+            "v3wBCdM56xVOrvczPVKf"
+        ]
+    },
+    {
+        "currentExams": [
+            "FR3OSvsohYns0tchMs3P",
+            "v3wBCdM56xVOrvczPVKf"
+        ]
+    },
+    {
+        "currentExams": [
+            "FR3OSvsohYns0tchMs3P",
+            "v3wBCdM56xVOrvczPVKf"
+        ]
+    },
+    {
+        "currentExams": [
+            "Kr38UGBwu1NoNTFKXAOJ",
+            "THJB6A2lel36M4ENC2K3",
+            "FR3OSvsohYns0tchMs3P",
+            "v3wBCdM56xVOrvczPVKf"
+        ]
+    },
+    {
+        "currentExams": [
+            "XN43FzWQllQT4sqMzthh"
+        ]
+    },
+    {
+        "currentExams": [
+            "YjDZEMu8dV0wTO2lN0Ss",
+            "XN43FzWQllQT4sqMzthh"
+        ]
+    },
+    {
+        "currentExams": [
+            "THJB6A2lel36M4ENC2K3",
+            "FR3OSvsohYns0tchMs3P",
+            "v3wBCdM56xVOrvczPVKf"
+        ]
+    },
+    {
+        "currentExams": [
+            "THJB6A2lel36M4ENC2K3"
+        ]
+    },
+    {
+        "currentExams": [
+            "XN43FzWQllQT4sqMzthh"
+        ]
+    },
+    {
+        "currentExams": [
+            "FR3OSvsohYns0tchMs3P"
+        ]
+    },
+    {
+        "currentExams": [
+            "THJB6A2lel36M4ENC2K3"
+        ]
+    },
+    {
+        "currentExams": [
+            "FR3OSvsohYns0tchMs3P"
+        ]
+    },
+    {
+        "currentExams": [
+            "FR3OSvsohYns0tchMs3P"
+        ]
+    },
+    {
+        "currentExams": [
+            "THJB6A2lel36M4ENC2K3"
+        ]
+    },
+    {
+        "currentExams": [
+            "Kr38UGBwu1NoNTFKXAOJ",
+            "THJB6A2lel36M4ENC2K3"
+        ]
+    },
+    {
+        "completedExams": {
+            "XN43FzWQllQT4sqMzthh": {
+                "examName": "Math101",
+                "answers": {
+                    "Simplify: 3(4x - 5) + 2(x + 6)": "12x - 15 + 2x + 6",
+                    "Factor the quadratic expression: x^2 - 5x + 6": "(x - 1)(x - 6)",
+                    "Solve for x: 2x + 3 = 11": "x = 4"
+                },
+                "course": "Very Simple Exam"
+            },
+            "YjDZEMu8dV0wTO2lN0Ss": {
+                "examName": "Final Exam",
+                "answers": {
+                    "Discuss the advantages and disadvantages of cloud computing. Provide examples to support your arguments.": "Right here",
+                    "Explain the difference between static and dynamic typing in programming languages. Provide examples of each.": "Of answers",
+                    "Which of the following algorithms is used for finding the shortest path in a graph?\n\nA) Depth-First Search (DFS)\n\nB) Breadth-First Search (BFS)\n\nC) Dijkstra's Algorithm\n\nD) Kruskal's Algorithm": "i got a long list",
+                    "Write a function in Python to check if a given list of numbers contains any duplicates.": "That i need to show"
+                },
+                "course": "ECE451"
+            }
+        },
+        "currentExams": [
+            "YjDZEMu8dV0wTO2lN0Ss",
+            "FR3OSvsohYns0tchMs3P",
+            "v3wBCdM56xVOrvczPVKf",
+            "XN43FzWQllQT4sqMzthh"
+        ]
+    }
+]
