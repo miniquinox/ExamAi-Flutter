@@ -25,12 +25,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests firebase-admin google-generativeai
 
-      - name: Export environment variables
+      - name: Decode FIREBASE_ADMINSDK_JSON
+        run: |
+          echo "${{ secrets.FIREBASE_ADMINSDK_JSON }}" | base64 --decode > firebase-adminsdk.json
+
+      - name: Set environment variables
         run: |
           echo "EXAM_ID=${{ github.event.inputs.EXAM_ID }}" >> $GITHUB_ENV
           echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> $GITHUB_ENV
-          echo "FIREBASE_ADMINSDK_JSON=${{ secrets.FIREBASE_ADMINSDK_JSON }}" >> $GITHUB_ENV
-          echo "EXAMAI_PAT=${{ secrets.EXAMAI_PAT }}" >> $GITHUB_ENV
+          echo "FIREBASE_ADMINSDK_JSON_PATH=firebase-adminsdk.json" >> $GITHUB_ENV
 
       - name: Run grading script
         run: python lib/exam_grading.py
