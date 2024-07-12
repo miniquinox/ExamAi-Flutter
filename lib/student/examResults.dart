@@ -75,56 +75,6 @@ class ExamResultsScreen extends StatelessWidget {
 
             final List<Map<String, dynamic>> grades = gradesSnapshot.data!;
 
-            // Debug print for grades
-            print("Grades and student emails:");
-            grades.forEach((student) {
-              print("${student['email']}: ${student['grade']}");
-            });
-
-            // Debug print for grade distribution
-            Map<String, int> gradeDistribution = {
-              '0-10%': 0,
-              '10-20%': 0,
-              '20-30%': 0,
-              '30-40%': 0,
-              '40-50%': 0,
-              '50-60%': 0,
-              '60-70%': 0,
-              '70-80%': 0,
-              '80-90%': 0,
-              '90-100%': 0,
-            };
-
-            for (var student in grades) {
-              double grade = student['grade'];
-              if (grade < 10)
-                gradeDistribution['0-10%'] = gradeDistribution['0-10%']! + 1;
-              else if (grade < 20)
-                gradeDistribution['10-20%'] = gradeDistribution['10-20%']! + 1;
-              else if (grade < 30)
-                gradeDistribution['20-30%'] = gradeDistribution['20-30%']! + 1;
-              else if (grade < 40)
-                gradeDistribution['30-40%'] = gradeDistribution['30-40%']! + 1;
-              else if (grade < 50)
-                gradeDistribution['40-50%'] = gradeDistribution['40-50%']! + 1;
-              else if (grade < 60)
-                gradeDistribution['50-60%'] = gradeDistribution['50-60%']! + 1;
-              else if (grade < 70)
-                gradeDistribution['60-70%'] = gradeDistribution['60-70%']! + 1;
-              else if (grade < 80)
-                gradeDistribution['70-80%'] = gradeDistribution['70-80%']! + 1;
-              else if (grade < 90)
-                gradeDistribution['80-90%'] = gradeDistribution['80-90%']! + 1;
-              else
-                gradeDistribution['90-100%'] =
-                    gradeDistribution['90-100%']! + 1;
-            }
-
-            print("Grade distribution:");
-            gradeDistribution.forEach((range, count) {
-              print("$range: $count");
-            });
-
             return Scaffold(
               appBar: AppBar(
                 backgroundColor: Colors.white,
@@ -537,7 +487,6 @@ class ExamResultsScreen extends StatelessWidget {
                   getTitlesWidget: (double value, TitleMeta meta) {
                     const style = TextStyle(
                       color: Colors.black,
-                      fontWeight: FontWeight.bold,
                       fontSize: 12, // Adjusted font size
                     );
                     List<String> titles = gradeDistribution.keys.toList();
