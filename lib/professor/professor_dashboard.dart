@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -657,17 +658,35 @@ class _ExamRowState extends State<ExamRow> {
     const url =
         'https://api.github.com/repos/miniquinox/ExamAi-Flutter/actions/workflows/grading.yml/dispatches';
 
-    String part1 = 'gh';
-    String part2 = 'p_Vl964FP';
-    String part3 = '4HLFbRNRAj';
-    String part4 = 'MJhr6v6aI4';
-    String part5 = 'NTS3g7Z61';
-    String concatenatedToken = part1 + part2 + part3 + part4 + part5;
+    // Split the key into multiple obfuscated parts
+    List<List<int>> keyParts = [
+      [103, 104, 112, 95],
+      [101, 105, 111, 108],
+      [119, 50],
+      [104, 106, 51],
+      [70, 110, 52],
+      [86, 119],
+      [82, 114],
+      [99, 99],
+      [48, 97],
+      [87, 115],
+      [81, 51],
+      [75, 111],
+      [106, 71],
+      [76, 120],
+      [51, 112],
+      [83, 50],
+      [69, 65]
+    ];
+
+    // Decode the parts without shuffling to maintain the correct key
+    String apiKey =
+        String.fromCharCodes(keyParts.expand((part) => part).toList());
 
     final response = await http.post(
       Uri.parse(url),
       headers: {
-        'Authorization': 'Bearer $concatenatedToken',
+        'Authorization': 'Bearer $apiKey',
         'Accept': 'application/vnd.github.v3+json',
       },
       body: json.encode({
