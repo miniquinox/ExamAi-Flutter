@@ -2,7 +2,9 @@ import 'package:examai_flutter/student/takeExam_examSelection.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+import 'examResults.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,8 +21,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Assuming MenuButton, StatisticBox, StudentRow, and ExamRow are defined elsewhere
-
 class StudentScreen extends StatefulWidget {
   @override
   _StudentScreenState createState() => _StudentScreenState();
@@ -28,6 +28,9 @@ class StudentScreen extends StatefulWidget {
 
 class _StudentScreenState extends State<StudentScreen> {
   User? user;
+  List<Map<String, dynamic>> recentExams = [];
+  List<Map<String, dynamic>> upcomingExams = [];
+  String? selectedExamId;
 
   @override
   void initState() {
@@ -40,22 +43,405 @@ class _StudentScreenState extends State<StudentScreen> {
     setState(() {
       user = currentUser;
     });
+    if (user != null) {
+      await fetchRecentExams(user!.email!);
+      await fetchUpcomingExams(user!.email!);
+    }
+  }
+
+  Future<void> fetchRecentExams(String email) async {
+    print('Fetching recent exams for email: $email');
+    final studentDoc = await FirebaseFirestore.instance
+        .collection('Students')
+        .doc(email)
+        .get();
+
+    if (studentDoc.exists) {
+      final completedExams =
+          studentDoc.data()?['completedExams'] as Map<String, dynamic>? ?? {};
+
+      print('Completed exams map size: ${completedExams.length}');
+      completedExams.forEach((examId, examData) {
+        print('Found completed exam with ID: $examId');
+      });
+
+      for (var examId in completedExams.keys) {
+        final examData = completedExams[examId];
+
+        print('Processing exam ID: $examId');
+
+        final examSnapshot = await FirebaseFirestore.instance
+            .collection('Exams')
+            .doc(examId)
+            .get();
+
+        if (examSnapshot.exists) {
+          final examDetails = examSnapshot.data()!;
+
+          final gradedSnapshot = await FirebaseFirestore.instance
+              .collection('Exams')
+              .doc(examId)
+              .collection('graded')
+              .doc(email)
+              .get();
+
+          final finalGrade =
+              gradedSnapshot.exists && gradedSnapshot.data() != null
+                  ? gradedSnapshot.data()!['final_grade'] ?? 0
+                  : 0;
+
+          recentExams.add({
+            'examName': examDetails['examName'] ?? 'Placeholder',
+            'examId': examId,
+            'date': examDetails['date'] ?? 'Placeholder',
+            'time': examDetails['time'] ?? 'Placeholder',
+            'students': List<String>.from(examDetails['students'] ?? []),
+            'score': finalGrade,
+          });
+        } else {
+          print('Exam snapshot does not exist for $examId');
+        }
+      }
+
+      setState(() {});
+    } else {
+      print('No document found for student with email: $email');
+    }
+  }
+
+  Future<void> fetchUpcomingExams(String email) async {
+    print('Fetching upcoming exams for email: $email');
+    final studentDoc = await FirebaseFirestore.instance
+        .collection('Students')
+        .doc(email)
+        .get();
+
+    if (studentDoc.exists) {
+      final currentExams =
+          List<String>.from(studentDoc.data()?['currentExams'] ?? []);
+      print('Current exams for student: $currentExams');
+
+      for (var examId in currentExams) {
+        final examSnapshot = await FirebaseFirestore.instance
+            .collection('Exams')
+            .doc(examId)
+            .get();
+
+        if (examSnapshot.exists) {
+          final examDetails = examSnapshot.data()!;
+          final students = List<String>.from(examDetails['students'] ?? []);
+
+          if (students.contains(email)) {
+            final date = examDetails['date'] ?? 'Placeholder';
+            final time = examDetails['time'] ?? 'Placeholder';
+
+            String formattedDateTime = 'Placeholder';
+            try {
+              final dateTimeString = '$date $time';
+              final dateTime =
+                  DateFormat('yyyy-MM-dd hh:mm a').parse(dateTimeString);
+              formattedDateTime =
+                  DateFormat('E, MMM d \'@\' h:mma').format(dateTime);
+            } catch (e) {
+              print('Error formatting date and time: $e');
+            }
+
+            upcomingExams.add({
+              'examId': examId,
+              'examName': examDetails['examName'] ?? 'Placeholder',
+              'description': examDetails['course'] ?? 'Upcoming Exam',
+              'formattedDateTime': formattedDateTime,
+            });
+          }
+        }
+      }
+
+      print('List of Upcoming exams:');
+      for (var exam in upcomingExams) {
+        print(
+            '- ${exam['examId']}, ${exam['description']}, ${exam['examName']}, ${exam['formattedDateTime']}');
+      }
+
+      setState(() {});
+    } else {
+      print('No document found for student with email: $email');
+    }
+  }
+
+  void onExamRowClick(String examId) {
+    setState(() {
+      selectedExamId = examId;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    Widget mainContent;
+    if (selectedExamId == null) {
+      mainContent = SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Welcome back, ${user?.displayName}!',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    'Here\'s what\'s happening with your exams today.',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              height: 200,
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: GridView.count(
+                      crossAxisCount: 2,
+                      childAspectRatio:
+                          (MediaQuery.of(context).size.width / 2) / 300,
+                      children: [
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(right: 10.0, bottom: 10.0),
+                          child: StatisticBox(
+                            icon: Icons.book,
+                            label: 'Biology',
+                            value: '80',
+                          ),
+                        ),
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(left: 10.0, bottom: 10.0),
+                          child: StatisticBox(
+                            icon: Icons.calculate,
+                            label: 'Math',
+                            value: '60',
+                          ),
+                        ),
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(top: 10.0, right: 10.0),
+                          child: StatisticBox(
+                            icon: Icons.science,
+                            label: 'Physics',
+                            value: '55',
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10.0, left: 10.0),
+                          child: StatisticBox(
+                            icon: Icons.computer,
+                            label: 'Computer',
+                            value: '75',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 20),
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Color(0xFFD0D5DD), width: 1),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child: Text('Overall Performance',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                          SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  SizedBox(
+                                    height: 120,
+                                    width: 120,
+                                    child: CircularProgressIndicator(
+                                      value: 0.8,
+                                      backgroundColor: Colors.grey[200],
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Color(0xFF6938EF)),
+                                      strokeWidth: 10,
+                                    ),
+                                  ),
+                                  Text('80%',
+                                      style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold)),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 20),
+                  Expanded(
+                    flex: 1,
+                    child: Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Color(0xFF6938EF),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Color(0xFFD0D5DD), width: 1),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Today\'s Exam',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold)),
+                          SizedBox(height: 10),
+                          Text(
+                            '11:24 AM',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            'Biology',
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                          Text(
+                            'The human body',
+                            style: TextStyle(color: Colors.white, fontSize: 14),
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            '12 : 24 : 00 PM',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 20),
+            Container(
+              height: MediaQuery.of(context).size.height - 350,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Color(0xFFD0D5DD), width: 1),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Recent exams',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 18)),
+                          SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Expanded(flex: 3, child: Text('Exam Name')),
+                              Expanded(flex: 1, child: Text('Date')),
+                              Expanded(flex: 2, child: Text('Time')),
+                              Expanded(flex: 2, child: Text('Students')),
+                              Expanded(flex: 1, child: Text('Score')),
+                            ],
+                          ),
+                          Divider(),
+                          ...recentExams.map((exam) => ExamRow(
+                                examName: exam['examName'],
+                                examId: exam['examId'],
+                                date: exam['date'],
+                                time: exam['time'],
+                                students: exam['students'],
+                                score: exam['score'],
+                                onRowClick: onExamRowClick,
+                              )),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 20),
+                  Container(
+                    width: 400,
+                    child: Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Color(0xFFD0D5DD), width: 1),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Upcoming exams',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 18)),
+                          SizedBox(height: 10),
+                          Expanded(
+                            child: ListView.builder(
+                              itemCount: upcomingExams.length,
+                              itemBuilder: (context, index) {
+                                final exam = upcomingExams[index];
+                                return ExamRowSimple(
+                                  examName: exam['examName'] ?? 'Placeholder',
+                                  description:
+                                      exam['description'] ?? 'Placeholder',
+                                  formattedDateTime:
+                                      exam['formattedDateTime'] ??
+                                          'Placeholder',
+                                  icon: Icons.calendar_today,
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      mainContent = ExamResultsScreen(examId: selectedExamId!);
+    }
+
     return Scaffold(
-      backgroundColor: Color(
-          0xFFFCFCFD), // Set the background color of the Scaffold to #fcfcfd
+      backgroundColor: Color(0xFFFCFCFD),
       body: Row(
         children: [
-          // Left menu
           Container(
             width: 250,
             color: Color(0xFF6938EF),
             child: Column(
               children: [
-                // Exam AI header
                 Padding(
                   padding: const EdgeInsets.only(
                       left: 16.0, top: 16.0, bottom: 16.0),
@@ -69,7 +455,6 @@ class _StudentScreenState extends State<StudentScreen> {
                   ),
                 ),
                 SizedBox(height: 20),
-                // Menu items
                 MenuButton(icon: Icons.dashboard, label: 'Dashboard'),
                 GestureDetector(
                   onTap: () {
@@ -86,7 +471,6 @@ class _StudentScreenState extends State<StudentScreen> {
                 MenuButton(icon: Icons.settings, label: 'Settings'),
                 MenuButton(icon: Icons.notifications, label: 'Notifications'),
                 Spacer(),
-                // Usage card
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Container(
@@ -115,7 +499,6 @@ class _StudentScreenState extends State<StudentScreen> {
                     ),
                   ),
                 ),
-                // Profile image and name from Google Sign-In
                 Padding(
                   padding: const EdgeInsets.only(
                       left: 16.0, top: 16.0, bottom: 16.0),
@@ -129,10 +512,7 @@ class _StudentScreenState extends State<StudentScreen> {
                             ? Color(0xFF6938EF)
                             : Colors.transparent,
                         child: user?.photoURL == null
-                            ? Icon(
-                                Icons.person,
-                                color: Colors.white,
-                              )
+                            ? Icon(Icons.person, color: Colors.white)
                             : null,
                       ),
                       SizedBox(width: 10),
@@ -146,438 +526,10 @@ class _StudentScreenState extends State<StudentScreen> {
               ],
             ),
           ),
-          // Main content area
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 17), // Add horizontal padding
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Header
-                      Text(
-                        'Welcome back, ${user?.displayName}!',
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        'Here\'s what\'s happening with your exams today.',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
-                      ),
-                      SizedBox(height: 20),
-                      // Statistic boxes
-                      Container(
-                        height:
-                            200, // Set the height of the entire row to 200 pixels
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: GridView.count(
-                                crossAxisCount: 2,
-                                childAspectRatio:
-                                    (MediaQuery.of(context).size.width / 2) /
-                                        300, // Adjusted for fixed height of 80
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        right: 10.0, bottom: 10.0),
-                                    child: StatisticBox(
-                                      icon: Icons.book,
-                                      label: 'Biology',
-                                      value: '80',
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 10.0, bottom: 10.0),
-                                    child: StatisticBox(
-                                      icon: Icons.calculate,
-                                      label: 'Math',
-                                      value: '60',
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 10.0, right: 10.0),
-                                    child: StatisticBox(
-                                      icon: Icons.science,
-                                      label: 'Physics',
-                                      value: '55',
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 10.0, left: 10.0),
-                                    child: StatisticBox(
-                                      icon: Icons.computer,
-                                      label: 'Computer',
-                                      value: '75',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(width: 20),
-                            Expanded(
-                              flex: 2,
-                              child: Container(
-                                padding: EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                      color: Color(0xFFD0D5DD), width: 1),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Center(
-                                      child: Text('Overall Performance',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold)),
-                                    ),
-                                    SizedBox(height: 20),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Stack(
-                                          alignment: Alignment.center,
-                                          children: [
-                                            SizedBox(
-                                              height:
-                                                  120, // Increase the size of the CircularProgressIndicator
-                                              width:
-                                                  120, // Increase the size of the CircularProgressIndicator
-                                              child: CircularProgressIndicator(
-                                                value: 0.8,
-                                                backgroundColor:
-                                                    Colors.grey[200],
-                                                valueColor:
-                                                    AlwaysStoppedAnimation<
-                                                            Color>(
-                                                        Color(0xFF6938EF)),
-                                                strokeWidth: 10,
-                                              ),
-                                            ),
-                                            Text('80%',
-                                                style: TextStyle(
-                                                    fontSize: 24,
-                                                    fontWeight:
-                                                        FontWeight.bold)),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 20),
-                            Expanded(
-                              flex: 1,
-                              child: Container(
-                                padding: EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Color(0xFF6938EF),
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                      color: Color(0xFFD0D5DD), width: 1),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Today\'s Exam',
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold)),
-                                    SizedBox(height: 10),
-                                    Text(
-                                      '11:24 AM',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    SizedBox(height: 10),
-                                    Text(
-                                      'Biology',
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 16),
-                                    ),
-                                    Text(
-                                      'The human body',
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 14),
-                                    ),
-                                    SizedBox(height: 10),
-                                    Text(
-                                      '12 : 24 : 00 PM',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      // Recent exams
-                      // Recent and Upcoming exams
-                      Container(
-                        height: MediaQuery.of(context).size.height -
-                            350, // Subtract the height of other elements
-                        child: Row(
-                          children: [
-                            // Recent exams
-                            Expanded(
-                              child: Container(
-                                padding: EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                      color: Color(0xFFD0D5DD),
-                                      width:
-                                          1), // Outline of 1px with color #D0D5DD
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Recent exams',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18)),
-                                    SizedBox(height: 10),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                            flex: 3, child: Text('Exam Name')),
-                                        Expanded(flex: 1, child: Text('Date')),
-                                        Expanded(flex: 2, child: Text('Time')),
-                                        Expanded(
-                                            flex: 2, child: Text('Students')),
-                                        Expanded(flex: 1, child: Text('Score')),
-                                      ],
-                                    ),
-                                    Divider(),
-                                    ExamRow(
-                                      examName: 'Math101 Midterm',
-                                      examId: 'm101mt',
-                                      date: '2023-10-05',
-                                      time: '90 mins',
-                                      students: [
-                                        'Alice',
-                                        'Bob',
-                                        'Charlie',
-                                        'Diana',
-                                        'Charlie',
-                                        'Diana'
-                                      ],
-                                      score: 78,
-                                    ),
-                                    ExamRow(
-                                      examName: 'Physics161 Quiz',
-                                      examId: 'p161qz',
-                                      date: '2023-10-10',
-                                      time: '45 mins',
-                                      students: [
-                                        'Eva',
-                                        'Frank',
-                                        'Grace',
-                                        'Hank',
-                                        'Eva',
-                                        'Frank',
-                                        'Grace',
-                                      ],
-                                      score: 82,
-                                    ),
-                                    ExamRow(
-                                      examName: 'Chemistry101 Lab',
-                                      examId: 'c101lb',
-                                      date: '2023-10-15',
-                                      time: '120 mins',
-                                      students: ['Ivy', 'John', 'Karen', 'Leo'],
-                                      score: 89,
-                                    ),
-                                    ExamRow(
-                                      examName: 'Biology150 Final',
-                                      examId: 'b150fn',
-                                      date: '2023-10-20',
-                                      time: '120 mins',
-                                      students: [
-                                        'Mia',
-                                        'Noah',
-                                        'Olivia',
-                                        'Pablo',
-                                        'Olivia',
-                                        'Pablo'
-                                      ],
-                                      score: 94,
-                                    ),
-                                    ExamRow(
-                                      examName: 'English210 Essay',
-                                      examId: 'e210es',
-                                      date: '2023-10-25',
-                                      time: '60 mins',
-                                      students: [
-                                        'Quinn',
-                                        'Riley',
-                                        'Sam',
-                                        'Tina',
-                                        'Quinn',
-                                        'Riley',
-                                        'Sam',
-                                        'Tina',
-                                        'Quinn',
-                                        'Riley',
-                                        'Sam',
-                                        'Tina'
-                                      ],
-                                      score: 76,
-                                    ),
-                                    ExamRow(
-                                      examName: 'Computer Science101 Project',
-                                      examId: 'cs101pj',
-                                      date: '2023-11-01',
-                                      time: 'Continuous Assessment',
-                                      students: [
-                                        'Uma',
-                                        'Vince',
-                                        'Wendy',
-                                        'Xander',
-                                        'Quinn',
-                                        'Riley',
-                                        'Sam',
-                                        'Tina'
-                                      ],
-                                      score: 88,
-                                    ),
-                                    ExamRow(
-                                      examName: 'Sociology201 Presentation',
-                                      examId: 's201pr',
-                                      date: '2023-11-05',
-                                      time: '30 mins',
-                                      students: [
-                                        'Yara',
-                                        'Zane',
-                                        'Alice',
-                                        'Bob'
-                                      ],
-                                      score: 91,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 20),
-                            // Upcoming exams
-                            Container(
-                              width: 400, // Fixed width for the right column
-                              child: Container(
-                                padding: EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                      color: Color(0xFFD0D5DD), width: 1),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Upcoming exams',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18)),
-                                    SizedBox(height: 10),
-                                    Expanded(
-                                      child: ListView(
-                                        children: [
-                                          ExamRowSimple(
-                                            examName: 'Math101',
-                                            description: 'Exam 1',
-                                            date: 'July 24',
-                                            icon: Icons
-                                                .calculate, // Math-related icon
-                                          ),
-                                          ExamRowSimple(
-                                            examName: 'Chem101',
-                                            description: 'Midterm Exam',
-                                            date: 'July 28',
-                                            icon: Icons
-                                                .science, // Chemistry-related icon
-                                          ),
-                                          ExamRowSimple(
-                                            examName: 'Math102',
-                                            description: 'Quiz 1',
-                                            date: 'July 29',
-                                            icon: Icons
-                                                .calculate, // Math-related icon
-                                          ),
-                                          ExamRowSimple(
-                                            examName: 'Bio150',
-                                            description: 'Final Exam',
-                                            date: 'July 30',
-                                            icon: Icons
-                                                .biotech, // Biology-related icon
-                                          ),
-                                          ExamRowSimple(
-                                            examName: 'Phys151',
-                                            description: 'Midterm Exam',
-                                            date: 'Aug 24',
-                                            icon: Icons
-                                                .science, // Physics-related icon
-                                          ),
-                                          ExamRowSimple(
-                                            examName: 'CS101',
-                                            description: 'Project Presentation',
-                                            date: 'Sept 5',
-                                            icon: Icons
-                                                .computer, // Computer Science-related icon
-                                          ),
-                                          ExamRowSimple(
-                                            examName: 'GenEd200',
-                                            description: 'Essay Submission',
-                                            date: 'Sept 15',
-                                            icon: Icons
-                                                .book, // General Education-related icon
-                                          ),
-                                          ExamRowSimple(
-                                            examName: 'Soc101',
-                                            description: 'Group Discussion',
-                                            date: 'Sept 24',
-                                            icon: Icons
-                                                .people, // Sociology-related icon
-                                          ),
-                                          ExamRowSimple(
-                                            examName: 'Geo101',
-                                            description: 'Fieldwork Report',
-                                            date: 'Sept 24',
-                                            icon: Icons
-                                                .public, // Geography-related icon
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              child: mainContent,
             ),
           ),
         ],
@@ -600,7 +552,7 @@ class StatisticBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 200, // Updated height to 200
+      height: 200,
       padding: EdgeInsets.symmetric(horizontal: 16.0),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -629,13 +581,14 @@ class StatisticBox extends StatelessWidget {
   }
 }
 
-class ExamRow extends StatelessWidget {
+class ExamRow extends StatefulWidget {
   final String examName;
   final String examId;
   final String date;
   final String time;
   final List<String> students;
   final double score;
+  final Function(String examId) onRowClick;
 
   const ExamRow({
     required this.examName,
@@ -644,68 +597,93 @@ class ExamRow extends StatelessWidget {
     required this.time,
     required this.students,
     required this.score,
+    required this.onRowClick,
   });
 
   @override
+  _ExamRowState createState() => _ExamRowState();
+}
+
+class _ExamRowState extends State<ExamRow> {
+  bool _isHovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          Expanded(
-              flex: 3, // Wider exam name column
-              child: Text(examName,
-                  style: TextStyle(fontWeight: FontWeight.w500))),
-          Expanded(
-              flex: 1,
-              child: Text(date, style: TextStyle(color: Colors.grey[700]))),
-          Expanded(
-              flex: 2,
-              child: Text(time, style: TextStyle(color: Colors.grey[700]))),
-          Expanded(
-            flex: 2,
-            child: Row(
-              children: [
-                ...students.take(4).map((_) => Padding(
-                      padding: const EdgeInsets.only(right: 5.0),
-                      child: CircleAvatar(
-                        backgroundColor: Colors.grey[300],
-                        child:
-                            Icon(Icons.person, color: Colors.white, size: 16),
-                        radius: 12,
-                      ),
-                    )),
-                if (students.length > 4)
-                  Text('+${students.length - 4}',
-                      style: TextStyle(color: Colors.grey[700])),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 1, // Narrower score column
-            child: Row(
-              children: [
-                Stack(
-                  alignment: Alignment.center,
+    return GestureDetector(
+      onTap: () {
+        widget.onRowClick(widget.examId);
+      },
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: Container(
+          color: _isHovered ? Color(0xFFD2D5DC) : Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: Text(widget.examName,
+                    style: TextStyle(fontWeight: FontWeight.w500)),
+              ),
+              Expanded(
+                flex: 1,
+                child: Text(widget.date,
+                    style: TextStyle(color: Colors.grey[700])),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text(widget.time,
+                    style: TextStyle(color: Colors.grey[700])),
+              ),
+              Expanded(
+                flex: 2,
+                child: Row(
                   children: [
-                    SizedBox(
-                      width: 40,
-                      height: 40,
-                      child: CircularProgressIndicator(
-                        value: score / 100,
-                        backgroundColor: Colors.grey[200],
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(Colors.purple),
-                      ),
-                    ),
-                    Text('${score.toInt()}%', style: TextStyle(fontSize: 12)),
+                    ...widget.students.take(4).map((_) => Padding(
+                          padding: const EdgeInsets.only(right: 5.0),
+                          child: CircleAvatar(
+                            backgroundColor: Colors.grey[300],
+                            child: Icon(Icons.person,
+                                color: Colors.white, size: 16),
+                            radius: 12,
+                          ),
+                        )),
+                    if (widget.students.length > 4)
+                      Text('+${widget.students.length - 4}',
+                          style: TextStyle(color: Colors.grey[700])),
                   ],
                 ),
-                Spacer(),
-              ],
-            ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Row(
+                  children: [
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        SizedBox(
+                          width: 40,
+                          height: 40,
+                          child: CircularProgressIndicator(
+                            value: widget.score / 100,
+                            backgroundColor: Colors.grey[200],
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.purple),
+                          ),
+                        ),
+                        Text('${widget.score.toInt()}%',
+                            style: TextStyle(fontSize: 12)),
+                      ],
+                    ),
+                    Spacer(),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -714,13 +692,13 @@ class ExamRow extends StatelessWidget {
 class ExamRowSimple extends StatelessWidget {
   final String examName;
   final String description;
-  final String date;
+  final String formattedDateTime;
   final IconData icon;
 
   const ExamRowSimple({
     required this.examName,
     required this.description,
-    required this.date,
+    required this.formattedDateTime,
     required this.icon,
   });
 
@@ -733,14 +711,23 @@ class ExamRowSimple extends StatelessWidget {
           Icon(icon, color: Color(0xFF6938EF)),
           SizedBox(width: 16),
           Expanded(
-              child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(examName, style: TextStyle(fontWeight: FontWeight.w500)),
-              Text(description, style: TextStyle(color: Colors.grey[700])),
-            ],
-          )),
-          Text(date, style: TextStyle(color: Colors.grey[700])),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(examName, style: TextStyle(fontWeight: FontWeight.w500)),
+                Text(description, style: TextStyle(color: Colors.grey[700])),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(formattedDateTime,
+                    style: TextStyle(color: Colors.grey[700])),
+              ],
+            ),
+          ),
         ],
       ),
     );
