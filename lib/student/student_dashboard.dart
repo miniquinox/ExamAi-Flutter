@@ -66,7 +66,7 @@ class _StudentScreenState extends State<StudentScreen> {
       });
 
       for (var examId in completedExams.keys) {
-        final examData = completedExams[examId];
+        // final examData = completedExams[examId];
 
         print('Processing exam ID: $examId');
 
