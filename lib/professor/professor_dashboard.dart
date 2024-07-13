@@ -211,11 +211,20 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                               )
                             : null,
                       ),
-                      const SizedBox(width: 10),
-                      Text(
-                        user?.displayName?.substring(0, 17) ?? 'No Name',
-                        style: const TextStyle(color: Colors.white),
-                      ),
+                      const SizedBox(width: 20),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user?.displayName?.substring(0, 17) ?? 'No Name',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          const Text(
+                            'Professor',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ],
+                      )
                     ],
                   ),
                 ),
@@ -461,9 +470,12 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                             const Row(
                               children: [
                                 Expanded(
-                                    flex: 3,
-                                    child: Text(
-                                        'Exam name')), // Adjusted flex value
+                                  flex: 3,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 10.0),
+                                    child: Text('Exam Name'),
+                                  ),
+                                ), // Adjusted flex value
                                 Expanded(
                                     flex: 2,
                                     child:
@@ -728,7 +740,15 @@ class _ExamRowState extends State<ExamRow> {
           child: Row(
             children: [
               Expanded(
-                  flex: 3, child: Text(widget.examName)), // Adjusted flex value
+                flex: 3,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10.0),
+                  child: Text(
+                    widget.examName,
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ), // Adjusted flex value
               Expanded(
                   flex: 2, child: Text(widget.course)), // Adjusted flex value
               Expanded(

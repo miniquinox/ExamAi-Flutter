@@ -364,7 +364,13 @@ class _StudentScreenState extends State<StudentScreen> {
                           SizedBox(height: 10),
                           Row(
                             children: [
-                              Expanded(flex: 3, child: Text('Exam Name')),
+                              Expanded(
+                                flex: 3,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 10.0),
+                                  child: Text('Exam Name'),
+                                ),
+                              ),
                               Expanded(flex: 1, child: Text('Date')),
                               Expanded(flex: 2, child: Text('Time')),
                               Expanded(flex: 2, child: Text('Students')),
@@ -515,11 +521,20 @@ class _StudentScreenState extends State<StudentScreen> {
                             ? Icon(Icons.person, color: Colors.white)
                             : null,
                       ),
-                      SizedBox(width: 10),
-                      Text(
-                        user?.displayName?.substring(0, 17) ?? 'No Name',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                      SizedBox(width: 20),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user?.displayName?.substring(0, 17) ?? 'No Name',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          const Text(
+                            'Student',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ],
+                      )
                     ],
                   ),
                 ),
@@ -624,8 +639,13 @@ class _ExamRowState extends State<ExamRow> {
             children: [
               Expanded(
                 flex: 3,
-                child: Text(widget.examName,
-                    style: TextStyle(fontWeight: FontWeight.w500)),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10.0),
+                  child: Text(
+                    widget.examName,
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
               ),
               Expanded(
                 flex: 1,
