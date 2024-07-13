@@ -260,7 +260,9 @@ class ExamResultsScreen extends StatelessWidget {
                           children: [
                             Expanded(
                               flex: 2,
-                              child: _buildGraphBox('Grade distribution'),
+                              child: _buildGraphBox(
+                                  'Grade line chart distribution',
+                                  _buildGradeLineChartDistribution(grades)),
                             ),
                             SizedBox(width: 10),
                             Expanded(
@@ -512,6 +514,127 @@ class ExamResultsScreen extends StatelessWidget {
               ),
             ),
             gridData: FlGridData(show: false),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGradeLineChartDistribution(List<Map<String, dynamic>> grades) {
+    if (grades.isEmpty) {
+      return Center(child: Text("No data available"));
+    }
+
+    grades.sort((a, b) => a['grade'].compareTo(b['grade']));
+    double lowest = grades.first['grade'];
+    double highest = grades.last['grade'];
+    double lower25 = grades[(grades.length * 0.25).floor()]['grade'];
+    double average =
+        grades.map((g) => g['grade']).reduce((a, b) => a + b) / grades.length;
+    double upper25 = grades[(grades.length * 0.75).floor()]['grade'];
+
+    return SizedBox(
+      height: 250, // Constrain the height
+      child: Padding(
+        padding:
+            const EdgeInsets.symmetric(horizontal: 30.0), // Horizontal padding
+        child: LineChart(
+          LineChartData(
+            lineTouchData: LineTouchData(
+              touchTooltipData: LineTouchTooltipData(
+                getTooltipColor: (_) => Colors.blueGrey.withOpacity(0.8),
+              ),
+            ),
+            gridData: FlGridData(show: false),
+            titlesData: FlTitlesData(
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 32,
+                  getTitlesWidget: (double value, TitleMeta meta) {
+                    const style = TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                    );
+                    List<String> titles = [
+                      'Lowest',
+                      'Lower 25%',
+                      'Average',
+                      'Upper 25%',
+                      'Highest'
+                    ];
+                    Widget text = Text('');
+                    if (value.toInt() >= 0 && value.toInt() < titles.length) {
+                      text = Text(titles[value.toInt()], style: style);
+                    }
+                    return SideTitleWidget(
+                      axisSide: meta.axisSide,
+                      space: 10.0,
+                      child: text,
+                    );
+                  },
+                  interval: 1,
+                ),
+              ),
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  interval: 10,
+                  getTitlesWidget: (value, meta) {
+                    return Text(
+                      value.toInt().toString(),
+                      style: TextStyle(fontSize: 12),
+                    );
+                  },
+                ),
+              ),
+              rightTitles: AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              topTitles: AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+            ),
+            borderData: FlBorderData(
+              show: true,
+              border: Border(
+                bottom: BorderSide(color: Colors.transparent),
+                left: BorderSide(color: Colors.transparent),
+                right: BorderSide(color: Colors.transparent),
+                top: BorderSide(color: Colors.transparent),
+              ),
+            ),
+            minX: 0,
+            maxX: 4,
+            minY: 0,
+            maxY: 100,
+            lineBarsData: [
+              LineChartBarData(
+                isCurved: true,
+                color: Color(0xff9b8afb),
+                barWidth: 3, // Thinner line
+                isStrokeCapRound: true,
+                dotData: FlDotData(show: false),
+                belowBarData: BarAreaData(
+                  show: true,
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFF6938EF).withOpacity(0.1),
+                      Color(0xFF6938EF).withOpacity(0.0),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+                spots: [
+                  FlSpot(0, lowest),
+                  FlSpot(1, lower25),
+                  FlSpot(2, average),
+                  FlSpot(3, upper25),
+                  FlSpot(4, highest),
+                ],
+              ),
+            ],
           ),
         ),
       ),
