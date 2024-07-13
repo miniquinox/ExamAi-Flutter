@@ -363,19 +363,25 @@ class ExamResultsScreen extends StatelessWidget {
 
   Widget _buildTopStudentsBox() {
     return Container(
+      height: 330,
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color(0xFF6938EF),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Color(0xFFE9EAED), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Top 3 students',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(
+            'Top 3 students',
+            style: TextStyle(
+                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
           SizedBox(height: 20),
-          Center(child: Text('Placeholder')),
+          Center(
+              child:
+                  Text('Placeholder', style: TextStyle(color: Colors.white))),
         ],
       ),
     );
@@ -383,21 +389,33 @@ class ExamResultsScreen extends StatelessWidget {
 
   Widget _buildHardestQuestionsBox() {
     return Container(
+      height: 330,
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color.fromARGB(255, 255, 255, 255),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Color(0xFFE9EAED), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Top hardest questions',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(
+            'Top hardest questions',
+            style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: const Color.fromARGB(255, 0, 0, 0)),
+          ),
           SizedBox(height: 20),
-          Text('1. Placeholder question', style: TextStyle(fontSize: 16)),
-          Text('2. Placeholder question', style: TextStyle(fontSize: 16)),
-          Text('3. Placeholder question', style: TextStyle(fontSize: 16)),
+          Text('1. Placeholder question',
+              style: TextStyle(
+                  fontSize: 16, color: const Color.fromARGB(255, 0, 0, 0))),
+          Text('2. Placeholder question',
+              style: TextStyle(
+                  fontSize: 16, color: const Color.fromARGB(255, 0, 0, 0))),
+          Text('3. Placeholder question',
+              style: TextStyle(
+                  fontSize: 16, color: const Color.fromARGB(255, 0, 0, 0))),
         ],
       ),
     );
