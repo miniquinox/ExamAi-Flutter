@@ -526,7 +526,10 @@ class _StudentScreenState extends State<StudentScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            user?.displayName?.substring(0, 17) ?? 'No Name',
+                            user?.displayName != null &&
+                                    user!.displayName!.length > 17
+                                ? user!.displayName!.substring(0, 17)
+                                : user?.displayName ?? 'No Name',
                             style: const TextStyle(color: Colors.white),
                           ),
                           const Text(
