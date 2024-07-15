@@ -34,6 +34,17 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
   Future<void> fetchUserAndExams(String email) async {
     print('Fetching exams for user: $email');
     try {
+      // Ensure email is trimmed and lowercased
+      email = email.trim().toLowerCase();
+      print('Normalized email: $email');
+
+      // Check if the user is authenticated
+      User? currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null || currentUser.email != email) {
+        print('User is not authenticated or email does not match.');
+        return;
+      }
+
       final userData = await _firebaseService.getUserData(email);
       if (userData != null) {
         final currentExams = List<String>.from(userData['currentExams'] ?? []);
@@ -58,7 +69,7 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
           }
         }
       } else {
-        print('No user data found.');
+        print('No user data found for email: $email');
       }
     } catch (e) {
       print('Error fetching user or exams: $e');

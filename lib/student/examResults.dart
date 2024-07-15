@@ -2,11 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:collection/collection.dart';
+import 'studentExam_feedback.dart';
 
-class ExamResultsScreen extends StatelessWidget {
+class ExamResultsScreen extends StatefulWidget {
   final String examId;
 
   const ExamResultsScreen({Key? key, required this.examId}) : super(key: key);
+
+  @override
+  _ExamResultsScreenState createState() => _ExamResultsScreenState();
+}
+
+class _ExamResultsScreenState extends State<ExamResultsScreen> {
+  bool _isHovering = false;
+  Map<String, dynamic>? _examDetails;
+  List<Map<String, dynamic>>? _grades;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchExamDetails(widget.examId).then((details) {
+      setState(() {
+        _examDetails = details;
+      });
+    });
+    fetchGrades(widget.examId).then((grades) {
+      setState(() {
+        _grades = grades;
+      });
+    });
+  }
 
   Future<Map<String, dynamic>> fetchExamDetails(String examId) async {
     final examSnapshot =
@@ -37,249 +63,258 @@ class ExamResultsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, dynamic>>(
-      future: fetchExamDetails(examId),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error loading exam details'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('No exam details found'));
-        }
+    if (_examDetails == null || _grades == null) {
+      return Center(child: CircularProgressIndicator());
+    }
 
-        final examDetails = snapshot.data!;
-        final String course = examDetails['course'] ?? 'Placeholder';
-        final String examName = examDetails['examName'] ?? 'Placeholder';
-        final List<dynamic> questionsDynamic = examDetails['questions'] ?? [];
-        final List<Map<String, dynamic>> questions = questionsDynamic
-            .map((question) => Map<String, dynamic>.from(question))
-            .toList();
-        final int questionCount = questions.length;
-        final int totalStudents = (examDetails['students'] as List).length;
-        final int totalScore = questions.fold<int>(
-            0, (sum, question) => sum + (question['weight'] as int? ?? 0));
-        final int passingGrade = (totalScore * 0.7).round();
+    final String course = _examDetails!['course'] ?? 'Placeholder';
+    final String examName = _examDetails!['examName'] ?? 'Placeholder';
+    final List<dynamic> questionsDynamic = _examDetails!['questions'] ?? [];
+    final List<Map<String, dynamic>> questions = questionsDynamic
+        .map((question) => Map<String, dynamic>.from(question))
+        .toList();
+    final int questionCount = questions.length;
+    final int totalStudents = (_examDetails!['students'] as List).length;
+    final int totalScore = questions.fold<int>(
+        0, (sum, question) => sum + (question['weight'] as int? ?? 0));
+    final int passingGrade = (totalScore * 0.7).round();
 
-        return FutureBuilder<List<Map<String, dynamic>>>(
-          future: fetchGrades(examId),
-          builder: (context, gradesSnapshot) {
-            if (gradesSnapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (gradesSnapshot.hasError) {
-              return Center(child: Text('Error loading grades'));
-            } else if (!gradesSnapshot.hasData ||
-                gradesSnapshot.data!.isEmpty) {
-              return Center(child: Text('No grades found'));
-            }
+    var user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      print('Fetching grade for user: ${user.email}');
+    }
 
-            final List<Map<String, dynamic>> grades = gradesSnapshot.data!;
+    final userDoc =
+        _grades!.firstWhereOrNull((doc) => doc['email'] == user?.email);
+    if (userDoc == null) {
+      return Center(child: Text('No grade data found for your email'));
+    }
+    final finalGrade = userDoc['grade'] ?? 0.0;
 
-            return Scaffold(
-              appBar: AppBar(
-                backgroundColor: Colors.white,
-                elevation: 0,
-                title: Row(
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Row(
+          children: [
+            const Icon(Icons.home, color: Colors.black),
+            const SizedBox(width: 4),
+            const Text(
+              'Home',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(width: 4),
+            const Icon(Icons.chevron_right, color: Colors.black),
+            const SizedBox(width: 4),
+            const Icon(Icons.assignment, color: Color(0xFF6938EF)),
+            const SizedBox(width: 4),
+            const Text(
+              'Exams',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(width: 4),
+            const Text(
+              '>',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(width: 4),
+            const Icon(Icons.feedback, color: Color(0xFF6938EF)),
+            const SizedBox(width: 4),
+            const Text(
+              'Feedback',
+              style: TextStyle(
+                  color: Color(0xFF6938EF),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold),
+            ),
+            const Spacer(),
+            CircleAvatar(
+              backgroundImage: NetworkImage(
+                  FirebaseAuth.instance.currentUser?.photoURL ?? ''),
+              backgroundColor: Colors.transparent,
+              child: FirebaseAuth.instance.currentUser?.photoURL == null
+                  ? const Icon(Icons.person, color: Colors.white)
+                  : null,
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: Color(0xFFFCFCFE),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Text('Overview',
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+            Text(
+              'We graded your class exams and these are the results...',
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+            SizedBox(height: 20),
+
+            // Exam details section
+            Row(
+              children: [
+                // Column 1: Course, Exam Name, Questions
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(course,
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold)),
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                                text: 'Exam:',
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold)),
+                            TextSpan(
+                                text: ' $examName',
+                                style: TextStyle(fontSize: 16)),
+                          ],
+                        ),
+                      ),
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                                text: 'Questions:',
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold)),
+                            TextSpan(
+                                text: ' $questionCount',
+                                style: TextStyle(fontSize: 16)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                HoverableCard(
+                  finalGrade: finalGrade,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => StudentExamFeedbackScreen(
+                          examId: widget.examId,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+
+                // Column 2: Time Length
+                Expanded(
+                  flex: 1,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      _buildIconTextButton(Icons.access_time,
+                          '${_examDetails!['time_length'] ?? 'Placeholder'} hrs'),
+                    ],
+                  ),
+                ),
+                // Column 3: Total score and date/time
+                Expanded(
+                  flex: 1,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      _buildIconTextButton(Icons.check_circle,
+                          'Total: $totalScore (pass marks: $passingGrade)'),
+                      SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text('${_examDetails!['date'] ?? 'Placeholder'}'),
+                          SizedBox(width: 5),
+                          Icon(Icons.arrow_forward, size: 20.0),
+                          SizedBox(width: 5),
+                          Text('${_examDetails!['time'] ?? 'Placeholder'}'),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+
+            // Statistics section
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildStatBox(
+                    'Total students', totalStudents.toString(), Icons.people),
+                SizedBox(width: 10),
+                _buildStatBox(
+                    'Absent students', 'Placeholder', Icons.person_off),
+                SizedBox(width: 10),
+                _buildStatBox('Average score', 'Placeholder', Icons.score),
+                SizedBox(width: 10),
+                _buildStatBox(
+                    'Passed students', 'Placeholder', Icons.check_circle),
+                SizedBox(width: 10),
+                _buildStatBox('Failed students', 'Placeholder', Icons.cancel),
+              ],
+            ),
+            SizedBox(height: 20),
+
+            // Grade distribution graphs and top students sections
+            Column(
+              children: [
+                Row(
                   children: [
-                    const Icon(Icons.home, color: Colors.black),
-                    const SizedBox(width: 4),
-                    const Text(
-                      'Home',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold),
+                    Expanded(
+                      flex: 2,
+                      child: _buildGraphBox('Grade distribution',
+                          _buildGradeDistributionChart(_grades!)),
                     ),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.chevron_right, color: Colors.black),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.assignment, color: Color(0xFF6938EF)),
-                    const SizedBox(width: 4),
-                    const Text(
-                      'Exams',
-                      style: TextStyle(
-                          color: Color(0xFF6938EF),
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    const Spacer(),
-                    CircleAvatar(
-                      backgroundImage: NetworkImage(
-                          FirebaseAuth.instance.currentUser?.photoURL ?? ''),
-                      backgroundColor: Colors.transparent,
-                      child: FirebaseAuth.instance.currentUser?.photoURL == null
-                          ? const Icon(Icons.person, color: Colors.white)
-                          : null,
+                    SizedBox(width: 10),
+                    Expanded(
+                      flex: 1,
+                      child: _buildTopStudentsBox(),
                     ),
                   ],
                 ),
-              ),
-              backgroundColor: Color(0xFFFCFCFE),
-              body: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                SizedBox(height: 20),
+                Row(
                   children: [
-                    // Header
-                    Text('Overview',
-                        style: TextStyle(
-                            fontSize: 32, fontWeight: FontWeight.bold)),
-                    Text(
-                      'We graded your class exams and these are the results...',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    Expanded(
+                      flex: 2,
+                      child: _buildGraphBox('Grade line chart distribution',
+                          _buildGradeLineChartDistribution(_grades!)),
                     ),
-                    SizedBox(height: 20),
-
-                    // Exam details section
-                    Row(
-                      children: [
-                        // Column 1: Course, Exam Name, Questions
-                        Expanded(
-                          flex: 2,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(course,
-                                  style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold)),
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                        text: 'Exam:',
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold)),
-                                    TextSpan(
-                                        text: ' $examName',
-                                        style: TextStyle(fontSize: 16)),
-                                  ],
-                                ),
-                              ),
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                        text: 'Questions:',
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold)),
-                                    TextSpan(
-                                        text: ' $questionCount',
-                                        style: TextStyle(fontSize: 16)),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        // Column 2: Time Length
-                        Expanded(
-                          flex: 1,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              _buildIconTextButton(Icons.access_time,
-                                  '${examDetails['time_length'] ?? 'Placeholder'} hrs'),
-                            ],
-                          ),
-                        ),
-                        // Column 3: Total score and date/time
-                        Expanded(
-                          flex: 1,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              _buildIconTextButton(Icons.check_circle,
-                                  'Total: $totalScore (pass marks: $passingGrade)'),
-                              SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Text(
-                                      '${examDetails['date'] ?? 'Placeholder'}'),
-                                  SizedBox(width: 5),
-                                  Icon(Icons.arrow_forward, size: 20.0),
-                                  SizedBox(width: 5),
-                                  Text(
-                                      '${examDetails['time'] ?? 'Placeholder'}'),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 20),
-
-                    // Statistics section
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildStatBox('Total students',
-                            totalStudents.toString(), Icons.people),
-                        SizedBox(width: 10),
-                        _buildStatBox(
-                            'Absent students', 'Placeholder', Icons.person_off),
-                        SizedBox(width: 10),
-                        _buildStatBox(
-                            'Average score', 'Placeholder', Icons.score),
-                        SizedBox(width: 10),
-                        _buildStatBox('Passed students', 'Placeholder',
-                            Icons.check_circle),
-                        SizedBox(width: 10),
-                        _buildStatBox(
-                            'Failed students', 'Placeholder', Icons.cancel),
-                      ],
-                    ),
-                    SizedBox(height: 20),
-
-                    // Grade distribution graphs and top students sections
-                    Column(
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: _buildGraphBox('Grade distribution',
-                                  _buildGradeDistributionChart(grades)),
-                            ),
-                            SizedBox(width: 10),
-                            Expanded(
-                              flex: 1,
-                              child: _buildTopStudentsBox(),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 20),
-                        Row(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: _buildGraphBox(
-                                  'Grade line chart distribution',
-                                  _buildGradeLineChartDistribution(grades)),
-                            ),
-                            SizedBox(width: 10),
-                            Expanded(
-                              flex: 1,
-                              child: _buildHardestQuestionsBox(),
-                            ),
-                          ],
-                        ),
-                      ],
+                    SizedBox(width: 10),
+                    Expanded(
+                      flex: 1,
+                      child: _buildHardestQuestionsBox(),
                     ),
                   ],
                 ),
-              ),
-            );
-          },
-        );
-      },
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -651,6 +686,101 @@ class ExamResultsScreen extends StatelessWidget {
                   FlSpot(3, upper25),
                   FlSpot(4, highest),
                 ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class HoverableCard extends StatefulWidget {
+  final double finalGrade;
+  final VoidCallback onTap;
+
+  const HoverableCard({required this.finalGrade, required this.onTap, Key? key})
+      : super(key: key);
+
+  @override
+  _HoverableCardState createState() => _HoverableCardState();
+}
+
+class _HoverableCardState extends State<HoverableCard> {
+  bool _isHovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovering = true),
+        onExit: (_) => setState(() => _isHovering = false),
+        child: Container(
+          height: 100,
+          width: 200, // Target width for the container
+          decoration: BoxDecoration(
+            color: _isHovering ? Colors.grey.shade200 : Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Color(0xFFD0D5DD), width: 1),
+          ),
+          child: Row(
+            mainAxisAlignment:
+                MainAxisAlignment.center, // Center align the row contents
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0), // Adjust padding as needed
+                child: SizedBox(
+                  width: 50, // Width of the chart
+                  height: 50, // Height of the chart
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      CircularProgressIndicator(
+                        value: widget.finalGrade / 100,
+                        backgroundColor: Colors.grey.shade200,
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Color(0xFF6938EF)),
+                        strokeWidth:
+                            6, // Stroke width of the progress indicator
+                      ),
+                      Center(
+                        child: Text(
+                          '${widget.finalGrade.toStringAsFixed(1)}%',
+                          style: TextStyle(
+                            fontSize: 12, // Font size of the percentage text
+                            fontWeight: FontWeight.bold, // Make text bold
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 4.0), // Adjust padding as needed
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment
+                      .center, // Center align the column contents
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'View Results',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '& Feedback',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
