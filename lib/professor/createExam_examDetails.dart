@@ -340,7 +340,10 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
                   course: _courseController.text,
                   date: _dateController.text,
                   time: _timeController.text,
-                  students: _studentsController.text.split(','),
+                  students: _studentsController.text
+                      .split(',')
+                      .map((email) => email.trim())
+                      .toList(),
                 ),
               ),
             );
