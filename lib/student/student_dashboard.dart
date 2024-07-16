@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'examResults.dart';
 
@@ -232,147 +233,167 @@ class _StudentScreenState extends State<StudentScreen> {
               ),
             ),
             Container(
-              height: 200,
+              height: 220,
               child: Row(
                 children: [
-                  Expanded(
-                    flex: 2,
-                    child: GridView.count(
-                      crossAxisCount: 2,
-                      childAspectRatio:
-                          (MediaQuery.of(context).size.width / 2) / 300,
+                  Container(
+                    height: 220,
+                    child: Column(
                       children: [
-                        Padding(
-                          padding:
-                              const EdgeInsets.only(right: 10.0, bottom: 10.0),
-                          child: StatisticBox(
-                            icon: Icons.book,
-                            label: 'Biology',
-                            value: '80',
-                          ),
+                        Row(
+                          children: [
+                            StatisticBox(
+                              iconPath: 'assets/images/empty1.svg',
+                              label: 'Exam 1',
+                              value: 'Not graded',
+                              topMargin: 0,
+                              bottomMargin: 10,
+                              leftMargin: 0,
+                              rightMargin: 10,
+                            ),
+                            StatisticBox(
+                              iconPath: 'assets/images/empty2.svg',
+                              label: 'Exam 2',
+                              value: 'Not graded',
+                              topMargin: 0,
+                              bottomMargin: 10,
+                              leftMargin: 10,
+                              rightMargin: 10,
+                            ),
+                            StatisticBox(
+                              iconPath: 'assets/images/empty3.svg',
+                              label: 'Quiz 1',
+                              value: 'Not graded',
+                              topMargin: 0,
+                              bottomMargin: 10,
+                              leftMargin: 10,
+                              rightMargin: 0,
+                            ),
+                          ],
                         ),
-                        Padding(
-                          padding:
-                              const EdgeInsets.only(left: 10.0, bottom: 10.0),
-                          child: StatisticBox(
-                            icon: Icons.calculate,
-                            label: 'Math',
-                            value: '60',
-                          ),
-                        ),
-                        Padding(
-                          padding:
-                              const EdgeInsets.only(top: 10.0, right: 10.0),
-                          child: StatisticBox(
-                            icon: Icons.science,
-                            label: 'Physics',
-                            value: '55',
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10.0, left: 10.0),
-                          child: StatisticBox(
-                            icon: Icons.computer,
-                            label: 'Computer',
-                            value: '75',
-                          ),
+                        Row(
+                          children: [
+                            StatisticBox(
+                              iconPath: 'assets/images/empty4.svg',
+                              label: 'Quiz 2',
+                              value: 'Not graded',
+                              topMargin: 10,
+                              bottomMargin: 0,
+                              leftMargin: 0,
+                              rightMargin: 10,
+                            ),
+                            StatisticBox(
+                              iconPath: 'assets/images/empty5.svg',
+                              label: 'Homework 1',
+                              value: 'Not graded',
+                              topMargin: 10,
+                              bottomMargin: 0,
+                              leftMargin: 10,
+                              rightMargin: 10,
+                            ),
+                            StatisticBox(
+                              iconPath: 'assets/images/empty6.svg',
+                              label: 'Homework 2',
+                              value: 'Not graded',
+                              topMargin: 10,
+                              bottomMargin: 0,
+                              leftMargin: 10,
+                              rightMargin: 0,
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
                   SizedBox(width: 20),
-                  Expanded(
-                    flex: 2,
-                    child: Container(
-                      padding: EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Color(0xFFD0D5DD), width: 1),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Center(
-                            child: Text('Overall Performance',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                          ),
-                          SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  SizedBox(
-                                    height: 120,
-                                    width: 120,
-                                    child: CircularProgressIndicator(
-                                      value: 0.8,
-                                      backgroundColor: Colors.grey[200],
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          Color(0xFF6938EF)),
-                                      strokeWidth: 10,
-                                    ),
+                  Container(
+                    width: 240,
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Color(0xFFD0D5DD), width: 1),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                          child: Text('Overall Performance',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                        SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                SizedBox(
+                                  height: 120,
+                                  width: 120,
+                                  child: CircularProgressIndicator(
+                                    value: 0.8,
+                                    backgroundColor: Colors.grey[200],
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Color(0xFF6938EF)),
+                                    strokeWidth: 10,
                                   ),
-                                  Text('80%',
-                                      style: TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold)),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                                ),
+                                Text('80%',
+                                    style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                   SizedBox(width: 20),
-                  Expanded(
-                    flex: 1,
-                    child: Container(
-                      padding: EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Color(0xFF6938EF),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Color(0xFFD0D5DD), width: 1),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Today\'s Exam',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold)),
-                          SizedBox(height: 10),
-                          Text(
-                            '11:24 AM',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            'Biology',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
-                          Text(
-                            'The human body',
-                            style: TextStyle(color: Colors.white, fontSize: 14),
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            '12 : 24 : 00 PM',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
+                  Container(
+                    width: 270,
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF6938EF),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Color(0xFFD0D5DD), width: 1),
                     ),
-                  ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Today\'s Exam',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold)),
+                        SizedBox(height: 10),
+                        Text(
+                          '11:24 AM',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          'Biology',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                        Text(
+                          'The human body',
+                          style: TextStyle(color: Colors.white, fontSize: 14),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          '12 : 24 : 00 PM',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  )
                 ],
               ),
             ),
@@ -598,21 +619,35 @@ class _StudentScreenState extends State<StudentScreen> {
 }
 
 class StatisticBox extends StatelessWidget {
-  final IconData icon;
+  final String iconPath;
   final String label;
   final String value;
+  final double topMargin;
+  final double bottomMargin;
+  final double leftMargin;
+  final double rightMargin;
 
   const StatisticBox({
-    required this.icon,
+    required this.iconPath,
     required this.label,
     required this.value,
+    required this.topMargin,
+    required this.bottomMargin,
+    required this.leftMargin,
+    required this.rightMargin,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 200,
-      padding: EdgeInsets.symmetric(horizontal: 16.0),
+      width: (MediaQuery.of(context).size.width - 872) / 3,
+      height: 100, // Fixed height for each box
+      margin: EdgeInsets.only(
+          top: topMargin,
+          bottom: bottomMargin,
+          left: leftMargin,
+          right: rightMargin),
+      padding: EdgeInsets.all(8.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
@@ -620,19 +655,35 @@ class StatisticBox extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.grey, size: 30),
-          SizedBox(width: 10),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 5),
-              Text(
-                value,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-            ],
+          LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              // Calculate the size as the minimum of the available width and height to maintain a 1:1 ratio
+              double size = constraints.maxWidth < constraints.maxHeight
+                  ? constraints.maxWidth
+                  : constraints.maxHeight;
+              return SvgPicture.asset(
+                iconPath,
+                // Set both height and width to the calculated size to maintain 1:1 aspect ratio
+                height: size * 0.8,
+                width: size * 0.8,
+              );
+            },
+          ),
+          SizedBox(width: 20),
+          Flexible(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
+                SizedBox(height: 5),
+                Text(
+                  value,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  overflow: TextOverflow.ellipsis, // Handle overflow
+                ),
+              ],
+            ),
           ),
         ],
       ),
