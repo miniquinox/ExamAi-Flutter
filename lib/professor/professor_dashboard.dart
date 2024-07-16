@@ -320,7 +320,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                     Expanded(
                                       child: StatisticBox(
                                           icon: Icons.today,
-                                          label: "Total exams taken",
+                                          label: "Total exams assigned",
                                           value: '$totalExamsTaken'),
                                     ),
                                     const SizedBox(
@@ -411,7 +411,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text('Students took the exams',
+                                  const Text('Your Students',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
                                   const SizedBox(height: 10),
@@ -453,6 +453,8 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                       ),
                       // Your Exams table
                       Container(
+                        constraints: BoxConstraints(
+                            minHeight: 380), // Set minimum height constraint
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -504,9 +506,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                     child: Text('Grade Status'),
                                   ),
                                 ), // Adjusted flex value
-                                SizedBox(
-                                  width: 110,
-                                )
+                                SizedBox(width: 110),
                               ],
                             ),
                             const Divider(),
