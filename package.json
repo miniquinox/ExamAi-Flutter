@@ -7,7 +7,7 @@
     "lib": "lib",
     "test": "test"
   },
-  "homepage": "https://miniquinox.github.io/ExamAi-Flutter/",
+  "homepage": "https://examai.ai/",
   "scripts": {
     "predeploy": "flutter build web",
     "deploy": "gh-pages -d build/web"
