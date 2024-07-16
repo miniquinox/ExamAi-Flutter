@@ -1,3 +1,4 @@
+import 'package:examai_flutter/main.dart';
 import 'package:examai_flutter/professor/createExam_examDetails.dart';
 import 'package:examai_flutter/professor/examGrades.dart';
 import 'package:flutter/material.dart';
@@ -127,6 +128,39 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
     }
   }
 
+  Future<void> _signOut() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => SignInScreen()),
+    );
+  }
+
+  void _showSignOutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Sign Out'),
+        content: const Text('Are you sure you would like to sign out?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _signOut();
+            },
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -211,22 +245,29 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                             : null,
                       ),
                       const SizedBox(width: 20),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            user?.displayName != null &&
-                                    user!.displayName!.length > 17
-                                ? user!.displayName!.substring(0, 17)
-                                : user?.displayName ?? 'No Name',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          const Text(
-                            'Professor',
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ],
-                      )
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              user?.displayName != null &&
+                                      user!.displayName!.length > 17
+                                  ? user!.displayName!.substring(0, 17)
+                                  : user?.displayName ?? 'No Name',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            const Text(
+                              'Professor',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon:
+                            const Icon(Icons.exit_to_app, color: Colors.white),
+                        onPressed: _showSignOutDialog,
+                      ),
                     ],
                   ),
                 ),

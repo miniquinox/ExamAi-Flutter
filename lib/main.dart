@@ -1,9 +1,9 @@
+import 'package:examai_flutter/professor/professor_dashboard.dart';
+import 'package:examai_flutter/student/student_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
-import 'professor/professor_dashboard.dart';
-import 'student/student_dashboard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,8 +43,12 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
+  final TextEditingController fullNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool isSignUp = false;
+  String statusMessage = "";
+  bool _isPasswordVisible = false; // Add this state variable
   List<bool> isSelected = [
     true,
     false
@@ -52,6 +56,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   void dispose() {
+    fullNameController.dispose();
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
@@ -77,8 +82,9 @@ class _SignInScreenState extends State<SignInScreen> {
         );
       }
     } catch (e) {
-      print('Sign-in error: $e');
-      // Handle sign-in errors here
+      setState(() {
+        statusMessage = 'Sign-in error: $e';
+      });
     }
   }
 
@@ -101,9 +107,63 @@ class _SignInScreenState extends State<SignInScreen> {
         );
       }
     } catch (e) {
-      print('Google Sign-In error: $e');
-      // Handle Google Sign-In errors here
+      setState(() {
+        statusMessage = 'Google Sign-In error: $e';
+      });
     }
+  }
+
+  Future<void> _signUp() async {
+    try {
+      if (fullNameController.text.isEmpty ||
+          emailController.text.isEmpty ||
+          passwordController.text.isEmpty) {
+        setState(() {
+          statusMessage = 'Please fill all the fields.';
+        });
+        return;
+      }
+
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      // Update user profile
+      await userCredential.user?.updateProfile(
+        displayName: fullNameController.text.trim(),
+      );
+
+      setState(() {
+        statusMessage = "Account created. Please sign in.";
+        isSignUp = false;
+      });
+
+      _showAccountCreatedDialog();
+    } catch (e) {
+      setState(() {
+        statusMessage = 'Sign-up error: $e';
+      });
+    }
+  }
+
+  void _showAccountCreatedDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Success'),
+        content: Text('Account created. Please sign in.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -242,6 +302,37 @@ class _SignInScreenState extends State<SignInScreen> {
                         },
                       ),
                       const SizedBox(height: 20),
+                      if (isSignUp)
+                        TextField(
+                          controller: fullNameController,
+                          decoration: InputDecoration(
+                            labelText: 'Full Name',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(
+                                  2)), // Set border radius to 2px
+                              borderSide: BorderSide(
+                                  color: Color(
+                                      0xFFD2D5DC)), // Default border color
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(
+                                  2)), // Set border radius to 2px
+                              borderSide: BorderSide(
+                                  color: Color(
+                                      0xFFD2D5DC)), // Color when TextField is enabled
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(
+                                  2)), // Set border radius to 2px
+                              borderSide: BorderSide(
+                                color: Color(
+                                    0xFF6539EF), // Color when TextField is focused
+                                width: 2.0, // Set border thickness to 3px
+                              ),
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: 20),
                       TextField(
                         controller: emailController,
                         decoration: InputDecoration(
@@ -264,8 +355,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             borderRadius: BorderRadius.all(
                                 Radius.circular(2)), // Set border radius to 2px
                             borderSide: BorderSide(
-                              color: Color(
-                                  0xFF6539EF), // Color when TextField is focused
+                              color: Color(0xFF6539EF),
                               width: 2.0, // Set border thickness to 3px
                             ),
                           ),
@@ -294,40 +384,37 @@ class _SignInScreenState extends State<SignInScreen> {
                             borderRadius: BorderRadius.all(
                                 Radius.circular(2)), // Set border radius to 2px
                             borderSide: BorderSide(
-                              color: Color(
-                                  0xFF6539EF), // Color when TextField is focused
+                              color: Color(0xFF6539EF),
                               width: 3.0, // Set border thickness to 3px
                             ),
                           ),
-                          suffixIcon: Icon(Icons.visibility),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isPasswordVisible = !_isPasswordVisible;
+                              });
+                            },
+                          ),
                         ),
-                        obscureText: true,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Checkbox(
-                                  value: false, onChanged: (bool? value) {}),
-                              const Text("Remember for 30 days"),
-                            ],
-                          ),
-                          TextButton(
-                            onPressed: () {},
-                            child: const Text("Forgot password"),
-                          ),
-                        ],
+                        obscureText: !_isPasswordVisible,
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: () {
-                          _signInWithEmailAndPassword();
+                          if (isSignUp) {
+                            _signUp();
+                          } else {
+                            _signInWithEmailAndPassword();
+                          }
                         },
-                        child: Container(
-                          width: double.infinity,
-                          child: const Center(child: Text("Sign in")),
-                        ),
+                        child: Center(
+                            child:
+                                Text(isSignUp ? "Create Account" : "Sign in")),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(
                               0xFF6539EF), // Set the background color
@@ -346,7 +433,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         width: double.infinity,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(
-                              8), // Set the corner radius here
+                              16), // Set the corner radius here
                           border: Border.all(
                             color: Color(0xFFD2D5DC), // Border color
                             width: 1.0, // Border width
@@ -354,7 +441,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(
-                              8), // Apply the same borderRadius to ClipRRect
+                              16), // Apply the same borderRadius to ClipRRect
                           child: SignInButton(
                             Buttons.Google,
                             text: "Sign in with Gmail",
@@ -365,16 +452,34 @@ class _SignInScreenState extends State<SignInScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Row(
-                      //   mainAxisAlignment: MainAxisAlignment.center,
-                      //   children: [
-                      //     const Text("Don’t have an account?"),
-                      //     TextButton(
-                      //       onPressed: () {},
-                      //       child: const Text("Sign up"),
-                      //     ),
-                      //   ],
-                      // ),
+                      if (statusMessage.isNotEmpty)
+                        Text(
+                          statusMessage,
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(isSignUp
+                              ? "Already have an account?"
+                              : "Don't have an account?"),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                isSignUp = !isSignUp;
+                                statusMessage = "";
+                              });
+                            },
+                            child: Text(
+                              isSignUp ? "Sign in" : "Sign up",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF6539EF),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 );

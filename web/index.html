@@ -2,29 +2,21 @@
 <html>
 <head>
   <base href="/">
-  <!-- other meta tags -->
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="A new Flutter project.">
-
-  <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="examai_flutter">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
-
   <title>ExamAi</title>
   <link rel="manifest" href="manifest.json">
-
-  <!-- Firebase JS SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-storage.js"></script>
   <script>
-    // Your Firebase configuration
     var firebaseConfig = {
       apiKey: "AIzaSyBsFTP5FgFSDjvy59ckkjP796deHYpXLSA",
       authDomain: "examai-2024.firebaseapp.com",
@@ -34,9 +26,17 @@
       appId: "1:752229224213:web:b2cba258179e731ca0a31c",
       measurementId: "G-RVWYJE0Y0X"
     };
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     firebase.analytics();
+
+    async function uploadProfileImage(uid, file) {
+      const storageRef = firebase.storage().ref('profile_images/' + uid + '.jpg');
+      const snapshot = await storageRef.put(file);
+      const downloadURL = await snapshot.ref.getDownloadURL();
+      return downloadURL;
+    }
+
+    window.uploadProfileImage = uploadProfileImage;
   </script>
 </head>
 <body>
