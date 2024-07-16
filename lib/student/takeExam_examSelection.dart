@@ -45,6 +45,11 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
         return;
       }
 
+      // Clear the exams list before fetching new data
+      setState(() {
+        exams.clear();
+      });
+
       final userData = await _firebaseService.getUserData(email);
       if (userData != null) {
         final currentExams = List<String>.from(userData['currentExams'] ?? []);

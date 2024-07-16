@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:examai_flutter/professor/professor_dashboard.dart';
 import 'package:examai_flutter/student/student_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,8 +34,48 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: SignInScreen(),
+      home: AuthCheck(),
     );
+  }
+}
+
+class AuthCheck extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasData) {
+          // User is signed in, check role from Shared Preferences
+          return FutureBuilder<String?>(
+            future: _getUserRole(),
+            builder: (context, roleSnapshot) {
+              if (roleSnapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              } else if (roleSnapshot.hasData) {
+                if (roleSnapshot.data == 'Professor') {
+                  return ProfessorScreen();
+                } else {
+                  return StudentScreen();
+                }
+              } else {
+                // Default to SignInScreen if role is not found
+                return SignInScreen();
+              }
+            },
+          );
+        } else {
+          return SignInScreen();
+        }
+      },
+    );
+  }
+
+  Future<String?> _getUserRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('userRole');
   }
 }
 
@@ -48,11 +90,8 @@ class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController passwordController = TextEditingController();
   bool isSignUp = false;
   String statusMessage = "";
-  bool _isPasswordVisible = false; // Add this state variable
-  List<bool> isSelected = [
-    true,
-    false
-  ]; // Initial state with 'Professor' selected
+  bool _isPasswordVisible = false;
+  List<bool> isSelected = [true, false];
 
   @override
   void dispose() {
@@ -69,18 +108,8 @@ class _SignInScreenState extends State<SignInScreen> {
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      // Redirect based on the selected role
-      if (isSelected[0]) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => ProfessorScreen()),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => StudentScreen()),
-        );
-      }
+      await _saveUserRole();
+      _navigateToDashboard();
     } catch (e) {
       setState(() {
         statusMessage = 'Sign-in error: $e';
@@ -90,22 +119,10 @@ class _SignInScreenState extends State<SignInScreen> {
 
   Future<void> _signInWithGoogle() async {
     try {
-      // Trigger the Google Sign-In flow
       final googleUser =
           await FirebaseAuth.instance.signInWithPopup(GoogleAuthProvider());
-
-      // Get the selected role
-      if (isSelected[0]) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => ProfessorScreen()),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => StudentScreen()),
-        );
-      }
+      await _saveUserRole();
+      _navigateToDashboard();
     } catch (e) {
       setState(() {
         statusMessage = 'Google Sign-In error: $e';
@@ -130,11 +147,11 @@ class _SignInScreenState extends State<SignInScreen> {
         password: passwordController.text.trim(),
       );
 
-      // Update user profile
       await userCredential.user?.updateProfile(
         displayName: fullNameController.text.trim(),
       );
 
+      await _saveUserRole();
       setState(() {
         statusMessage = "Account created. Please sign in.";
         isSignUp = false;
@@ -145,6 +162,26 @@ class _SignInScreenState extends State<SignInScreen> {
       setState(() {
         statusMessage = 'Sign-up error: $e';
       });
+    }
+  }
+
+  Future<void> _saveUserRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    final role = isSelected[0] ? 'Professor' : 'Student';
+    await prefs.setString('userRole', role);
+  }
+
+  void _navigateToDashboard() {
+    if (isSelected[0]) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ProfessorScreen()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => StudentScreen()),
+      );
     }
   }
 
@@ -179,29 +216,25 @@ class _SignInScreenState extends State<SignInScreen> {
                 top: 30.0,
                 left: 30.0,
                 bottom: 30.0,
-              ), // Add padding around the container except on the right side
+              ),
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6938ef), // Background color
-                  borderRadius: BorderRadius.circular(20), // Rounded corners
+                  color: const Color(0xFF6938ef),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(
-                      32.0), // Padding inside the container
+                  padding: const EdgeInsets.all(32.0),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment
-                        .start, // Align items to the start of the column
+                    mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Align(
-                        alignment:
-                            Alignment.topLeft, // Align text to the top left
+                        alignment: Alignment.topLeft,
                         child: Row(
-                          mainAxisSize: MainAxisSize.min, // Use minimum space
+                          mainAxisSize: MainAxisSize.min,
                           children: const [
-                            Icon(Icons.school,
-                                color: Colors.white), // Add the icon
-                            SizedBox(width: 8), // Space between icon and text
+                            Icon(Icons.school, color: Colors.white),
+                            SizedBox(width: 8),
                             Text(
                               "Exam AI",
                               style: TextStyle(
@@ -230,16 +263,13 @@ class _SignInScreenState extends State<SignInScreen> {
                           color: Colors.white,
                         ),
                       ),
-                      // Spacer(), // Fill the empty space
-                      SizedBox(height: 60), // Add some space (20 pixels
+                      SizedBox(height: 60),
                       Flexible(
                         child: Align(
-                          alignment: Alignment
-                              .bottomRight, // Position at the bottom right
+                          alignment: Alignment.bottomRight,
                           child: Image.asset(
                             'assets/images/login_image.png',
-                            fit: BoxFit
-                                .contain, // Scales the image to fit within the space without cutting or distorting
+                            fit: BoxFit.contain,
                           ),
                         ),
                       ),
@@ -416,15 +446,11 @@ class _SignInScreenState extends State<SignInScreen> {
                             child:
                                 Text(isSignUp ? "Create Account" : "Sign in")),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(
-                              0xFF6539EF), // Set the background color
-                          foregroundColor:
-                              Colors.white, // Set the foreground color to white
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 18), // Make the button a bit taller
+                          backgroundColor: const Color(0xFF6539EF),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(8), // Less rounded edges
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                       ),
@@ -432,16 +458,14 @@ class _SignInScreenState extends State<SignInScreen> {
                       Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(
-                              16), // Set the corner radius here
+                          borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: Color(0xFFD2D5DC), // Border color
-                            width: 1.0, // Border width
+                            color: Color(0xFFD2D5DC),
+                            width: 1.0,
                           ),
                         ),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(
-                              16), // Apply the same borderRadius to ClipRRect
+                          borderRadius: BorderRadius.circular(16),
                           child: SignInButton(
                             Buttons.Google,
                             text: "Sign in with Gmail",

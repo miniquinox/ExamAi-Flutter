@@ -208,7 +208,9 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
                   _buildTextField('Course', _courseController),
                   _buildDateTimeField(
                       'Date', 'Time', _dateController, _timeController),
-                  _buildTextField('Students', _studentsController),
+                  _buildTextField('Students', _studentsController,
+                      labelDescription:
+                          'Ex: maria@ucdavis.edu, john@gmail.com'),
                   Spacer(),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -225,13 +227,15 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller) {
+  Widget _buildTextField(String label, TextEditingController controller,
+      {String? labelDescription}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
+          hintText: labelDescription, // Use hintText for the label description
           border: OutlineInputBorder(),
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.grey, width: 1.0),
@@ -240,6 +244,18 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
             borderSide: BorderSide(color: Color(0xFF6938EF), width: 3.0),
           ),
         ),
+        onTap: () {
+          // Clear the hintText if it matches the labelDescription when the TextField is tapped
+          if (controller.text == labelDescription) {
+            controller.clear();
+          }
+        },
+        onEditingComplete: () {
+          // Restore the hintText if the TextField is empty when editing is complete
+          if (controller.text.isEmpty) {
+            controller.text = labelDescription ?? '';
+          }
+        },
       ),
     );
   }
