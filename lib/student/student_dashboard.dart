@@ -253,7 +253,7 @@ class _StudentScreenState extends State<StudentScreen> {
                             ),
                             StatisticBox(
                               iconPath: 'assets/images/empty2.svg',
-                              label: 'Exam 2',
+                              label: 'Homework 1',
                               value: 'Not graded',
                               topMargin: 0,
                               bottomMargin: 10,
@@ -275,7 +275,7 @@ class _StudentScreenState extends State<StudentScreen> {
                           children: [
                             StatisticBox(
                               iconPath: 'assets/images/empty4.svg',
-                              label: 'Quiz 2',
+                              label: 'Exam 2',
                               value: 'Not graded',
                               topMargin: 10,
                               bottomMargin: 0,
@@ -284,7 +284,7 @@ class _StudentScreenState extends State<StudentScreen> {
                             ),
                             StatisticBox(
                               iconPath: 'assets/images/empty5.svg',
-                              label: 'Homework 1',
+                              label: 'Homework 2',
                               value: 'Not graded',
                               topMargin: 10,
                               bottomMargin: 0,
@@ -293,7 +293,7 @@ class _StudentScreenState extends State<StudentScreen> {
                             ),
                             StatisticBox(
                               iconPath: 'assets/images/empty6.svg',
-                              label: 'Homework 2',
+                              label: 'Quiz 2',
                               value: 'Not graded',
                               topMargin: 10,
                               bottomMargin: 0,
