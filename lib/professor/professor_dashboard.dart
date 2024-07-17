@@ -39,11 +39,20 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
   int totalExamsTaken = 0;
   int totalQuestions = 0;
   List<Map<String, dynamic>> exams = [];
+  Set<String> students = {}; // Using Set to ensure uniqueness
+  final ScrollController _scrollController =
+      ScrollController(); // Add ScrollController
 
   @override
   void initState() {
     super.initState();
     fetchUser();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose(); // Dispose the ScrollController
+    super.dispose();
   }
 
   Future<void> fetchUser() async {
@@ -55,6 +64,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
     fetchTotalExamsTaken();
     fetchExams();
     fetchTotalQuestions();
+    fetchStudents(); // Fetch students when the user is fetched
   }
 
   Future<void> fetchTotalExams() async {
@@ -135,6 +145,33 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
     }
   }
 
+  Future<void> fetchStudents() async {
+    if (user != null) {
+      DocumentSnapshot professorSnapshot = await FirebaseFirestore.instance
+          .collection('Professors')
+          .doc(user!.email)
+          .get();
+      if (professorSnapshot.exists) {
+        List<dynamic> currentExams =
+            professorSnapshot.get('currentExams') ?? [];
+
+        for (String examId in currentExams) {
+          DocumentSnapshot examSnapshot = await FirebaseFirestore.instance
+              .collection('Exams')
+              .doc(examId)
+              .get();
+
+          if (examSnapshot.exists) {
+            List<dynamic> studentsList = examSnapshot.get('students') ?? [];
+            setState(() {
+              students.addAll(studentsList.cast<String>());
+            });
+          }
+        }
+      }
+    }
+  }
+
   Future<void> fetchExams() async {
     if (user != null) {
       DocumentSnapshot professorSnapshot = await FirebaseFirestore.instance
@@ -194,6 +231,14 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void _scrollDown() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(seconds: 3),
+      curve: Curves.easeOut,
     );
   }
 
@@ -535,19 +580,18 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                           fontWeight: FontWeight.bold)),
                                   const SizedBox(height: 10),
                                   // Container with a fixed height
-                                  const SizedBox(
+                                  SizedBox(
                                     height: 380, // Set a fixed height
                                     child: Padding(
-                                      padding: EdgeInsets.only(
-                                          left: 16.0), // Added left padding
-                                      child: Column(
-                                        children: [
-                                          StudentRow(name: 'Umar Islam'),
-                                          StudentRow(name: 'Giring Furqon'),
-                                          StudentRow(name: 'Andra Mahmud'),
-                                          StudentRow(name: 'Lukman Farhan'),
-                                          StudentRow(name: 'Lukman Farhan'),
-                                        ],
+                                      padding:
+                                          const EdgeInsets.only(left: 16.0),
+                                      child: ListView(
+                                        controller:
+                                            _scrollController, // Attach the ScrollController
+                                        children: students
+                                            .map((student) =>
+                                                StudentRow(name: student))
+                                            .toList(),
                                       ),
                                     ),
                                   ),
@@ -555,12 +599,12 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       Padding(
-                                        padding: const EdgeInsets.only(
-                                            right:
-                                                8.0), // Adjust the padding value as needed
+                                        padding:
+                                            const EdgeInsets.only(right: 8.0),
                                         child: TextButton(
-                                            onPressed: () {},
-                                            child: const Text('Show more')),
+                                          onPressed: _scrollDown,
+                                          child: const Text('Scroll down'),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -656,7 +700,6 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                   )
                                 : Column(
                                     children: [
-                                      Divider(),
                                       ...exams.map((exam) => ExamRow(
                                             examName: exam['examName'] ??
                                                 'Placeholder',
@@ -816,7 +859,9 @@ class StudentRow extends StatelessWidget {
                 color: Colors.white), // Updated to preferred color
           ),
           const SizedBox(width: 10),
-          Text(name),
+          Flexible(
+            child: Text(name, overflow: TextOverflow.clip),
+          )
         ],
       ),
     );
