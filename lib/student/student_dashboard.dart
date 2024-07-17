@@ -33,6 +33,7 @@ class _StudentScreenState extends State<StudentScreen> {
   List<Map<String, dynamic>> recentExams = [];
   List<Map<String, dynamic>> upcomingExams = [];
   String? selectedExamId;
+  double averageScore = 0.0; // Add this variable to store the average score
 
   @override
   void initState() {
@@ -63,13 +64,14 @@ class _StudentScreenState extends State<StudentScreen> {
           studentDoc.data()?['completedExams'] as Map<String, dynamic>? ?? {};
 
       print('Completed exams map size: ${completedExams.length}');
+      double totalScore = 0.0; // Initialize total score
+      int examCount = 0; // Initialize exam count
+
       completedExams.forEach((examId, examData) {
         print('Found completed exam with ID: $examId');
       });
 
       for (var examId in completedExams.keys) {
-        // final examData = completedExams[examId];
-
         print('Processing exam ID: $examId');
 
         final examSnapshot = await FirebaseFirestore.instance
@@ -92,6 +94,9 @@ class _StudentScreenState extends State<StudentScreen> {
                   ? gradedSnapshot.data()!['final_grade'] ?? 0
                   : 0;
 
+          totalScore += finalGrade; // Add score to total
+          examCount++; // Increment exam count
+
           recentExams.add({
             'examName': examDetails['examName'] ?? 'Placeholder',
             'examId': examId,
@@ -103,6 +108,10 @@ class _StudentScreenState extends State<StudentScreen> {
         } else {
           print('Exam snapshot does not exist for $examId');
         }
+      }
+
+      if (examCount > 0) {
+        averageScore = totalScore / examCount; // Calculate average score
       }
 
       setState(() {});
@@ -332,14 +341,15 @@ class _StudentScreenState extends State<StudentScreen> {
                                   height: 120,
                                   width: 120,
                                   child: CircularProgressIndicator(
-                                    value: 0.8,
+                                    value:
+                                        averageScore / 100, // Update this line
                                     backgroundColor: Colors.grey[200],
                                     valueColor: AlwaysStoppedAnimation<Color>(
                                         Color(0xFF6938EF)),
                                     strokeWidth: 10,
                                   ),
                                 ),
-                                Text('80%',
+                                Text('${averageScore.toInt()}%',
                                     style: TextStyle(
                                         fontSize: 24,
                                         fontWeight: FontWeight.bold)),
