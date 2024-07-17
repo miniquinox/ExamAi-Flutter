@@ -1,3 +1,4 @@
+import 'dart:html' as html; // Add this import for web support
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:examai_flutter/professor/professor_dashboard.dart';
 import 'package:examai_flutter/student/student_dashboard.dart';
@@ -27,7 +28,55 @@ void main() async {
   } catch (e) {
     print('Firebase initialization error: $e');
   }
+
+  setMetadata(); // Set metadata for the web
   runApp(MyApp());
+}
+
+void setMetadata() {
+  // Set the title
+  html.document.title = 'ExamAi';
+
+  // Set the meta description
+  var descriptionMeta = html.MetaElement()
+    ..name = 'description'
+    ..content =
+        'ExamAi: AI-powered exam grading platform. Automate exam grading with the power of AI, a new way to grade coding, long answer questions, or even getting feedback on your physics homework.';
+  html.document.head!.append(descriptionMeta);
+
+  // Set the favicon
+  var link = html.LinkElement()
+    ..rel = 'icon'
+    ..type = 'image/png'
+    ..href = 'assets/images/appIcon.png';
+  html.document.head!.append(link);
+
+  // Set Open Graph meta tags
+  var ogTitleMeta = html.MetaElement()
+    ..setAttribute('property', 'og:title')
+    ..content = 'ExamAi';
+  html.document.head!.append(ogTitleMeta);
+
+  var ogDescriptionMeta = html.MetaElement()
+    ..setAttribute('property', 'og:description')
+    ..content =
+        'ExamAi: AI-powered exam grading platform. Automate exam grading with the power of AI, a new way to grade coding, long answer questions, or even getting feedback on your physics homework.';
+  html.document.head!.append(ogDescriptionMeta);
+
+  var ogImageMeta = html.MetaElement()
+    ..setAttribute('property', 'og:image')
+    ..content = 'assets/images/1200x630.png';
+  html.document.head!.append(ogImageMeta);
+
+  var ogUrlMeta = html.MetaElement()
+    ..setAttribute('property', 'og:url')
+    ..content = 'https://examai.ai';
+  html.document.head!.append(ogUrlMeta);
+
+  var ogTypeMeta = html.MetaElement()
+    ..setAttribute('property', 'og:type')
+    ..content = 'website';
+  html.document.head!.append(ogTypeMeta);
 }
 
 class MyApp extends StatelessWidget {
