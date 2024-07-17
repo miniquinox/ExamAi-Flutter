@@ -542,7 +542,35 @@ class _StudentScreenState extends State<StudentScreen> {
                   ),
                 ),
                 SizedBox(height: 20),
-                MenuButton(icon: Icons.dashboard, label: 'Dashboard'),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            StudentScreen(),
+                        transitionDuration: Duration(
+                            seconds: 0), // No duration for the transition
+                        reverseTransitionDuration: Duration(
+                            seconds:
+                                0), // No duration for the reverse transition
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          return FadeTransition(
+                            opacity: Tween<double>(begin: 1.0, end: 1.0)
+                                .animate(animation),
+                            child: child,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  child: MenuButton(
+                    icon: Icons.dashboard,
+                    label: 'Dashboard',
+                    color: Colors.white,
+                  ),
+                ),
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
@@ -551,12 +579,23 @@ class _StudentScreenState extends State<StudentScreen> {
                           builder: (context) => StudentPortalScreen()),
                     );
                   },
-                  child: MenuButton(icon: Icons.assignment, label: 'Exams'),
+                  child: MenuButton(
+                      icon: Icons.assignment,
+                      label: 'Exams',
+                      color: Colors.white),
                 ),
-                MenuButton(icon: Icons.people, label: 'Students'),
-                MenuButton(icon: Icons.class_, label: 'Classes'),
-                MenuButton(icon: Icons.settings, label: 'Settings'),
-                MenuButton(icon: Icons.notifications, label: 'Notifications'),
+                const MenuButton(
+                    icon: Icons.people, label: 'Students', color: Colors.grey),
+                const MenuButton(
+                    icon: Icons.class_, label: 'Classes', color: Colors.grey),
+                const MenuButton(
+                    icon: Icons.notifications,
+                    label: 'Notifications',
+                    color: Colors.grey),
+                const MenuButton(
+                    icon: Icons.settings,
+                    label: 'Settings',
+                    color: Colors.grey),
                 Spacer(),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -878,9 +917,14 @@ class ExamRowSimple extends StatelessWidget {
 class MenuButton extends StatefulWidget {
   final IconData icon;
   final String label;
+  final Color color; // Add a color parameter
 
-  const MenuButton({Key? key, required this.icon, required this.label})
-      : super(key: key);
+  const MenuButton({
+    super.key,
+    required this.icon,
+    required this.label,
+    this.color = Colors.grey, // Default color is grey if not specified
+  });
 
   @override
   _MenuButtonState createState() => _MenuButtonState();
@@ -891,22 +935,23 @@ class _MenuButtonState extends State<MenuButton> {
 
   @override
   Widget build(BuildContext context) {
-    final hoverColor =
+    const hoverColor =
         Color(0xFF7A56FF); // A bit lighter purple for hover state
-    final color = Color(0xFF6938EF); // Normal purple color
 
     return MouseRegion(
       onEnter: (event) => setState(() => _isHovered = true),
       onExit: (event) => setState(() => _isHovered = false),
       child: Container(
-        color: _isHovered ? hoverColor : color,
-        padding: EdgeInsets.symmetric(
-            vertical: 10, horizontal: 20), // Adjust padding for bigger spacing
+        color: _isHovered
+            ? hoverColor
+            : Colors.transparent, // Keep the container transparent
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
         child: Row(
           children: [
-            Icon(widget.icon, color: Colors.white),
-            SizedBox(width: 16), // Increased spacing
-            Text(widget.label, style: TextStyle(color: Colors.white)),
+            Icon(widget.icon, color: widget.color), // Use the passed color
+            const SizedBox(width: 16),
+            Text(widget.label,
+                style: TextStyle(color: widget.color)), // Use the passed color
           ],
         ),
       ),

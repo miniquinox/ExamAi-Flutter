@@ -37,6 +37,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
   User? user;
   int totalExamsCreated = 0;
   int totalExamsTaken = 0;
+  int totalQuestions = 0;
   List<Map<String, dynamic>> exams = [];
 
   @override
@@ -53,6 +54,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
     fetchTotalExams();
     fetchTotalExamsTaken();
     fetchExams();
+    fetchTotalQuestions();
   }
 
   Future<void> fetchTotalExams() async {
@@ -89,12 +91,45 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
               .get();
           if (examSnapshot.exists) {
             List<dynamic> students = examSnapshot.get('students') ?? [];
+            print("List of Students: $students");
             totalTaken += students.length;
           }
         }
 
         setState(() {
           totalExamsTaken = totalTaken;
+        });
+      }
+    }
+  }
+
+  Future<void> fetchTotalQuestions() async {
+    if (user != null) {
+      DocumentSnapshot professorSnapshot = await FirebaseFirestore.instance
+          .collection('Professors')
+          .doc(user!.email)
+          .get();
+      if (professorSnapshot.exists) {
+        List<dynamic> currentExams =
+            professorSnapshot.get('currentExams') ?? [];
+
+        for (String examId in currentExams) {
+          DocumentSnapshot examSnapshot = await FirebaseFirestore.instance
+              .collection('Exams')
+              .doc(examId)
+              .get();
+          if (examSnapshot.exists) {
+            List<dynamic> students = examSnapshot.get('students') ?? [];
+            List<dynamic> numberOfQuestions =
+                examSnapshot.get('questions') ?? [];
+            // Multiply the number of students by the number of questions for this exam
+            totalQuestions += students.length * numberOfQuestions.length;
+          }
+        }
+
+        setState(() {
+          totalQuestions =
+              totalQuestions; // Assuming you want to store the result here
         });
       }
     }
@@ -189,14 +224,37 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                 ),
                 const SizedBox(height: 20),
                 // Menu items
-                const MenuButton(
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            ProfessorScreen(),
+                        transitionDuration: Duration(
+                            seconds: 0), // No duration for the transition
+                        reverseTransitionDuration: Duration(
+                            seconds:
+                                0), // No duration for the reverse transition
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          return FadeTransition(
+                            opacity: Tween<double>(begin: 1.0, end: 1.0)
+                                .animate(animation),
+                            child: child,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  child: MenuButton(
                     icon: Icons.dashboard,
                     label: 'Dashboard',
-                    color: Colors.white),
+                    color: Colors.white,
+                  ),
+                ),
                 const MenuButton(
-                    icon: Icons.assignment,
-                    label: 'Exams',
-                    color: Colors.white),
+                    icon: Icons.assignment, label: 'Exams', color: Colors.grey),
                 const MenuButton(
                     icon: Icons.people, label: 'Students', color: Colors.grey),
                 const MenuButton(
@@ -367,7 +425,9 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                       child: StatisticBox(
                                           icon: Icons.assessment,
                                           label: 'Total exams created',
-                                          value: '$totalExamsCreated'),
+                                          value: '$totalExamsCreated',
+                                          leftMargin: 0.0,
+                                          rightMargin: 5.0),
                                     ),
                                     const SizedBox(
                                         width:
@@ -375,17 +435,21 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                     Expanded(
                                       child: StatisticBox(
                                           icon: Icons.today,
-                                          label: "Total exams assigned",
-                                          value: '$totalExamsTaken'),
+                                          label: "Total Exams Assigned",
+                                          value: '$totalExamsTaken',
+                                          leftMargin: 5.0,
+                                          rightMargin: 5.0),
                                     ),
                                     const SizedBox(
                                         width:
                                             8), // Spacing between statistic boxes
-                                    const Expanded(
+                                    Expanded(
                                       child: StatisticBox(
                                           icon: Icons.assignment_turned_in,
-                                          label: 'Average Exam Score',
-                                          value: '85%'),
+                                          label: 'Total Questions Assigned',
+                                          value: '$totalQuestions',
+                                          leftMargin: 5.0,
+                                          rightMargin: 0.0),
                                     ),
                                   ],
                                 ),
@@ -674,19 +738,24 @@ class StatisticBox extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
+  final double leftMargin;
+  final double rightMargin;
 
-  const StatisticBox(
-      {super.key,
-      required this.icon,
-      required this.label,
-      required this.value});
+  const StatisticBox({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.leftMargin = 0.0, // Default left margin
+    this.rightMargin = 0.0, // Default right margin
+  });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
         height: 150, // Fixed height for better layout consistency
-        margin: const EdgeInsets.symmetric(horizontal: 8.0),
+        margin: EdgeInsets.only(left: leftMargin, right: rightMargin),
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -699,14 +768,30 @@ class StatisticBox extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: Colors.grey, size: 40),
-            const SizedBox(height: 10),
-            Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            Text(
-              value,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                Icon(icon, color: Color.fromARGB(255, 137, 68, 255), size: 40),
+                SizedBox(width: 8), // Add a SizedBox for spacing
+                Flexible(
+                  child: Text(label,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.clip, // Ensure text wraps
+                      textAlign:
+                          TextAlign.left), // TextAlign.left for start alignment
+                ),
+              ],
             ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                SizedBox(width: 8), // SizedBox for spacing before the text
+                Text(
+                  value,
+                  style: const TextStyle(
+                      fontSize: 30, fontWeight: FontWeight.bold),
+                ),
+              ],
+            )
           ],
         ),
       ),
