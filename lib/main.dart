@@ -48,7 +48,7 @@ void setMetadata() {
   var link = html.LinkElement()
     ..rel = 'icon'
     ..type = 'image/png'
-    ..href = 'assets/images/appIcon.png';
+    ..href = '/assets/images/appIcon.png'; // Ensure the path starts with '/'
   html.document.head!.append(link);
 
   // Set Open Graph meta tags
@@ -65,7 +65,8 @@ void setMetadata() {
 
   var ogImageMeta = html.MetaElement()
     ..setAttribute('property', 'og:image')
-    ..content = 'assets/images/1200x630.png';
+    ..content =
+        '/assets/images/1200x630.png'; // Ensure the path starts with '/'
   html.document.head!.append(ogImageMeta);
 
   var ogUrlMeta = html.MetaElement()
