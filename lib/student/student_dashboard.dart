@@ -432,16 +432,42 @@ class _StudentScreenState extends State<StudentScreen> {
                               Expanded(flex: 1, child: Text('Score')),
                             ],
                           ),
-                          Divider(),
-                          ...recentExams.map((exam) => ExamRow(
-                                examName: exam['examName'],
-                                examId: exam['examId'],
-                                date: exam['date'],
-                                time: exam['time'],
-                                students: exam['students'],
-                                score: exam['score'],
-                                onRowClick: onExamRowClick,
-                              )),
+                          recentExams.length == 0
+                              ? Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SizedBox(height: 50), // Add some spacing
+                                      Text(
+                                        "No available exams yet",
+                                        style: TextStyle(
+                                          // fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      // SizedBox(height: 20), // Add some spacing
+                                      SvgPicture.asset(
+                                        'assets/images/empty7.svg',
+                                        width: 100,
+                                        height: 100,
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : Column(
+                                  children: [
+                                    Divider(),
+                                    ...recentExams.map((exam) => ExamRow(
+                                          examName: exam['examName'],
+                                          examId: exam['examId'],
+                                          date: exam['date'],
+                                          time: exam['time'],
+                                          students: exam['students'],
+                                          score: exam['score'],
+                                          onRowClick: onExamRowClick,
+                                        )),
+                                  ],
+                                )
                         ],
                       ),
                     ),
