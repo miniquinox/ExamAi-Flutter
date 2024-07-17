@@ -7,6 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:html' as html;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,13 +30,15 @@ void main() async {
     print('Firebase initialization error: $e');
   }
 
-  setMetadata(); // Set metadata for the web
+  // Set the metadata and title
+  setMetadata();
+
   runApp(MyApp());
 }
 
 void setMetadata() {
   // Set the title
-  html.document.title = 'ExamAi';
+  html.document.title = 'ONEExamAi';
 
   // Set the meta description
   var descriptionMeta = html.MetaElement()
@@ -48,13 +51,13 @@ void setMetadata() {
   var link = html.LinkElement()
     ..rel = 'icon'
     ..type = 'image/png'
-    ..href = '/assets/images/appIcon.png'; // Ensure the path starts with '/'
+    ..href = 'assets/images/appIcon.png';
   html.document.head!.append(link);
 
   // Set Open Graph meta tags
   var ogTitleMeta = html.MetaElement()
     ..setAttribute('property', 'og:title')
-    ..content = 'ExamAi';
+    ..content = 'TWOExamAi';
   html.document.head!.append(ogTitleMeta);
 
   var ogDescriptionMeta = html.MetaElement()
@@ -65,8 +68,7 @@ void setMetadata() {
 
   var ogImageMeta = html.MetaElement()
     ..setAttribute('property', 'og:image')
-    ..content =
-        '/assets/images/1200x630.png'; // Ensure the path starts with '/'
+    ..content = 'assets/images/1200x630.png';
   html.document.head!.append(ogImageMeta);
 
   var ogUrlMeta = html.MetaElement()
