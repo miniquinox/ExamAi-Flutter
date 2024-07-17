@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -188,13 +189,26 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                 ),
                 const SizedBox(height: 20),
                 // Menu items
-                const MenuButton(icon: Icons.dashboard, label: 'Dashboard'),
-                const MenuButton(icon: Icons.assignment, label: 'Exams'),
-                const MenuButton(icon: Icons.people, label: 'Students'),
-                const MenuButton(icon: Icons.class_, label: 'Classes'),
-                const MenuButton(icon: Icons.settings, label: 'Settings'),
                 const MenuButton(
-                    icon: Icons.notifications, label: 'Notifications'),
+                    icon: Icons.dashboard,
+                    label: 'Dashboard',
+                    color: Colors.white),
+                const MenuButton(
+                    icon: Icons.assignment,
+                    label: 'Exams',
+                    color: Colors.white),
+                const MenuButton(
+                    icon: Icons.people, label: 'Students', color: Colors.grey),
+                const MenuButton(
+                    icon: Icons.class_, label: 'Classes', color: Colors.grey),
+                const MenuButton(
+                    icon: Icons.notifications,
+                    label: 'Notifications',
+                    color: Colors.grey),
+                const MenuButton(
+                    icon: Icons.settings,
+                    label: 'Settings',
+                    color: Colors.grey),
                 const Spacer(),
                 // Usage card
                 Padding(
@@ -552,16 +566,49 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                             ),
                             const Divider(),
                             // Example rows
-                            ...exams.map((exam) => ExamRow(
-                                  examName: exam['examName'] ?? 'Placeholder',
-                                  examId: exam['id'] ?? 'Placeholder',
-                                  course: exam['course'] ?? 'Placeholder',
-                                  dateLastGraded:
-                                      exam['dateLastGraded'] ?? 'No grades yet',
-                                  averageScore: exam['avgScore']?.toString() ??
-                                      'Placeholder',
-                                  graded: exam['graded'] ?? false,
-                                )),
+                            exams.length == 0
+                                ? Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                            height: 50), // Add some spacing
+                                        Text(
+                                          "No available exams yet",
+                                          style: TextStyle(
+                                            // fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        // SizedBox(height: 20), // Add some spacing
+                                        SvgPicture.asset(
+                                          'assets/images/empty7.svg',
+                                          width: 100,
+                                          height: 100,
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : Column(
+                                    children: [
+                                      Divider(),
+                                      ...exams.map((exam) => ExamRow(
+                                            examName: exam['examName'] ??
+                                                'Placeholder',
+                                            examId: exam['id'] ?? 'Placeholder',
+                                            course:
+                                                exam['course'] ?? 'Placeholder',
+                                            dateLastGraded:
+                                                exam['dateLastGraded'] ??
+                                                    'No grades yet',
+                                            averageScore:
+                                                exam['avgScore']?.toString() ??
+                                                    'Placeholder',
+                                            graded: exam['graded'] ?? false,
+                                          )),
+                                    ],
+                                  )
                           ],
                         ),
                       ),
@@ -581,8 +628,14 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
 class MenuButton extends StatefulWidget {
   final IconData icon;
   final String label;
+  final Color color; // Add a color parameter
 
-  const MenuButton({super.key, required this.icon, required this.label});
+  const MenuButton({
+    super.key,
+    required this.icon,
+    required this.label,
+    this.color = Colors.grey, // Default color is grey if not specified
+  });
 
   @override
   _MenuButtonState createState() => _MenuButtonState();
@@ -595,20 +648,21 @@ class _MenuButtonState extends State<MenuButton> {
   Widget build(BuildContext context) {
     const hoverColor =
         Color(0xFF7A56FF); // A bit lighter purple for hover state
-    const color = Color(0xFF6938EF); // Normal purple color
 
     return MouseRegion(
       onEnter: (event) => setState(() => _isHovered = true),
       onExit: (event) => setState(() => _isHovered = false),
       child: Container(
-        color: _isHovered ? hoverColor : color,
-        padding: const EdgeInsets.symmetric(
-            vertical: 10, horizontal: 20), // Adjust padding for bigger spacing
+        color: _isHovered
+            ? hoverColor
+            : Colors.transparent, // Keep the container transparent
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
         child: Row(
           children: [
-            Icon(widget.icon, color: Colors.white),
-            const SizedBox(width: 16), // Increased spacing
-            Text(widget.label, style: const TextStyle(color: Colors.white)),
+            Icon(widget.icon, color: widget.color), // Use the passed color
+            const SizedBox(width: 16),
+            Text(widget.label,
+                style: TextStyle(color: widget.color)), // Use the passed color
           ],
         ),
       ),
