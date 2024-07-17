@@ -4,12 +4,12 @@
   <base href="/">
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="Ai-powered Exam Grading Platform">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="examai_flutter">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="apple-touch-icon" href="assets/images/appIcon.png">
+  <link rel="icon" type="image/png" href="assets/images/appIcon.png"/>
   <title>ExamAi</title>
   <link rel="manifest" href="manifest.json">
   <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
@@ -37,9 +37,20 @@
     }
 
     window.uploadProfileImage = uploadProfileImage;
+
+    function detectMobile() {
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      if (isMobile) {
+        window.location.href = "https://examai.framer.website/";
+      }
+    }
+
+    window.onload = detectMobile;
   </script>
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+  <div id="desktop-only">
+    <script src="flutter_bootstrap.js" async></script>
+  </div>
 </body>
 </html>
