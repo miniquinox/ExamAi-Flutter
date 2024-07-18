@@ -1,4 +1,5 @@
 import 'package:examai_flutter/main.dart';
+import 'package:examai_flutter/student/studentExam_feedback.dart';
 import 'package:examai_flutter/student/takeExam_examSelection.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -33,7 +34,8 @@ class _StudentScreenState extends State<StudentScreen> {
   List<Map<String, dynamic>> recentExams = [];
   List<Map<String, dynamic>> upcomingExams = [];
   String? selectedExamId;
-  double averageScore = 0.0; // Add this variable to store the average score
+  String? feedbackExamId;
+  double averageScore = 0.0;
 
   @override
   void initState() {
@@ -53,7 +55,6 @@ class _StudentScreenState extends State<StudentScreen> {
   }
 
   Future<void> fetchRecentExams(String email) async {
-    print('Fetching recent exams for email: $email');
     final studentDoc = await FirebaseFirestore.instance
         .collection('Students')
         .doc(email)
@@ -63,17 +64,10 @@ class _StudentScreenState extends State<StudentScreen> {
       final completedExams =
           studentDoc.data()?['completedExams'] as Map<String, dynamic>? ?? {};
 
-      print('Completed exams map size: ${completedExams.length}');
-      double totalScore = 0.0; // Initialize total score
-      int examCount = 0; // Initialize exam count
-
-      completedExams.forEach((examId, examData) {
-        print('Found completed exam with ID: $examId');
-      });
+      double totalScore = 0.0;
+      int examCount = 0;
 
       for (var examId in completedExams.keys) {
-        print('Processing exam ID: $examId');
-
         final examSnapshot = await FirebaseFirestore.instance
             .collection('Exams')
             .doc(examId)
@@ -94,8 +88,8 @@ class _StudentScreenState extends State<StudentScreen> {
                   ? gradedSnapshot.data()!['final_grade'] ?? 0
                   : 0;
 
-          totalScore += finalGrade; // Add score to total
-          examCount++; // Increment exam count
+          totalScore += finalGrade;
+          examCount++;
 
           recentExams.add({
             'examName': examDetails['examName'] ?? 'Placeholder',
@@ -105,23 +99,18 @@ class _StudentScreenState extends State<StudentScreen> {
             'students': List<String>.from(examDetails['students'] ?? []),
             'score': finalGrade,
           });
-        } else {
-          print('Exam snapshot does not exist for $examId');
         }
       }
 
       if (examCount > 0) {
-        averageScore = totalScore / examCount; // Calculate average score
+        averageScore = totalScore / examCount;
       }
 
       setState(() {});
-    } else {
-      print('No document found for student with email: $email');
     }
   }
 
   Future<void> fetchUpcomingExams(String email) async {
-    print('Fetching upcoming exams for email: $email');
     final studentDoc = await FirebaseFirestore.instance
         .collection('Students')
         .doc(email)
@@ -130,7 +119,6 @@ class _StudentScreenState extends State<StudentScreen> {
     if (studentDoc.exists) {
       final currentExams =
           List<String>.from(studentDoc.data()?['currentExams'] ?? []);
-      print('Current exams for student: $currentExams');
 
       for (var examId in currentExams) {
         final examSnapshot = await FirebaseFirestore.instance
@@ -153,9 +141,7 @@ class _StudentScreenState extends State<StudentScreen> {
                   DateFormat('yyyy-MM-dd hh:mm a').parse(dateTimeString);
               formattedDateTime =
                   DateFormat('E, MMM d \'@\' h:mma').format(dateTime);
-            } catch (e) {
-              print('Error formatting date and time: $e');
-            }
+            } catch (e) {}
 
             upcomingExams.add({
               'examId': examId,
@@ -167,21 +153,20 @@ class _StudentScreenState extends State<StudentScreen> {
         }
       }
 
-      print('List of Upcoming exams:');
-      for (var exam in upcomingExams) {
-        print(
-            '- ${exam['examId']}, ${exam['description']}, ${exam['examName']}, ${exam['formattedDateTime']}');
-      }
-
       setState(() {});
-    } else {
-      print('No document found for student with email: $email');
     }
   }
 
   void onExamRowClick(String examId) {
     setState(() {
       selectedExamId = examId;
+      feedbackExamId = null;
+    });
+  }
+
+  void onFeedbackClick(String examId) {
+    setState(() {
+      feedbackExamId = examId;
     });
   }
 
@@ -341,8 +326,7 @@ class _StudentScreenState extends State<StudentScreen> {
                                   height: 120,
                                   width: 120,
                                   child: CircularProgressIndicator(
-                                    value:
-                                        averageScore / 100, // Update this line
+                                    value: averageScore / 100,
                                     backgroundColor: Colors.grey[200],
                                     valueColor: AlwaysStoppedAnimation<Color>(
                                         Color(0xFF6938EF)),
@@ -447,15 +431,13 @@ class _StudentScreenState extends State<StudentScreen> {
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      SizedBox(height: 50), // Add some spacing
+                                      SizedBox(height: 50),
                                       Text(
                                         "No available exams yet",
                                         style: TextStyle(
-                                          // fontWeight: FontWeight.bold,
                                           fontSize: 16,
                                         ),
                                       ),
-                                      // SizedBox(height: 20), // Add some spacing
                                       SvgPicture.asset(
                                         'assets/images/empty7.svg',
                                         width: 100,
@@ -526,8 +508,13 @@ class _StudentScreenState extends State<StudentScreen> {
           ],
         ),
       );
+    } else if (feedbackExamId != null) {
+      mainContent = StudentExamFeedbackScreen(examId: feedbackExamId!);
     } else {
-      mainContent = ExamResultsScreen(examId: selectedExamId!);
+      mainContent = ExamResultsScreen(
+        examId: selectedExamId!,
+        onFeedbackClick: onFeedbackClick,
+      );
     }
 
     return Scaffold(
@@ -559,11 +546,8 @@ class _StudentScreenState extends State<StudentScreen> {
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
                             StudentScreen(),
-                        transitionDuration: Duration(
-                            seconds: 0), // No duration for the transition
-                        reverseTransitionDuration: Duration(
-                            seconds:
-                                0), // No duration for the reverse transition
+                        transitionDuration: Duration(seconds: 0),
+                        reverseTransitionDuration: Duration(seconds: 0),
                         transitionsBuilder:
                             (context, animation, secondaryAnimation, child) {
                           return FadeTransition(

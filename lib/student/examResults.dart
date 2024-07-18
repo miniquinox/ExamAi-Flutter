@@ -7,8 +7,13 @@ import 'studentExam_feedback.dart';
 
 class ExamResultsScreen extends StatefulWidget {
   final String examId;
+  final Function(String examId) onFeedbackClick;
 
-  const ExamResultsScreen({Key? key, required this.examId}) : super(key: key);
+  const ExamResultsScreen({
+    Key? key,
+    required this.examId,
+    required this.onFeedbackClick,
+  }) : super(key: key);
 
   @override
   _ExamResultsScreenState createState() => _ExamResultsScreenState();
@@ -109,7 +114,6 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
             const SizedBox(width: 4),
             const Icon(Icons.chevron_right, color: Colors.black),
             const SizedBox(width: 4),
-            const SizedBox(width: 4),
             const Icon(Icons.analytics, color: Color(0xFF6938EF)),
             const SizedBox(width: 4),
             const Text(
@@ -191,14 +195,7 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                 HoverableCard(
                   finalGrade: finalGrade,
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => StudentExamFeedbackScreen(
-                          examId: widget.examId,
-                        ),
-                      ),
-                    );
+                    widget.onFeedbackClick(widget.examId);
                   },
                 ),
 
@@ -488,21 +485,21 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
         barRods: [
           BarChartRodData(
             toY: entry.value.toDouble(),
-            color: Color(0xff9b8afb), // Lighter purple color
-            width: 30, // Wider bars
+            color: Color(0xff9b8afb),
+            width: 30,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(10),
               topRight: Radius.circular(10),
-            ), // Rounded top corners
+            ),
           ),
         ],
       );
     }).toList();
 
     return SizedBox(
-      height: 250, // Set the chart height to 250
+      height: 250,
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 24.0), // Adjusted bottom padding
+        padding: const EdgeInsets.only(bottom: 24.0),
         child: BarChart(
           BarChartData(
             barGroups: barGroups,
@@ -525,12 +522,12 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                   getTitlesWidget: (double value, TitleMeta meta) {
                     const style = TextStyle(
                       color: Colors.black,
-                      fontSize: 12, // Adjusted font size
+                      fontSize: 12,
                     );
                     List<String> titles = gradeDistribution.keys.toList();
                     return SideTitleWidget(
                       axisSide: meta.axisSide,
-                      space: 8.0, // Adjusted space between titles
+                      space: 8.0,
                       child: Text(titles[value.toInt()], style: style),
                     );
                   },
@@ -570,10 +567,9 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
     double upper25 = grades[(grades.length * 0.75).floor()]['grade'];
 
     return SizedBox(
-      height: 250, // Constrain the height
+      height: 250,
       child: Padding(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 30.0), // Horizontal padding
+        padding: const EdgeInsets.symmetric(horizontal: 30.0),
         child: LineChart(
           LineChartData(
             lineTouchData: LineTouchData(
@@ -648,7 +644,7 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
               LineChartBarData(
                 isCurved: true,
                 color: Color(0xff9b8afb),
-                barWidth: 3, // Thinner line
+                barWidth: 3,
                 isStrokeCapRound: true,
                 dotData: FlDotData(show: false),
                 belowBarData: BarAreaData(
@@ -701,21 +697,20 @@ class _HoverableCardState extends State<HoverableCard> {
         onExit: (_) => setState(() => _isHovering = false),
         child: Container(
           height: 100,
-          width: 200, // Target width for the container
+          width: 200,
           decoration: BoxDecoration(
             color: _isHovering ? Colors.grey.shade200 : Colors.white,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: Color(0xFFD0D5DD), width: 1),
           ),
           child: Row(
-            mainAxisAlignment:
-                MainAxisAlignment.center, // Center align the row contents
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Padding(
-                padding: const EdgeInsets.all(8.0), // Adjust padding as needed
+                padding: const EdgeInsets.all(8.0),
                 child: SizedBox(
-                  width: 50, // Width of the chart
-                  height: 50, // Height of the chart
+                  width: 50,
+                  height: 50,
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
@@ -724,15 +719,14 @@ class _HoverableCardState extends State<HoverableCard> {
                         backgroundColor: Colors.grey.shade200,
                         valueColor:
                             AlwaysStoppedAnimation<Color>(Color(0xFF6938EF)),
-                        strokeWidth:
-                            6, // Stroke width of the progress indicator
+                        strokeWidth: 6,
                       ),
                       Center(
                         child: Text(
                           '${widget.finalGrade.toStringAsFixed(1)}%',
                           style: TextStyle(
-                            fontSize: 12, // Font size of the percentage text
-                            fontWeight: FontWeight.bold, // Make text bold
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
@@ -741,11 +735,9 @@ class _HoverableCardState extends State<HoverableCard> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 4.0), // Adjust padding as needed
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment
-                      .center, // Center align the column contents
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
