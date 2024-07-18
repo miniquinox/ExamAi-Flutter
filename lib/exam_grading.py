@@ -7,22 +7,17 @@ import os
 from datetime import datetime
 import tempfile
 
-# Retrieve the API key and other sensitive information from environment variables
+# Retrieve the API key and the path to the Firebase Admin SDK JSON file from environment variables
 gemini_api_key = os.getenv('GEMINI_API_KEY')
-firebase_adminsdk_json_content = os.getenv('FIREBASE_ADMINSDK_JSON_PATH')
+firebase_adminsdk_json_path = os.getenv('FIREBASE_ADMINSDK_JSON_PATH')
 
 # Ensure the environment variables are set
 if not gemini_api_key:
     raise ValueError("Environment variable GEMINI_API_KEY is not set")
-if not firebase_adminsdk_json_content:
+if not firebase_adminsdk_json_path:
     raise ValueError("Environment variable FIREBASE_ADMINSDK_JSON_PATH is not set")
 
-# Write the JSON content to a temporary file
-with tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.json') as temp_file:
-    temp_file.write(firebase_adminsdk_json_content)
-    firebase_adminsdk_json_path = temp_file.name
-
-# Initialize Firebase
+# Initialize Firebase using the file path
 cred = credentials.Certificate(firebase_adminsdk_json_path)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
