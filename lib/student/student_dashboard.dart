@@ -650,8 +650,6 @@ class _StudentScreenState extends State<StudentScreen> {
                         Text(
                             'ExamAI is free to use until December 31st, 2024.'),
                         SizedBox(height: 10),
-                        // ElevatedButton(
-                        //     onPressed: () {}, child: Text('Upgrade plan'))
                       ],
                     ),
                   ),

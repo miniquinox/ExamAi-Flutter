@@ -1,7 +1,7 @@
 import 'package:examai_flutter/main.dart';
+import 'package:examai_flutter/professor/ExamResults_professor.dart';
 import 'package:examai_flutter/professor/createExam_examDetails.dart';
 import 'package:examai_flutter/professor/examGrades.dart';
-import 'package:examai_flutter/student/examResults.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
