@@ -1,6 +1,7 @@
 import 'package:examai_flutter/main.dart';
 import 'package:examai_flutter/professor/createExam_examDetails.dart';
 import 'package:examai_flutter/professor/examGrades.dart';
+import 'package:examai_flutter/student/examResults.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -41,6 +42,8 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
   List<Map<String, dynamic>> exams = [];
   Set<String> students = {}; // Using Set to ensure uniqueness
   String? selectedExamId; // Add this line to track the selected exam ID
+  bool showExamResults =
+      false; // Add this line to toggle between exam details and results
   final ScrollController _scrollController =
       ScrollController(); // Add ScrollController
 
@@ -102,7 +105,6 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
               .get();
           if (examSnapshot.exists) {
             List<dynamic> students = examSnapshot.get('students') ?? [];
-            print("List of Students: $students");
             totalTaken += students.length;
           }
         }
@@ -536,9 +538,18 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                   averageScore: exam['avgScore']?.toString() ??
                                       'Placeholder',
                                   graded: exam['graded'] ?? false,
-                                  onRowClick: (examId) {
+                                  onAnalyticsClick: () {
                                     setState(() {
-                                      selectedExamId = examId;
+                                      selectedExamId = exam['id'];
+                                      showExamResults =
+                                          true; // Set to show exam results
+                                    });
+                                  },
+                                  onStudentGradesClick: () {
+                                    setState(() {
+                                      selectedExamId = exam['id'];
+                                      showExamResults =
+                                          false; // Set to show student grades
                                     });
                                   },
                                 )),
@@ -550,6 +561,11 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
             const SizedBox(height: 30),
           ],
         ),
+      );
+    } else if (showExamResults) {
+      mainContent = ExamResultsScreen(
+        examId: selectedExamId!,
+        onFeedbackClick: (String examId) {},
       );
     } else {
       mainContent = ExamDetailsScreen(examId: selectedExamId!);
@@ -875,7 +891,8 @@ class ExamRow extends StatefulWidget {
   final String dateLastGraded;
   final String averageScore;
   final bool graded;
-  final Function(String) onRowClick;
+  final VoidCallback onAnalyticsClick;
+  final VoidCallback onStudentGradesClick;
 
   const ExamRow({
     super.key,
@@ -885,7 +902,8 @@ class ExamRow extends StatefulWidget {
     required this.dateLastGraded,
     required this.averageScore,
     required this.graded,
-    required this.onRowClick,
+    required this.onAnalyticsClick,
+    required this.onStudentGradesClick,
   });
 
   @override
@@ -954,7 +972,7 @@ class _ExamRowState extends State<ExamRow> {
       onExit: (event) => setState(() => _isHovered = false),
       child: GestureDetector(
         onTap: () {
-          widget.onRowClick(widget.examId);
+          // Keep the existing onRowClick functionality if needed
         },
         child: Container(
           color: _isHovered
@@ -1008,61 +1026,113 @@ class _ExamRowState extends State<ExamRow> {
                 flex: 2, // Adjusted flex value
                 child: Center(
                   // Center the content within the Expanded widget
-                  child: SizedBox(
-                    width: 100, // Set the width of the button
-                    child: TextButton(
-                      onPressed: widget.graded
-                          ? null
-                          : () => showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Column(
-                                      children: [
-                                        const Text('Start Grading'),
-                                        const SizedBox(height: 10),
-                                        Image.asset(
-                                          'assets/images/aiGrade.png',
-                                          height: 200.0, // Set the image height
-                                        ),
-                                      ],
-                                    ),
-                                    content: const Text(
-                                      'The AI will start grading after you click "Submit". \nEnsure all students have submitted their exams to avoid early feedback.',
-                                      textAlign:
-                                          TextAlign.center, // Center align
-                                    ),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        child: const Text('Cancel'),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                      TextButton(
-                                        child: const Text('Submit'),
-                                        onPressed: () async {
-                                          Navigator.of(context).pop();
-                                          triggerGrading(widget.examId);
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                },
+                  child: widget.graded
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    const Color.fromARGB(255, 114, 211, 255),
+                                    const Color.fromARGB(255, 236, 131, 255),
+                                    Color.fromARGB(255, 255, 99, 60)
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                      style: TextButton.styleFrom(
-                        backgroundColor:
-                            widget.graded ? Colors.grey : Colors.green,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4), // Adjust padding as needed
-                      ),
-                      child: Text(
-                        widget.graded ? 'Graded' : 'Grade',
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
+                              child: ElevatedButton(
+                                onPressed: widget.onAnalyticsClick,
+                                style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.all(
+                                      Colors.transparent),
+                                  padding: MaterialStateProperty.all(
+                                      EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 0)),
+                                  shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  )),
+                                  shadowColor: MaterialStateProperty.all(
+                                      Colors.transparent),
+                                ),
+                                child: Text(
+                                  'Analytics',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 20), // Add this line
+                            ElevatedButton(
+                              onPressed: widget.onStudentGradesClick,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF6938EF),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 10),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: Text(
+                                'Student\nGrades',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        )
+                      : ElevatedButton(
+                          onPressed: () => showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Column(
+                                  children: [
+                                    const Text('Start Grading'),
+                                    const SizedBox(height: 10),
+                                    Image.asset(
+                                      'assets/images/aiGrade.png',
+                                      height: 200.0, // Set the image height
+                                    ),
+                                  ],
+                                ),
+                                content: const Text(
+                                  'The AI will start grading after you click "Submit". \nEnsure all students have submitted their exams to avoid early feedback.',
+                                  textAlign: TextAlign.center, // Center align
+                                ),
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: const Text('Cancel'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: const Text('Submit'),
+                                    onPressed: () async {
+                                      Navigator.of(context).pop();
+                                      triggerGrading(widget.examId);
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text(
+                            'Grade Exam',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
                 ),
               ),
               // Assuming ButtonBar does not need flex as it contains fixed-size buttons
