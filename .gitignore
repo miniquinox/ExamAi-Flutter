@@ -43,7 +43,8 @@ app.*.map.json
 /android/app/release
 
 # Risky files
-lib/examai-2024-firebase-adminsdk-n1um4-81d7727487.json
+lib/examai-2024-193877de07de.json
+lib/encodedFirebaseKey.json
 lib/exam.json
 lib/env_variables.sh
 lib/Gemini_API_KEY.txt
