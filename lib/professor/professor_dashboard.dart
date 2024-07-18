@@ -40,6 +40,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
   int totalQuestions = 0;
   List<Map<String, dynamic>> exams = [];
   Set<String> students = {}; // Using Set to ensure uniqueness
+  String? selectedExamId; // Add this line to track the selected exam ID
   final ScrollController _scrollController =
       ScrollController(); // Add ScrollController
 
@@ -244,7 +245,316 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Calculate the number of days from today until December 31, 2024
+    Widget mainContent;
+    if (selectedExamId == null) {
+      mainContent = SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Welcome back, ${user?.displayName}!',
+                      style: const TextStyle(
+                          fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    const Text(
+                      'Here\'s what\'s happening with your exams today.',
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  ],
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CreateExamDetails()),
+                    );
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.resolveWith<Color>(
+                      (Set<WidgetState> states) {
+                        if (states.contains(WidgetState.hovered)) {
+                          return const Color(0xFF6938EF)
+                              .withOpacity(0.8); // Slightly lighter on hover
+                        }
+                        return const Color(0xFF6938EF); // Default color
+                      },
+                    ),
+                    foregroundColor: WidgetStateProperty.all(
+                        Colors.white), // Button text color
+                    shape: WidgetStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(10), // Less rounded corners
+                      ),
+                    ),
+                  ),
+                  child: const Text('+ Create new exam'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            // Statistic boxes and Graph container alignment
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 3, // Increase space for left side
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: StatisticBox(
+                                icon: Icons.assessment,
+                                label: 'Total exams created',
+                                value: '$totalExamsCreated',
+                                leftMargin: 0.0,
+                                rightMargin: 5.0),
+                          ),
+                          const SizedBox(
+                              width: 8), // Spacing between statistic boxes
+                          Expanded(
+                            child: StatisticBox(
+                                icon: Icons.today,
+                                label: "Total Exams Assigned",
+                                value: '$totalExamsTaken',
+                                leftMargin: 5.0,
+                                rightMargin: 5.0),
+                          ),
+                          const SizedBox(
+                              width: 8), // Spacing between statistic boxes
+                          Expanded(
+                            child: StatisticBox(
+                                icon: Icons.assignment_turned_in,
+                                label: 'Total Questions Assigned',
+                                value: '$totalQuestions',
+                                leftMargin: 5.0,
+                                rightMargin: 0.0),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      // Graph
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: const Color(
+                                0xFFD0D5DD), // Thin border color #d0d5dd
+                            width: 1, // Border width 1 pixel
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Text(
+                                  'Exams report',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                const Spacer(),
+                                TextButton(
+                                    onPressed: () {},
+                                    child: const Text('View report')),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Container(
+                              height: 200,
+                              color: Colors.grey[200], // Placeholder for graph
+                              child: const Center(
+                                  child: Text('Graph Placeholder')),
+                            ),
+                            const SizedBox(height: 10),
+                            const Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Text('12 months'),
+                                Text('3 months'),
+                                Text('30 days'),
+                                Text('7 days'),
+                                Text('24 hours'),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                    width: 16), // Spacing between left and right content
+                Expanded(
+                  flex: 1, // Reduce space for right side to make it narrower
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: const Color(
+                            0xFFD0D5DD), // Thin border color #d0d5dd
+                        width: 1, // Border width 1 pixel
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Your Students',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 10),
+                        // Container with a fixed height
+                        SizedBox(
+                          height: 380, // Set a fixed height
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 16.0),
+                            child: ListView(
+                              controller:
+                                  _scrollController, // Attach the ScrollController
+                              children: students
+                                  .map((student) => StudentRow(name: student))
+                                  .toList(),
+                            ),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: TextButton(
+                                onPressed: _scrollDown,
+                                child: const Text('Scroll down'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            // Your Exams table
+            Container(
+              constraints: BoxConstraints(
+                  minHeight: 380), // Set minimum height constraint
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: const Color(0xFFD0D5DD), // Thin border color #d0d5dd
+                  width: 1, // Border width 1 pixel
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Your Exams',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  const Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 10.0),
+                          child: Text('Exam Name'),
+                        ),
+                      ), // Adjusted flex value
+                      Expanded(
+                          flex: 2,
+                          child: Text('Course')), // Adjusted flex value
+                      Expanded(
+                          flex: 3,
+                          child: Text('Exam ID')), // Adjusted flex value
+                      Expanded(
+                          flex: 2,
+                          child:
+                              Text('Date last graded')), // Adjusted flex value
+                      Expanded(
+                        flex: 2,
+                        child: Center(
+                          // Center the text within the Expanded widget
+                          child: Text('Average score'),
+                        ),
+                      ), // Adjusted flex value
+                      Expanded(
+                        flex: 2,
+                        child: Center(
+                          // Center the text within the Expanded widget
+                          child: Text('Grade Status'),
+                        ),
+                      ), // Adjusted flex value
+                      SizedBox(width: 110),
+                    ],
+                  ),
+                  const Divider(),
+                  // Example rows
+                  exams.length == 0
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(height: 50), // Add some spacing
+                              Text(
+                                "No available exams yet",
+                                style: TextStyle(
+                                  // fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              // SizedBox(height: 20), // Add some spacing
+                              SvgPicture.asset(
+                                'assets/images/empty7.svg',
+                                width: 100,
+                                height: 100,
+                              ),
+                            ],
+                          ),
+                        )
+                      : Column(
+                          children: [
+                            ...exams.map((exam) => ExamRow(
+                                  examName: exam['examName'] ?? 'Placeholder',
+                                  examId: exam['id'] ?? 'Placeholder',
+                                  course: exam['course'] ?? 'Placeholder',
+                                  dateLastGraded:
+                                      exam['dateLastGraded'] ?? 'No grades yet',
+                                  averageScore: exam['avgScore']?.toString() ??
+                                      'Placeholder',
+                                  graded: exam['graded'] ?? false,
+                                  onRowClick: (examId) {
+                                    setState(() {
+                                      selectedExamId = examId;
+                                    });
+                                  },
+                                )),
+                          ],
+                        )
+                ],
+              ),
+            ),
+            const SizedBox(height: 30),
+          ],
+        ),
+      );
+    } else {
+      mainContent = ExamDetailsScreen(examId: selectedExamId!);
+    }
+
     final DateTime today = DateTime.now();
     final DateTime endDate = DateTime(2024, 12, 31);
     final int daysLeft = endDate.difference(today).inDays;
@@ -254,7 +564,6 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
     final DateTime endOfYear = DateTime(today.year + 1, 1, 1);
     final double progress = today.difference(startOfYear).inDays /
         endOfYear.difference(startOfYear).inDays;
-
     return Scaffold(
       backgroundColor: const Color(
           0xFFFCFCFD), // Set the background color of the Scaffold to #fcfcfd
@@ -282,26 +591,9 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                 // Menu items
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            ProfessorScreen(),
-                        transitionDuration: Duration(
-                            seconds: 0), // No duration for the transition
-                        reverseTransitionDuration: Duration(
-                            seconds:
-                                0), // No duration for the reverse transition
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          return FadeTransition(
-                            opacity: Tween<double>(begin: 1.0, end: 1.0)
-                                .animate(animation),
-                            child: child,
-                          );
-                        },
-                      ),
-                    );
+                    setState(() {
+                      selectedExamId = null;
+                    });
                   },
                   child: MenuButton(
                     icon: Icons.dashboard,
@@ -431,334 +723,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
             child: Padding(
               padding:
                   const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
-              child: SingleChildScrollView(
-                child: Container(
-                  margin: const EdgeInsets.only(
-                      left: 16.0, right: 16.0), // Added margin here
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Header
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Welcome back, ${user?.displayName}!',
-                                style: const TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold),
-                              ),
-                              const Text(
-                                'Here\'s what\'s happening with your exams today.',
-                                style:
-                                    TextStyle(fontSize: 16, color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => CreateExamDetails()),
-                              );
-                            },
-                            style: ButtonStyle(
-                              backgroundColor:
-                                  WidgetStateProperty.resolveWith<Color>(
-                                (Set<WidgetState> states) {
-                                  if (states.contains(WidgetState.hovered)) {
-                                    return const Color(0xFF6938EF).withOpacity(
-                                        0.8); // Slightly lighter on hover
-                                  }
-                                  return const Color(
-                                      0xFF6938EF); // Default color
-                                },
-                              ),
-                              foregroundColor: WidgetStateProperty.all(
-                                  Colors.white), // Button text color
-                              shape: WidgetStateProperty.all(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      10), // Less rounded corners
-                                ),
-                              ),
-                            ),
-                            child: const Text('+ Create new exam'),
-                          )
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      // Statistic boxes and Graph container alignment
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            flex: 3, // Increase space for left side
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: StatisticBox(
-                                          icon: Icons.assessment,
-                                          label: 'Total exams created',
-                                          value: '$totalExamsCreated',
-                                          leftMargin: 0.0,
-                                          rightMargin: 5.0),
-                                    ),
-                                    const SizedBox(
-                                        width:
-                                            8), // Spacing between statistic boxes
-                                    Expanded(
-                                      child: StatisticBox(
-                                          icon: Icons.today,
-                                          label: "Total Exams Assigned",
-                                          value: '$totalExamsTaken',
-                                          leftMargin: 5.0,
-                                          rightMargin: 5.0),
-                                    ),
-                                    const SizedBox(
-                                        width:
-                                            8), // Spacing between statistic boxes
-                                    Expanded(
-                                      child: StatisticBox(
-                                          icon: Icons.assignment_turned_in,
-                                          label: 'Total Questions Assigned',
-                                          value: '$totalQuestions',
-                                          leftMargin: 5.0,
-                                          rightMargin: 0.0),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 20),
-                                // Graph
-                                Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color: const Color(
-                                          0xFFD0D5DD), // Thin border color #d0d5dd
-                                      width: 1, // Border width 1 pixel
-                                    ),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          const Text(
-                                            'Exams report',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          const Spacer(),
-                                          TextButton(
-                                              onPressed: () {},
-                                              child: const Text('View report')),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 10),
-                                      Container(
-                                        height: 200,
-                                        color: Colors
-                                            .grey[200], // Placeholder for graph
-                                        child: const Center(
-                                            child: Text('Graph Placeholder')),
-                                      ),
-                                      const SizedBox(height: 10),
-                                      const Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                        children: [
-                                          Text('12 months'),
-                                          Text('3 months'),
-                                          Text('30 days'),
-                                          Text('7 days'),
-                                          Text('24 hours'),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(
-                              width:
-                                  16), // Spacing between left and right content
-                          Expanded(
-                            flex:
-                                1, // Reduce space for right side to make it narrower
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: const Color(
-                                      0xFFD0D5DD), // Thin border color #d0d5dd
-                                  width: 1, // Border width 1 pixel
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Your Students',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  const SizedBox(height: 10),
-                                  // Container with a fixed height
-                                  SizedBox(
-                                    height: 380, // Set a fixed height
-                                    child: Padding(
-                                      padding:
-                                          const EdgeInsets.only(left: 16.0),
-                                      child: ListView(
-                                        controller:
-                                            _scrollController, // Attach the ScrollController
-                                        children: students
-                                            .map((student) =>
-                                                StudentRow(name: student))
-                                            .toList(),
-                                      ),
-                                    ),
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 8.0),
-                                        child: TextButton(
-                                          onPressed: _scrollDown,
-                                          child: const Text('Scroll down'),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      // Your Exams table
-                      Container(
-                        constraints: BoxConstraints(
-                            minHeight: 380), // Set minimum height constraint
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: const Color(
-                                0xFFD0D5DD), // Thin border color #d0d5dd
-                            width: 1, // Border width 1 pixel
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Your Exams',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 10),
-                            const Row(
-                              children: [
-                                Expanded(
-                                  flex: 3,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 10.0),
-                                    child: Text('Exam Name'),
-                                  ),
-                                ), // Adjusted flex value
-                                Expanded(
-                                    flex: 2,
-                                    child:
-                                        Text('Course')), // Adjusted flex value
-                                Expanded(
-                                    flex: 3,
-                                    child:
-                                        Text('Exam ID')), // Adjusted flex value
-                                Expanded(
-                                    flex: 2,
-                                    child: Text(
-                                        'Date last graded')), // Adjusted flex value
-                                Expanded(
-                                  flex: 2,
-                                  child: Center(
-                                    // Center the text within the Expanded widget
-                                    child: Text('Average score'),
-                                  ),
-                                ), // Adjusted flex value
-                                Expanded(
-                                  flex: 2,
-                                  child: Center(
-                                    // Center the text within the Expanded widget
-                                    child: Text('Grade Status'),
-                                  ),
-                                ), // Adjusted flex value
-                                SizedBox(width: 110),
-                              ],
-                            ),
-                            const Divider(),
-                            // Example rows
-                            exams.length == 0
-                                ? Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        SizedBox(
-                                            height: 50), // Add some spacing
-                                        Text(
-                                          "No available exams yet",
-                                          style: TextStyle(
-                                            // fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        // SizedBox(height: 20), // Add some spacing
-                                        SvgPicture.asset(
-                                          'assets/images/empty7.svg',
-                                          width: 100,
-                                          height: 100,
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                : Column(
-                                    children: [
-                                      ...exams.map((exam) => ExamRow(
-                                            examName: exam['examName'] ??
-                                                'Placeholder',
-                                            examId: exam['id'] ?? 'Placeholder',
-                                            course:
-                                                exam['course'] ?? 'Placeholder',
-                                            dateLastGraded:
-                                                exam['dateLastGraded'] ??
-                                                    'No grades yet',
-                                            averageScore:
-                                                exam['avgScore']?.toString() ??
-                                                    'Placeholder',
-                                            graded: exam['graded'] ?? false,
-                                          )),
-                                    ],
-                                  )
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-                    ],
-                  ),
-                ),
-              ),
+              child: mainContent,
             ),
           ),
         ],
@@ -910,6 +875,7 @@ class ExamRow extends StatefulWidget {
   final String dateLastGraded;
   final String averageScore;
   final bool graded;
+  final Function(String) onRowClick;
 
   const ExamRow({
     super.key,
@@ -919,6 +885,7 @@ class ExamRow extends StatefulWidget {
     required this.dateLastGraded,
     required this.averageScore,
     required this.graded,
+    required this.onRowClick,
   });
 
   @override
@@ -987,12 +954,7 @@ class _ExamRowState extends State<ExamRow> {
       onExit: (event) => setState(() => _isHovered = false),
       child: GestureDetector(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ExamDetailsScreen(examId: widget.examId),
-            ),
-          );
+          widget.onRowClick(widget.examId);
         },
         child: Container(
           color: _isHovered
