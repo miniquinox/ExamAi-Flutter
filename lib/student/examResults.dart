@@ -24,6 +24,8 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
   List<Map<String, dynamic>>? _grades;
   int _absentStudents = 0;
   double _averageScore = 0.0;
+  int _passedStudents = 0;
+  int _failedStudents = 0;
 
   @override
   void initState() {
@@ -55,13 +57,38 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
   }
 
   void calculateAverageScore() {
+    // Convert questionsDynamic to questions
+    final List<dynamic> questionsDynamic = _examDetails!['questions'] ?? [];
+    final List<Map<String, dynamic>> questions = questionsDynamic
+        .map((question) => Map<String, dynamic>.from(question))
+        .toList();
+
     if (_grades != null && _grades!.isNotEmpty) {
       double totalScore =
           _grades!.fold(0.0, (sum, item) => sum + item['grade']);
       double average = totalScore / _grades!.length;
 
+      print(
+          "Grades for average: ${_grades!.map((grade) => grade['grade']).toList()}");
+
+      // Calculate totalScore from questions and then calculate passingGrade
+      final int totalQuestionsScore = questions.fold<int>(
+          0, (sum, question) => sum + (question['weight'] as int? ?? 0));
+      final int passingGrade = (totalQuestionsScore * 0.7).round();
+      print("Passing grade: $passingGrade");
+
+      int passed =
+          _grades!.where((grade) => grade['grade'] >= passingGrade).length;
+      int failed =
+          _grades!.where((grade) => grade['grade'] < passingGrade).length;
+
+      // Print the list of grades
+      print("Grades: ${_grades!.map((grade) => grade['grade']).toList()}");
+
       setState(() {
         _averageScore = average;
+        _passedStudents = passed;
+        _failedStudents = failed;
       });
     }
   }
@@ -278,10 +305,11 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                 _buildStatBox('Average score', _averageScore.toStringAsFixed(1),
                     Icons.score),
                 SizedBox(width: 10),
-                _buildStatBox(
-                    'Passed students', 'Placeholder', Icons.check_circle),
+                _buildStatBox('Passed students', _passedStudents.toString(),
+                    Icons.check_circle),
                 SizedBox(width: 10),
-                _buildStatBox('Failed students', 'Placeholder', Icons.cancel),
+                _buildStatBox('Failed students', _failedStudents.toString(),
+                    Icons.cancel),
               ],
             ),
             SizedBox(height: 20),
