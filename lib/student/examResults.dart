@@ -543,7 +543,18 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
             borderData: FlBorderData(show: false),
             barTouchData: BarTouchData(
               touchTooltipData: BarTouchTooltipData(
-                getTooltipColor: (_) => Colors.blueGrey,
+                tooltipMargin:
+                    2, // Reduce the margin to bring the tooltip closer
+                getTooltipColor: (_) => const Color.fromARGB(0, 96, 125, 139),
+                getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                  return BarTooltipItem(
+                    '${rod.toY}', // This is the number you want to display
+                    const TextStyle(
+                      color: Colors.black, // Set the text color to black
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                },
               ),
             ),
             gridData: FlGridData(show: false),
@@ -574,7 +585,18 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
           LineChartData(
             lineTouchData: LineTouchData(
               touchTooltipData: LineTouchTooltipData(
-                getTooltipColor: (_) => Colors.blueGrey.withOpacity(0.8),
+                getTooltipColor: (_) => Color.fromARGB(0, 96, 125, 139),
+                getTooltipItems: (List<LineBarSpot> touchedSpots) {
+                  return touchedSpots.map((LineBarSpot touchedSpot) {
+                    return LineTooltipItem(
+                      '${touchedSpot.y % 1 == 0 ? touchedSpot.y.toInt() : touchedSpot.y.toStringAsFixed(1)}', // This is the number you want to display
+                      const TextStyle(
+                        color: Colors.black, // Set the text color to black
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  }).toList();
+                },
               ),
             ),
             gridData: FlGridData(show: false),
