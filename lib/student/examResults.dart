@@ -109,28 +109,11 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
             const SizedBox(width: 4),
             const Icon(Icons.chevron_right, color: Colors.black),
             const SizedBox(width: 4),
-            const Icon(Icons.assignment, color: Color(0xFF6938EF)),
+            const SizedBox(width: 4),
+            const Icon(Icons.analytics, color: Color(0xFF6938EF)),
             const SizedBox(width: 4),
             const Text(
-              'Exams',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(width: 4),
-            const Text(
-              '>',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(width: 4),
-            const Icon(Icons.feedback, color: Color(0xFF6938EF)),
-            const SizedBox(width: 4),
-            const Text(
-              'Feedback',
+              'Exam Analytics',
               style: TextStyle(
                   color: Color(0xFF6938EF),
                   fontSize: 16,

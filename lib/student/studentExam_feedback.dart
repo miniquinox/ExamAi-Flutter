@@ -88,10 +88,10 @@ class StudentExamFeedbackScreen extends StatelessWidget {
                     const SizedBox(width: 4),
                     const Icon(Icons.chevron_right, color: Colors.black),
                     const SizedBox(width: 4),
-                    const Icon(Icons.assignment, color: Colors.black),
+                    const Icon(Icons.analytics, color: Colors.black),
                     const SizedBox(width: 4),
                     const Text(
-                      'Exams',
+                      'Exam Analytics',
                       style: TextStyle(
                           color: Colors.black,
                           fontSize: 16,
@@ -99,6 +99,8 @@ class StudentExamFeedbackScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     const Icon(Icons.chevron_right, color: Colors.black),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.feedback, color: Color(0xFF6938EF)),
                     const SizedBox(width: 4),
                     const Text(
                       'Feedback',
