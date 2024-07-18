@@ -22,6 +22,7 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
   bool _isHovering = false;
   Map<String, dynamic>? _examDetails;
   List<Map<String, dynamic>>? _grades;
+  int _absentStudents = 0;
 
   @override
   void initState() {
@@ -34,8 +35,21 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
     fetchGrades(widget.examId).then((grades) {
       setState(() {
         _grades = grades;
+        calculateAbsentStudents();
       });
     });
+  }
+
+  void calculateAbsentStudents() {
+    if (_examDetails != null && _grades != null) {
+      final List<dynamic> students = _examDetails!['students'] ?? [];
+      final int totalStudents = students.length;
+      final int gradedStudents = _grades!.length;
+
+      setState(() {
+        _absentStudents = totalStudents - gradedStudents;
+      });
+    }
   }
 
   Future<Map<String, dynamic>> fetchExamDetails(String examId) async {
@@ -229,8 +243,8 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                 _buildStatBox(
                     'Total students', totalStudents.toString(), Icons.people),
                 SizedBox(width: 10),
-                _buildStatBox(
-                    'Absent students', 'Placeholder', Icons.person_off),
+                _buildStatBox('Absent students', _absentStudents.toString(),
+                    Icons.person_off),
                 SizedBox(width: 10),
                 _buildStatBox('Average score', 'Placeholder', Icons.score),
                 SizedBox(width: 10),
