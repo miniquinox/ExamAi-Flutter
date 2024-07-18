@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:collection/collection.dart';
 
 class ExamResultsScreen extends StatefulWidget {
   final String examId;
@@ -19,10 +18,10 @@ class ExamResultsScreen extends StatefulWidget {
 }
 
 class _ExamResultsScreenState extends State<ExamResultsScreen> {
-  bool _isHovering = false;
   Map<String, dynamic>? _examDetails;
   List<Map<String, dynamic>>? _grades;
   int _absentStudents = 0;
+  double _averageScore = 0.0;
 
   @override
   void initState() {
@@ -36,6 +35,7 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
       setState(() {
         _grades = grades;
         calculateAbsentStudents();
+        calculateAverageScore();
       });
     });
   }
@@ -48,6 +48,18 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
 
       setState(() {
         _absentStudents = totalStudents - gradedStudents;
+      });
+    }
+  }
+
+  void calculateAverageScore() {
+    if (_grades != null && _grades!.isNotEmpty) {
+      double totalScore =
+          _grades!.fold(0.0, (sum, item) => sum + item['grade']);
+      double average = totalScore / _grades!.length;
+
+      setState(() {
+        _averageScore = average;
       });
     }
   }
@@ -246,7 +258,8 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                 _buildStatBox('Absent students', _absentStudents.toString(),
                     Icons.person_off),
                 SizedBox(width: 10),
-                _buildStatBox('Average score', 'Placeholder', Icons.score),
+                _buildStatBox('Average score', _averageScore.toStringAsFixed(1),
+                    Icons.score),
                 SizedBox(width: 10),
                 _buildStatBox(
                     'Passed students', 'Placeholder', Icons.check_circle),
