@@ -549,6 +549,21 @@ class _StudentScreenState extends State<StudentScreen> {
                     ],
                   ),
                 ),
+                if (user!.email!.endsWith('@ucdavis.edu'))
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 40),
+                    child: Image.asset('assets/images/UCDavisLogo.png'),
+                  ),
+                if (user!.email!.endsWith('@berkeley.edu'))
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    child: Image.asset('assets/images/UCBerkeleyLogo.png'),
+                  ),
+                // if (user!.email!.endsWith('@gmail.com'))
+                // Padding(
+                //   padding: EdgeInsets.symmetric(horizontal: 30),
+                //   child: Image.asset('assets/images/UCBerkeleyLogo.png'),
+                // ),
                 SizedBox(height: 20),
                 GestureDetector(
                   onTap: () {
