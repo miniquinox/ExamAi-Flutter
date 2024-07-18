@@ -517,6 +517,17 @@ class _StudentScreenState extends State<StudentScreen> {
       );
     }
 
+    // Calculate the number of days from today until December 31, 2024
+    final DateTime today = DateTime.now();
+    final DateTime endDate = DateTime(2024, 12, 31);
+    final int daysLeft = endDate.difference(today).inDays;
+
+    // Calculate the progress for the year
+    final DateTime startOfYear = DateTime(today.year, 1, 1);
+    final DateTime endOfYear = DateTime(today.year + 1, 1, 1);
+    final double progress = today.difference(startOfYear).inDays /
+        endOfYear.difference(startOfYear).inDays;
+
     return Scaffold(
       backgroundColor: Color(0xFFFCFCFD),
       body: Row(
@@ -601,20 +612,46 @@ class _StudentScreenState extends State<StudentScreen> {
                     ),
                     child: Column(
                       children: [
-                        CircularProgressIndicator(
-                          value: 0.8,
-                          backgroundColor: Colors.grey[200],
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Color(0xFF6938EF)),
+                        SizedBox(height: 20),
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            SizedBox(
+                              width: 80, // Adjust the size as needed
+                              height: 80, // Adjust the size as needed
+                              child: CircularProgressIndicator(
+                                value: progress,
+                                strokeWidth:
+                                    8, // Adjust the stroke width as needed
+                                backgroundColor: Colors.grey[200],
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    Color(0xFF6938EF)),
+                              ),
+                            ),
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '$daysLeft', // Display the number of days left
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  'days', // Display the text "days left"
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                        SizedBox(height: 10),
-                        Text('Used space',
+                        SizedBox(height: 20),
+                        Text('ExamAI Access',
                             style: TextStyle(fontWeight: FontWeight.bold)),
                         Text(
-                            'Your team has used 80% of your available space. Need more?'),
+                            'ExamAI is free to use until December 31st, 2024.'),
                         SizedBox(height: 10),
-                        ElevatedButton(
-                            onPressed: () {}, child: Text('Upgrade plan'))
+                        // ElevatedButton(
+                        //     onPressed: () {}, child: Text('Upgrade plan'))
                       ],
                     ),
                   ),

@@ -244,6 +244,17 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Calculate the number of days from today until December 31, 2024
+    final DateTime today = DateTime.now();
+    final DateTime endDate = DateTime(2024, 12, 31);
+    final int daysLeft = endDate.difference(today).inDays;
+
+    // Calculate the progress for the year
+    final DateTime startOfYear = DateTime(today.year, 1, 1);
+    final DateTime endOfYear = DateTime(today.year + 1, 1, 1);
+    final double progress = today.difference(startOfYear).inDays /
+        endOfYear.difference(startOfYear).inDays;
+
     return Scaffold(
       backgroundColor: const Color(
           0xFFFCFCFD), // Set the background color of the Scaffold to #fcfcfd
@@ -317,27 +328,51 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Column(
                       children: [
-                        CircularProgressIndicator(
-                          value: 0.8,
-                          backgroundColor: Colors.grey[200],
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                              Color(0xFF6938EF)),
+                        SizedBox(height: 20),
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            SizedBox(
+                              width: 80, // Adjust the size as needed
+                              height: 80, // Adjust the size as needed
+                              child: CircularProgressIndicator(
+                                value: progress,
+                                strokeWidth:
+                                    8, // Adjust the stroke width as needed
+                                backgroundColor: Colors.grey[200],
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    Color(0xFF6938EF)),
+                              ),
+                            ),
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '$daysLeft', // Display the number of days left
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  'days', // Display the text "days left"
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 10),
-                        const Text('Used space',
+                        SizedBox(height: 20),
+                        Text('ExamAI Access',
                             style: TextStyle(fontWeight: FontWeight.bold)),
-                        const Text(
-                            'Your team has used 80% of your available space. Need more?'),
-                        const SizedBox(height: 10),
-                        ElevatedButton(
-                            onPressed: () {}, child: const Text('Upgrade plan'))
+                        Text(
+                            'ExamAI is free to use until December 31st, 2024.'),
+                        SizedBox(height: 10),
                       ],
                     ),
                   ),
