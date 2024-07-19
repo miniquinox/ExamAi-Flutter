@@ -519,13 +519,3 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
     return rubricFields;
   }
 }
-
-void main() => runApp(MaterialApp(
-      home: CreateExamAddQuestions(
-        examName: 'Sample Exam',
-        course: 'Sample Course',
-        date: '01/01/2024',
-        time: '10:00 AM',
-        students: ['Student 1', 'Student 2'],
-      ),
-    ));

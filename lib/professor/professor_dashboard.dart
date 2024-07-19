@@ -14,6 +14,8 @@ import 'package:intl/intl.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -147,7 +149,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
     });
   }
 
-// Update the graph container part
+  // Update the graph container part
   Widget buildGraphContainer() {
     // Create spots for the line chart
     List<DateTime> dates = _questionsPerDate.keys.toList();
@@ -1027,6 +1029,139 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
   }
 }
 
+class DeleteConfirmationDialog extends StatelessWidget {
+  final String examId;
+
+  const DeleteConfirmationDialog({required this.examId});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      title: Column(
+        children: [
+          Icon(MdiIcons.alertCircleOutline, color: Colors.red, size: 50),
+          const SizedBox(height: 16),
+          const Text(
+            'Are you sure you want to delete this exam?',
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Deletions are irreversible. Students will lose access\nto the exam and results if applicable.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.black,
+            backgroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: const Text('Cancel'),
+        ),
+        const SizedBox(width: 16), // Increased space
+        ElevatedButton(
+          onPressed: () async {
+            await _deleteExam(context);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: const Text(
+            'Confirm',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _deleteExam(BuildContext context) async {
+    try {
+      DocumentSnapshot examSnapshot = await FirebaseFirestore.instance
+          .collection('Exams')
+          .doc(examId)
+          .get();
+      List<String> students = List<String>.from(examSnapshot['students']);
+
+      // Remove examId from each student's currentExams and completedExams
+      for (String studentEmail in students) {
+        DocumentReference studentRef =
+            FirebaseFirestore.instance.collection('Students').doc(studentEmail);
+
+        await FirebaseFirestore.instance.runTransaction((transaction) async {
+          DocumentSnapshot snapshot = await transaction.get(studentRef);
+
+          if (snapshot.exists) {
+            List<dynamic> currentExams = snapshot.get('currentExams') ?? [];
+            Map<String, dynamic> completedExams =
+                snapshot.get('completedExams') ?? {};
+
+            currentExams.remove(examId);
+            completedExams.remove(examId);
+
+            transaction.update(studentRef, {
+              'currentExams': currentExams,
+              'completedExams': completedExams,
+            });
+          }
+        });
+      }
+
+      // Remove examId from professor's currentExams
+      String? professorEmail = FirebaseAuth.instance.currentUser?.email;
+      if (professorEmail != null) {
+        DocumentReference professorRef = FirebaseFirestore.instance
+            .collection('Professors')
+            .doc(professorEmail);
+
+        await FirebaseFirestore.instance.runTransaction((transaction) async {
+          DocumentSnapshot snapshot = await transaction.get(professorRef);
+
+          if (snapshot.exists) {
+            List<dynamic> currentExams = snapshot.get('currentExams') ?? [];
+            currentExams.remove(examId);
+            transaction.update(professorRef, {'currentExams': currentExams});
+          }
+        });
+      }
+
+      // Finally, delete the exam document
+      await FirebaseFirestore.instance.collection('Exams').doc(examId).delete();
+
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Exam deleted successfully.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Failed to delete exam. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+}
+
 class MenuButton extends StatefulWidget {
   final IconData icon;
   final String label;
@@ -1435,7 +1570,15 @@ class _ExamRowState extends State<ExamRow> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () {},
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return DeleteConfirmationDialog(
+                                examId: widget.examId);
+                          },
+                        );
+                      },
                     ),
                   ],
                 ),
