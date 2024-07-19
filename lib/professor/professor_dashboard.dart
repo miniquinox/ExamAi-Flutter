@@ -9,6 +9,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
+import 'dart:async';
+import 'dart:math' as math;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,11 +50,14 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
       false; // Add this line to toggle between exam details and results
   final ScrollController _scrollController =
       ScrollController(); // Add ScrollController
+  Map<DateTime, int> _questionsPerDate = {}; // Declare the variable here
 
   @override
   void initState() {
     super.initState();
     fetchUser();
+    fetchTotalExams();
+    fetchQuestionsPerDate();
   }
 
   @override
@@ -69,6 +76,283 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
     fetchExams();
     fetchTotalQuestions();
     fetchStudents(); // Fetch students when the user is fetched
+  }
+
+  Future<Map<DateTime, int>> questionsPerDate() async {
+    Map<DateTime, int> questionsCountPerDate = {};
+
+    if (user != null) {
+      DocumentSnapshot professorSnapshot = await FirebaseFirestore.instance
+          .collection('Professors')
+          .doc(user!.email)
+          .get();
+      if (professorSnapshot.exists) {
+        List<dynamic> currentExams =
+            professorSnapshot.get('currentExams') ?? [];
+
+        for (String examId in currentExams) {
+          DocumentSnapshot examSnapshot = await FirebaseFirestore.instance
+              .collection('Exams')
+              .doc(examId)
+              .get();
+
+          if (examSnapshot.exists) {
+            // Print the exam ID
+            print('Exam ID: $examId');
+
+            if ((examSnapshot.data() as Map<String, dynamic>)
+                .containsKey('dateLastGraded')) {
+              try {
+                String dateStr = examSnapshot.get('dateLastGraded');
+                // Print the dateLastGraded string
+                print('dateLastGraded: $dateStr');
+
+                // Append the current year to the date string
+                String currentYear = DateTime.now().year.toString();
+                String fullDateStr = '$dateStr $currentYear';
+
+                DateTime dateGraded =
+                    DateFormat('MMMM d\'th\' \'at\' h:mma yyyy')
+                        .parse(fullDateStr);
+
+                List<dynamic> questions = examSnapshot.get('questions') ?? [];
+                List<dynamic> students = examSnapshot.get('students') ?? [];
+                int totalQuestionsForDate = questions.length * students.length;
+                questionsCountPerDate[dateGraded] =
+                    (questionsCountPerDate[dateGraded] ?? 0) +
+                        totalQuestionsForDate;
+
+                // Print the number of questions added for this date
+                print(
+                    'Added $totalQuestionsForDate questions for date $dateGraded');
+              } catch (e) {
+                print('Error processing examSnapshot: $e');
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Print the final questionsCountPerDate map
+    print('questionsCountPerDate: $questionsCountPerDate');
+
+    return questionsCountPerDate;
+  }
+
+  Future<void> fetchQuestionsPerDate() async {
+    Map<DateTime, int> questionsCountPerDate = await questionsPerDate();
+    setState(() {
+      _questionsPerDate = questionsCountPerDate;
+    });
+  }
+
+// Update the graph container part
+  Widget buildGraphContainer() {
+    // Create spots for the line chart
+    List<DateTime> dates = _questionsPerDate.keys.toList();
+    List<FlSpot> spots = [];
+    for (int i = 0; i < dates.length; i++) {
+      spots.add(FlSpot(i.toDouble(), _questionsPerDate[dates[i]]!.toDouble()));
+    }
+
+    // Determine the min and max values for the x-axis (indexes) and y-axis (number of questions)
+    double minX = 0;
+    double maxX = dates.length - 1.toDouble();
+    double maxY = spots.isNotEmpty
+        ? spots.map((spot) => spot.y).reduce((a, b) => a > b ? a : b)
+        : 0;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: const Color(0xFFD0D5DD), // Thin border color #d0d5dd
+          width: 1, // Border width 1 pixel
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Exams Assigned Over Time',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            height: 232,
+            color: Colors.white, // Placeholder for graph
+            child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: spots.isNotEmpty
+                    ? LineChart(
+                        LineChartData(
+                          lineBarsData: [
+                            LineChartBarData(
+                              spots: spots,
+                              isCurved: true,
+                              color: Color(0xff9b8afb),
+                              barWidth: 3,
+                              isStrokeCapRound: true,
+                              dotData: FlDotData(
+                                  show: true,
+                                  getDotPainter:
+                                      (spot, percent, barData, index) {
+                                    return FlDotCirclePainter(
+                                      radius: 4, // Make the spot larger
+                                      color: Color(0xFF6938EF),
+                                      strokeWidth: 2,
+                                      strokeColor: Colors.white,
+                                    );
+                                  }),
+                              belowBarData: BarAreaData(
+                                show: true,
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Color(0xFF6938EF).withOpacity(0.1),
+                                    Color(0xFF6938EF).withOpacity(0.0),
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
+                              ),
+                            ),
+                          ],
+                          minX: minX,
+                          maxX: maxX,
+                          minY: 0,
+                          maxY: maxY,
+                          titlesData: FlTitlesData(
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                getTitlesWidget:
+                                    (double value, TitleMeta meta) {
+                                  int index = value.toInt();
+                                  if (index >= 0 && index < dates.length) {
+                                    DateTime date = dates[index];
+                                    return SideTitleWidget(
+                                      axisSide: meta.axisSide,
+                                      child: Text(
+                                          DateFormat('MM/dd').format(date)),
+                                    );
+                                  } else {
+                                    return const SideTitleWidget(
+                                        axisSide: AxisSide.bottom,
+                                        child: Text(''));
+                                  }
+                                },
+                                reservedSize: 30,
+                              ),
+                            ),
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                getTitlesWidget:
+                                    (double value, TitleMeta meta) {
+                                  return Text(meta.formattedValue);
+                                },
+                                reservedSize: 40,
+                              ),
+                            ),
+                            topTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            rightTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                          ),
+                          gridData: FlGridData(
+                            show: true,
+                            drawVerticalLine: true,
+                            getDrawingHorizontalLine: (value) {
+                              return FlLine(
+                                color: const Color(0xffe7e8ec),
+                                strokeWidth: 1,
+                              );
+                            },
+                            getDrawingVerticalLine: (value) {
+                              return FlLine(
+                                color: const Color(0xffe7e8ec),
+                                strokeWidth: 1,
+                              );
+                            },
+                          ),
+                          borderData: FlBorderData(
+                            show: true,
+                            border: Border(
+                              bottom: BorderSide(color: Colors.transparent),
+                              left: BorderSide(color: Colors.transparent),
+                              right: BorderSide(color: Colors.transparent),
+                              top: BorderSide(color: Colors.transparent),
+                            ),
+                          ),
+                          lineTouchData: LineTouchData(
+                            enabled: true,
+                            getTouchedSpotIndicator: (barData, spotIndexes) {
+                              return spotIndexes.map((index) {
+                                return TouchedSpotIndicatorData(
+                                  FlLine(
+                                    color: Color(0xFF6938EF),
+                                    strokeWidth: 3,
+                                  ),
+                                  FlDotData(
+                                    show: true,
+                                    getDotPainter:
+                                        (spot, percent, barData, index) =>
+                                            FlDotCirclePainter(
+                                      radius: 8, // Make the touched spot larger
+                                      color: Color(0xFF6938EF),
+                                      strokeWidth: 3,
+                                      strokeColor: Colors.white,
+                                    ),
+                                  ),
+                                );
+                              }).toList();
+                            },
+                            touchTooltipData: LineTouchTooltipData(
+                              getTooltipColor: (_) =>
+                                  Color.fromARGB(255, 169, 137, 255),
+                              getTooltipItems:
+                                  (List<LineBarSpot> touchedSpots) {
+                                return touchedSpots.map((barSpot) {
+                                  return LineTooltipItem(
+                                    '${barSpot.y}',
+                                    TextStyle(color: Colors.black),
+                                  );
+                                }).toList();
+                              },
+                            ),
+                          ),
+                        ),
+                      )
+                    : Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'No available data to plot',
+                            ),
+                            const SizedBox(height: 20),
+                            Center(
+                              child: SvgPicture.asset(
+                                'assets/images/empty1.svg',
+                                width: 100,
+                                height: 100,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> fetchTotalExams() async {
@@ -344,53 +628,8 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                       ),
                       const SizedBox(height: 20),
                       // Graph
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: const Color(
-                                0xFFD0D5DD), // Thin border color #d0d5dd
-                            width: 1, // Border width 1 pixel
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Text(
-                                  'Exams report',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                const Spacer(),
-                                TextButton(
-                                    onPressed: () {},
-                                    child: const Text('View report')),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Container(
-                              height: 200,
-                              color: Colors.grey[200], // Placeholder for graph
-                              child: const Center(
-                                  child: Text('Graph Placeholder')),
-                            ),
-                            const SizedBox(height: 10),
-                            const Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                Text('12 months'),
-                                Text('3 months'),
-                                Text('30 days'),
-                                Text('7 days'),
-                                Text('24 hours'),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
+                      buildGraphContainer(),
+
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -414,22 +653,44 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text('Your Students',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
                         const SizedBox(height: 10),
                         // Container with a fixed height
-                        SizedBox(
-                          height: 380, // Set a fixed height
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 16.0),
-                            child: ListView(
-                              controller:
-                                  _scrollController, // Attach the ScrollController
-                              children: students
-                                  .map((student) => StudentRow(name: student))
-                                  .toList(),
-                            ),
-                          ),
-                        ),
+                        students.isNotEmpty
+                            ? SizedBox(
+                                height: 380, // Set a fixed height
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 16.0),
+                                  child: ListView(
+                                    controller:
+                                        _scrollController, // Attach the ScrollController
+                                    children: students
+                                        .map((student) =>
+                                            StudentRow(name: student))
+                                        .toList(),
+                                  ),
+                                ),
+                              )
+                            : SizedBox(
+                                height:
+                                    380, // Maintain the same height for consistency
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      'No students yet',
+                                    ),
+                                    Center(
+                                      child: SvgPicture.asset(
+                                        'assets/images/empty2.svg',
+                                        width: 100,
+                                        height: 100,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
@@ -465,7 +726,8 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('Your Exams',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 10),
                   const Row(
                     children: [
@@ -513,10 +775,6 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                               SizedBox(height: 50), // Add some spacing
                               Text(
                                 "No available exams yet",
-                                style: TextStyle(
-                                  // fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
                               ),
                               // SizedBox(height: 20), // Add some spacing
                               SvgPicture.asset(
@@ -848,7 +1106,8 @@ class StatisticBox extends StatelessWidget {
                 SizedBox(width: 8), // Add a SizedBox for spacing
                 Flexible(
                   child: Text(label,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 16),
                       overflow: TextOverflow.clip, // Ensure text wraps
                       textAlign:
                           TextAlign.left), // TextAlign.left for start alignment
