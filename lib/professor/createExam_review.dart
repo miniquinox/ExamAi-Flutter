@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:examai_flutter/professor/professor_dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:examai_flutter/professor/professor_dashboard.dart';
 
 class CreateExamReview extends StatelessWidget {
   final String examName;
@@ -337,6 +337,9 @@ class CreateExamReview extends StatelessWidget {
   Future<void> _publishExam(
       BuildContext parentContext, BuildContext loadingContext) async {
     try {
+      final String? professorName =
+          FirebaseAuth.instance.currentUser?.displayName;
+
       final examData = {
         'examName': examName,
         'course': course,
@@ -344,6 +347,7 @@ class CreateExamReview extends StatelessWidget {
         'time': time,
         'students': students,
         'questions': questions,
+        'professorName': professorName, // Add professorName here
       };
 
       DocumentReference examRef;
@@ -648,47 +652,3 @@ class CreateExamReview extends StatelessWidget {
     );
   }
 }
-
-void main() => runApp(const MaterialApp(
-      home: CreateExamReview(
-        examName: 'Mathematics 101',
-        course: 'Math',
-        date: 'July 24 - Aug 24, 2024',
-        time: '08:00 PM',
-        students: ['Umar', 'Asif'],
-        questions: [
-          {
-            'question':
-                'Explain the concept of Object-Oriented Programming (OOP).',
-            'weight': 20,
-            'rubrics': [
-              {
-                'rubric':
-                    'Correct implementation of the prime checking algorithm.',
-                'weight': 10
-              },
-              {
-                'rubric': 'Proper use of functions and coding standards',
-                'weight': 10
-              },
-            ]
-          },
-          {
-            'question':
-                'Write a Python function that checks if a given number is a prime number.',
-            'weight': 20,
-            'rubrics': [
-              {
-                'rubric':
-                    'Correct implementation of the prime checking algorithm.',
-                'weight': 10
-              },
-              {
-                'rubric': 'Proper use of functions and coding standards',
-                'weight': 10
-              },
-            ]
-          }
-        ],
-      ),
-    ));

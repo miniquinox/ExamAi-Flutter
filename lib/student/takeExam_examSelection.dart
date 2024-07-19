@@ -15,6 +15,7 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
   final FirebaseService _firebaseService = FirebaseService();
   User? user;
   List<Map<String, dynamic>> exams = [];
+  bool _isFetching = false;
 
   @override
   void initState() {
@@ -24,7 +25,9 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
         setState(() {
           this.user = user;
         });
-        fetchUserAndExams(user.email!);
+        if (!_isFetching) {
+          fetchUserAndExams(user.email!);
+        }
       } else {
         print('No user is currently signed in.');
       }
@@ -32,6 +35,12 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
   }
 
   Future<void> fetchUserAndExams(String email) async {
+    if (_isFetching) return;
+
+    setState(() {
+      _isFetching = true;
+    });
+
     print('Fetching exams for user: $email');
     try {
       // Ensure email is trimmed and lowercased
@@ -78,6 +87,10 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
       }
     } catch (e) {
       print('Error fetching user or exams: $e');
+    } finally {
+      setState(() {
+        _isFetching = false;
+      });
     }
   }
 
@@ -187,8 +200,7 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
                             exam['professorName'] != null &&
                                     exam['professorName'].length > 18
                                 ? '${exam['professorName'].substring(0, 18)}...'
-                                : exam['professorName'] ??
-                                    'Joaquin Carretero...',
+                                : exam['professorName'] ?? 'Unknown...',
                             style: const TextStyle(fontSize: 16),
                           ),
                         ],

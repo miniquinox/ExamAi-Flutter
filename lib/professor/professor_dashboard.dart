@@ -818,6 +818,9 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                           false; // Set to show student grades
                                     });
                                   },
+                                  onDelete: () {
+                                    fetchExams(); // Call fetchExams() to refresh the exams list
+                                  },
                                 )),
                           ],
                         )
@@ -1031,8 +1034,10 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
 
 class DeleteConfirmationDialog extends StatelessWidget {
   final String examId;
+  final VoidCallback onDelete;
 
-  const DeleteConfirmationDialog({required this.examId});
+  const DeleteConfirmationDialog(
+      {required this.examId, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -1096,6 +1101,7 @@ class DeleteConfirmationDialog extends StatelessWidget {
           .collection('Exams')
           .doc(examId)
           .get();
+
       List<String> students = List<String>.from(examSnapshot['students']);
 
       // Remove examId from each student's currentExams and completedExams
@@ -1104,20 +1110,29 @@ class DeleteConfirmationDialog extends StatelessWidget {
             FirebaseFirestore.instance.collection('Students').doc(studentEmail);
 
         await FirebaseFirestore.instance.runTransaction((transaction) async {
-          DocumentSnapshot snapshot = await transaction.get(studentRef);
+          try {
+            DocumentSnapshot snapshot = await transaction.get(studentRef);
 
-          if (snapshot.exists) {
-            List<dynamic> currentExams = snapshot.get('currentExams') ?? [];
-            Map<String, dynamic> completedExams =
-                snapshot.get('completedExams') ?? {};
+            if (snapshot.exists) {
+              List<dynamic> currentExams = snapshot.get('currentExams') ?? [];
+              Map<String, dynamic> completedExams = {};
+              if ((snapshot.data() as Map<String, dynamic>)
+                  .containsKey('completedExams')) {
+                completedExams = snapshot.get('completedExams') ?? {};
+              }
 
-            currentExams.remove(examId);
-            completedExams.remove(examId);
+              currentExams.remove(examId);
+              completedExams.remove(examId);
 
-            transaction.update(studentRef, {
-              'currentExams': currentExams,
-              'completedExams': completedExams,
-            });
+              transaction.update(studentRef, {
+                'currentExams': currentExams,
+                if ((snapshot.data() as Map<String, dynamic>)
+                    .containsKey('completedExams'))
+                  'completedExams': completedExams,
+              });
+            }
+          } catch (e) {
+            print('Error processing student $studentEmail: $e');
           }
         });
       }
@@ -1130,12 +1145,18 @@ class DeleteConfirmationDialog extends StatelessWidget {
             .doc(professorEmail);
 
         await FirebaseFirestore.instance.runTransaction((transaction) async {
-          DocumentSnapshot snapshot = await transaction.get(professorRef);
+          try {
+            DocumentSnapshot snapshot = await transaction.get(professorRef);
 
-          if (snapshot.exists) {
-            List<dynamic> currentExams = snapshot.get('currentExams') ?? [];
-            currentExams.remove(examId);
-            transaction.update(professorRef, {'currentExams': currentExams});
+            if (snapshot.exists) {
+              List<dynamic> currentExams = snapshot.get('currentExams') ?? [];
+
+              currentExams.remove(examId);
+
+              transaction.update(professorRef, {'currentExams': currentExams});
+            }
+          } catch (e) {
+            print('Error processing professor $professorEmail: $e');
           }
         });
       }
@@ -1150,7 +1171,14 @@ class DeleteConfirmationDialog extends StatelessWidget {
           backgroundColor: Colors.green,
         ),
       );
+
+      // Navigate back to ProfessorScreen
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => ProfessorScreen()),
+        (route) => false,
+      );
     } catch (e) {
+      print('Error during deletion process: $e');
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1308,6 +1336,7 @@ class ExamRow extends StatefulWidget {
   final bool graded;
   final VoidCallback onAnalyticsClick;
   final VoidCallback onStudentGradesClick;
+  final VoidCallback onDelete; // Add the onDelete callback
 
   const ExamRow({
     super.key,
@@ -1319,6 +1348,7 @@ class ExamRow extends StatefulWidget {
     required this.graded,
     required this.onAnalyticsClick,
     required this.onStudentGradesClick,
+    required this.onDelete, // Add the onDelete parameter
   });
 
   @override
@@ -1575,7 +1605,9 @@ class _ExamRowState extends State<ExamRow> {
                           context: context,
                           builder: (BuildContext context) {
                             return DeleteConfirmationDialog(
-                                examId: widget.examId);
+                              examId: widget.examId,
+                              onDelete: widget.onDelete,
+                            );
                           },
                         );
                       },
