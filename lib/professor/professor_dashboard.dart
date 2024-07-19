@@ -331,20 +331,22 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                           ),
                         ),
                       )
-                    : Expanded(
+                    : Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text(
-                              'No available data to plot',
-                            ),
-                            const SizedBox(height: 20),
-                            Center(
-                              child: SvgPicture.asset(
-                                'assets/images/empty1.svg',
-                                width: 100,
-                                height: 100,
+                            Text(
+                              "No available data yet",
+                              style: TextStyle(
+                                // fontWeight: FontWeight.bold,
+                                fontSize: 16,
                               ),
+                            ),
+                            // SizedBox(height: 20), // Add some spacing
+                            SvgPicture.asset(
+                              'assets/images/empty1.svg',
+                              width: 100,
+                              height: 100,
                             ),
                           ],
                         ),
@@ -775,6 +777,10 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                               SizedBox(height: 50), // Add some spacing
                               Text(
                                 "No available exams yet",
+                                style: TextStyle(
+                                  // fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
                               // SizedBox(height: 20), // Add some spacing
                               SvgPicture.asset(

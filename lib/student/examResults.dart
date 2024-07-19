@@ -146,7 +146,7 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
     final userDoc =
         _grades!.firstWhereOrNull((doc) => doc['email'] == user?.email);
     if (userDoc == null) {
-      return Center(child: Text('No grade data found for your email'));
+      return Center(child: Text("Your exam hasn't been graded yet"));
     }
     final finalGrade = userDoc['grade'] ?? 0.0;
 
