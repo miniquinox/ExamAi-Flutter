@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'createExam_addQuestions.dart';
 
 class CreateExamDetails extends StatefulWidget {
+  final String? examId;
+
+  CreateExamDetails({this.examId});
+
   @override
   _CreateExamDetailsState createState() => _CreateExamDetailsState();
 }
@@ -16,6 +21,38 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
   final User? user = FirebaseAuth.instance.currentUser;
 
   int _currentStep = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.examId != null) {
+      _loadExamData(widget.examId!);
+    }
+  }
+
+  Future<void> _loadExamData(String examId) async {
+    try {
+      DocumentSnapshot examSnapshot = await FirebaseFirestore.instance
+          .collection('Exams')
+          .doc(examId)
+          .get();
+
+      if (examSnapshot.exists) {
+        Map<String, dynamic> data = examSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          _examNameController.text = data['examName'] ?? '';
+          _courseController.text = data['course'] ?? '';
+          _dateController.text = data['date'] ?? '';
+          _timeController.text = data['time'] ?? '';
+          _studentsController.text =
+              (data['students'] as List<dynamic>).join(', ') ??
+                  ''; // Converting list to comma-separated string
+        });
+      }
+    } catch (e) {
+      print("Error loading exam data: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -360,6 +397,7 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
                       .split(',')
                       .map((email) => email.trim())
                       .toList(),
+                  examId: widget.examId, // Pass the examId here
                 ),
               ),
             );

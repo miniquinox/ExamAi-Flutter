@@ -11,6 +11,7 @@ class CreateExamReview extends StatelessWidget {
   final String time;
   final List<String> students;
   final List<Map<String, dynamic>> questions;
+  final String? examId; // Add examId parameter
 
   const CreateExamReview({
     super.key,
@@ -20,6 +21,7 @@ class CreateExamReview extends StatelessWidget {
     required this.time,
     required this.students,
     required this.questions,
+    this.examId, // Initialize examId
   });
 
   @override
@@ -344,8 +346,15 @@ class CreateExamReview extends StatelessWidget {
         'questions': questions,
       };
 
-      DocumentReference examRef =
-          await FirebaseFirestore.instance.collection('Exams').add(examData);
+      DocumentReference examRef;
+
+      if (examId != null) {
+        examRef = FirebaseFirestore.instance.collection('Exams').doc(examId);
+        await examRef.update(examData);
+      } else {
+        examRef =
+            await FirebaseFirestore.instance.collection('Exams').add(examData);
+      }
 
       String? professorEmail = FirebaseAuth.instance.currentUser?.email;
       if (professorEmail == null) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'createExam_review.dart'; // Ensure you have this import
 
 class CreateExamAddQuestions extends StatefulWidget {
@@ -8,6 +9,7 @@ class CreateExamAddQuestions extends StatefulWidget {
   final String date;
   final String time;
   final List<String> students;
+  final String? examId;
 
   const CreateExamAddQuestions({
     required this.examName,
@@ -15,6 +17,7 @@ class CreateExamAddQuestions extends StatefulWidget {
     required this.date,
     required this.time,
     required this.students,
+    this.examId,
   });
 
   @override
@@ -26,6 +29,45 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
     {'question': TextEditingController(), 'weight': 20, 'rubrics': []}
   ];
   User? user = FirebaseAuth.instance.currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.examId != null) {
+      _loadExamData(widget.examId!);
+    }
+  }
+
+  Future<void> _loadExamData(String examId) async {
+    try {
+      DocumentSnapshot examSnapshot = await FirebaseFirestore.instance
+          .collection('Exams')
+          .doc(examId)
+          .get();
+
+      if (examSnapshot.exists) {
+        Map<String, dynamic> data = examSnapshot.data() as Map<String, dynamic>;
+        List<dynamic> questionData = data['questions'] ?? [];
+        setState(() {
+          questions = questionData.map((q) {
+            List<dynamic> rubricData = q['rubrics'] ?? [];
+            return {
+              'question': TextEditingController(text: q['question']),
+              'weight': q['weight'] ?? 20,
+              'rubrics': rubricData.map((r) {
+                return {
+                  'rubric': TextEditingController(text: r['rubric']),
+                  'weight': r['weight'] ?? 10,
+                };
+              }).toList(),
+            };
+          }).toList();
+        });
+      }
+    } catch (e) {
+      print("Error loading exam data: $e");
+    }
+  }
 
   void addQuestion() {
     setState(() {
@@ -289,6 +331,8 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                                     time: widget.time,
                                     students: widget.students,
                                     questions: formatQuestionsForReview(),
+                                    examId:
+                                        widget.examId, // Pass the examId here
                                   ),
                                 ),
                               );
