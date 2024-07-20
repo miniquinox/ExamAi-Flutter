@@ -2,19 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class TakeExamFinal extends StatelessWidget {
+class TakeExamFinal extends StatefulWidget {
   final String examId;
 
   TakeExamFinal({required this.examId});
 
+  @override
+  _TakeExamFinalState createState() => _TakeExamFinalState();
+}
+
+class _TakeExamFinalState extends State<TakeExamFinal> {
+  Map<int, TextEditingController> controllers = {};
+
   Future<Map<String, dynamic>> _fetchExamDetails() async {
-    DocumentSnapshot examSnapshot =
-        await FirebaseFirestore.instance.collection('Exams').doc(examId).get();
+    DocumentSnapshot examSnapshot = await FirebaseFirestore.instance
+        .collection('Exams')
+        .doc(widget.examId)
+        .get();
     return examSnapshot.data() as Map<String, dynamic>;
   }
 
-  void _showSubmissionConfirmationDialog(BuildContext context,
-      Map<String, dynamic> exam, Map<String, String> answers) {
+  void _showSubmissionConfirmationDialog(
+      BuildContext context, Map<String, dynamic> exam) {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -45,7 +54,7 @@ class TakeExamFinal extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () async {
                     Navigator.of(dialogContext).pop();
-                    await _saveStudentAnswers(context, exam, answers);
+                    await _saveStudentAnswers(context, exam);
                     _showThankYouDialog(context, exam);
                   },
                   style: ElevatedButton.styleFrom(
@@ -65,8 +74,8 @@ class TakeExamFinal extends StatelessWidget {
     );
   }
 
-  Future<void> _saveStudentAnswers(BuildContext context,
-      Map<String, dynamic> exam, Map<String, String> answers) async {
+  Future<void> _saveStudentAnswers(
+      BuildContext context, Map<String, dynamic> exam) async {
     String userEmail = FirebaseAuth.instance.currentUser?.email ?? 'anonymous';
     DocumentReference studentRef =
         FirebaseFirestore.instance.collection('Students').doc(userEmail);
@@ -76,11 +85,14 @@ class TakeExamFinal extends StatelessWidget {
       await studentRef.set({'completedExams': {}});
     }
 
+    Map<int, String> answers =
+        controllers.map((key, value) => MapEntry(key, value.text));
+
     await studentRef.update({
-      'completedExams.${examId}': {
+      'completedExams.${widget.examId}': {
         'examName': exam['examName'],
         'course': exam['course'],
-        'answers': answers,
+        'answers': answers.map((key, value) => MapEntry(key.toString(), value)),
       }
     });
   }
@@ -148,6 +160,14 @@ class TakeExamFinal extends StatelessWidget {
   }
 
   @override
+  void dispose() {
+    controllers.forEach((key, value) {
+      value.dispose();
+    });
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFCFCFD),
@@ -198,7 +218,6 @@ class TakeExamFinal extends StatelessWidget {
 
           var exam = snapshot.data!;
           var questions = exam['questions'] ?? [];
-          Map<String, String> answers = {};
 
           return Center(
             child: Container(
@@ -232,6 +251,9 @@ class TakeExamFinal extends StatelessWidget {
                       itemCount: questions.length,
                       itemBuilder: (context, index) {
                         var question = questions[index];
+                        if (!controllers.containsKey(index)) {
+                          controllers[index] = TextEditingController();
+                        }
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           child: Column(
@@ -276,10 +298,8 @@ class TakeExamFinal extends StatelessWidget {
                               ),
                               const SizedBox(height: 10),
                               TextField(
+                                controller: controllers[index],
                                 maxLines: null,
-                                onChanged: (value) {
-                                  answers[question['question']] = value;
-                                },
                                 decoration: const InputDecoration(
                                   hintText: 'Enter your answer here...',
                                   fillColor: Color(0xFFF2F4F7),
@@ -317,7 +337,7 @@ class TakeExamFinal extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () {
                         _showSubmissionConfirmationDialog(
-                            context, exam, answers); // Pass the exam data here
+                            context, exam); // Pass the exam data here
                       },
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
