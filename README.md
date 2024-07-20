@@ -12,6 +12,7 @@ Exam Ai is an enterprise platform that enables users to log in as professors or 
 - **Detailed Feedback**: Each question receives specific feedback, helping students understand their performance.
 - **Grading Control**: Professors decide when exams are graded, capturing only the latest submission by default.
 - **Analytics Portal**: View class averages, grade distributions, and insights into the hardest and easiest questions.
+- **Versatile Applications**: The platform can be used to create and automate homework, quizzes, exams, forms, or even interviews!
 
 ### For Students:
 - **Simple Portal**: Take exams with various question types (short answers, essays, programming challenges, etc.).
