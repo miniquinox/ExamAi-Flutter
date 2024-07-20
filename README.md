@@ -41,22 +41,41 @@ Below is a flowchart that visualizes how the screens connect with each other:
 
 ```mermaid
 flowchart TD
-    A[main.dart] -->|Login as Student| B[student_dashboard.dart]
-    A[main.dart] -->|Login as Professor| C[professor_dashboard.dart]
-    B[student_dashboard.dart] -->|Take a New Exam| D[takeExam_examSelection.dart]
-    B[student_dashboard.dart] -->|Recent Exams Analytics| I[ExamResults_professor.dart]
-    D[takeExam_examSelection.dart] -->|Select Exam| F[takeExam_instructions.dart]
-    F[takeExam_instructions.dart] -->|Start Exam| G[takeExam_final.dart]
-    G[takeExam_final.dart] -->|Submit Exam| H[(Firebase)]
-    I[ExamResults_professor.dart] -->|View Student Feedback| J[studentExam_feedback.dart]
-    C[professor_dashboard.dart] -->|Your Exams| K[Your Exams Table]
-    C[professor_dashboard.dart] -->|Create Exam| L[createExam_examDetails.dart]
-    K[Your Exams Table] -->|Grade Exam| M[exam_grading.py]
-    K[Your Exams Table] -->|Analytics| I[ExamResults_professor.dart]
-    K[Your Exams Table] -->|Student Grades| N[examGrades.dart]
-    L[createExam_examDetails.dart] -->|Next| O[createExam_addQuestions.dart]
-    O[createExam_addQuestions.dart] -->|Next| P[createExam_review.dart]
-    P[createExam_review.dart] -->|Publish| H[(Firebase)]
+    A("main.dart") -- Login as Student --> B("student_dashboard.dart")
+    A -- Login as Professor --> C("professor_dashboard.dart")
+    B -- Take a New Exam --> D("takeExam_examSelection.dart")
+    B -- Recent Exams Analytics --> I("ExamResults_professor.dart")
+    D -- Select Exam --> F("takeExam_instructions.dart")
+    F -- Start Exam --> G("takeExam_final.dart")
+    G -- Submit Exam --> H[("Firebase")]
+    I -- View Student Feedback --> J("studentExam_feedback.dart")
+    C -- Your Exams --> K("Your Exams Table")
+    C -- Create Exam --> L("createExam_examDetails.dart")
+    K -- Grade Exam --> M("exam_grading.py")
+    M -- Grade Exam --> W((("Gemini")))
+    W -- Grade Exam --> H
+    K -- Analytics --> I
+    K -- Student Grades --> N("examGrades.dart")
+    L -- Next --> O("createExam_addQuestions.dart")
+    O -- Next --> P("createExam_review.dart")
+    P -- Publish --> H
+    style B stroke:#000000,fill:#2962FF
+    style C stroke:#AA00FF,fill:#AA00FF
+    style D stroke:none,fill:#2962FF
+    style I stroke:#2962FF,fill:#2962FF
+    style F stroke:#000000,fill:#2962FF
+    style G stroke:#000000,fill:#2962FF
+    style H stroke:#000000,fill:#00C853,color:#000000
+    style J stroke:#2962FF,fill:#2962FF
+    style K stroke:#AA00FF,fill:#AA00FF
+    style L stroke:#AA00FF,fill:#AA00FF
+    style M stroke:#D50000,fill:#D50000
+    style W stroke:#FFF9C4,fill:#D50000
+    style N stroke:#AA00FF,fill:#AA00FF
+    style O stroke:#AA00FF,fill:#AA00FF
+    style P stroke:#AA00FF,fill:#AA00FF
+
+
 ```
 
 ## Future Vision
