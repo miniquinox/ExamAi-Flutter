@@ -59,23 +59,21 @@ flowchart TD
     L -- Next --> O("createExam_addQuestions.dart")
     O -- Next --> P("createExam_review.dart")
     P -- Publish --> H
-    style B stroke:#000000,fill:#2962FF
-    style C stroke:#AA00FF,fill:#AA00FF
-    style D stroke:none,fill:#2962FF
-    style I stroke:#2962FF,fill:#2962FF
-    style F stroke:#000000,fill:#2962FF
-    style G stroke:#000000,fill:#2962FF
-    style H stroke:#000000,fill:#00C853,color:#000000
-    style J stroke:#2962FF,fill:#2962FF
-    style K stroke:#AA00FF,fill:#AA00FF
-    style L stroke:#AA00FF,fill:#AA00FF
-    style M stroke:#D50000,fill:#D50000
+    style B stroke:#757575,fill:#2962FF
+    style C stroke:#757575,fill:#AA00FF
+    style D stroke:#757575,fill:#2962FF
+    style I stroke:#757575,fill:#2962FF
+    style F stroke:#757575,fill:#2962FF
+    style G stroke:#757575,fill:#2962FF
+    style H stroke:#757575,fill:#00C853,color:#000000
+    style J stroke:#757575,fill:#2962FF
+    style K stroke:#757575,fill:#AA00FF
+    style L stroke:#757575,fill:#AA00FF
+    style M stroke:#757575,fill:#D50000
     style W stroke:#FFF9C4,fill:#D50000
-    style N stroke:#AA00FF,fill:#AA00FF
-    style O stroke:#AA00FF,fill:#AA00FF
-    style P stroke:#AA00FF,fill:#AA00FF
-
-
+    style N stroke:#757575,fill:#AA00FF
+    style O stroke:#757575,fill:#AA00FF
+    style P stroke:#757575,fill:#AA00FF
 ```
 
 ## Future Vision
