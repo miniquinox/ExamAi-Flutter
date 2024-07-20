@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_svg/svg.dart';
 
 class ExamResultsScreen extends StatefulWidget {
   final String examId;
@@ -244,7 +245,7 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       _buildIconTextButton(Icons.access_time,
-                          '${_examDetails!['time_length'] ?? 'Placeholder'} hrs'),
+                          '${_examDetails!['time_length'] ?? 'Feature Coming Soon...'}'),
                     ],
                   ),
                 ),
@@ -303,15 +304,14 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                 Row(
                   children: [
                     Expanded(
-                      flex: 2,
                       child: _buildGraphBox('Grade distribution',
                           _buildGradeDistributionChart(_grades!)),
                     ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      flex: 1,
+                    SizedBox(width: 20),
+                    Container(
+                      width: 400,
                       child: _buildTopStudentsBox(),
-                    ),
+                    )
                   ],
                 ),
                 SizedBox(height: 20),
@@ -350,8 +350,14 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
         children: [
           Icon(icon, color: Color(0xFF6938EF)),
           SizedBox(width: 8),
-          Text(text,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Flexible(
+            // Wrap Text widget with Flexible to ensure it wraps text properly
+            child: Text(text,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                softWrap: true, // Ensure text wraps
+                overflow:
+                    TextOverflow.visible), // Allow text to break across lines
+          ),
         ],
       ),
     );
@@ -383,7 +389,14 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                   ),
                 ),
                 SizedBox(width: 8),
-                Text(title, style: TextStyle(fontSize: 16, color: Colors.grey)),
+                Expanded(
+                  // Wrap Text widget with Expanded to ensure it wraps text properly
+                  child: Text(
+                    title,
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                    softWrap: true, // Ensure text wraps
+                  ),
+                )
               ],
             ),
             SizedBox(height: 8),
@@ -416,6 +429,29 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
   }
 
   Widget _buildTopStudentsBox() {
+    if (_grades == null || _grades!.isEmpty) {
+      return Container(
+        height: 330,
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Color(0xFF6938EF),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Color(0xFFE9EAED), width: 1),
+        ),
+        child: Center(
+          child: Text(
+            'No data available',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      );
+    }
+
+    // Sort grades in descending order and get the top 3
+    List<Map<String, dynamic>> topGrades = List.from(_grades!);
+    topGrades.sort((a, b) => b['grade'].compareTo(a['grade']));
+    topGrades = topGrades.take(3).toList();
+
     return Container(
       height: 330,
       padding: EdgeInsets.all(16),
@@ -427,17 +463,62 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Top 3 students',
-            style: TextStyle(
-                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Center(
+              child: Image.asset(
+                'assets/images/trophy.png',
+                height: 120,
+                fit: BoxFit
+                    .contain, // This will ensure the entire image is visible, adding blank space if necessary
+              ),
+            ),
           ),
           SizedBox(height: 20),
           Center(
-              child:
-                  Text('Placeholder', style: TextStyle(color: Colors.white))),
+            child: Column(
+              children: List.generate(topGrades.length, (index) {
+                String imagePath;
+                switch (index) {
+                  case 0:
+                    imagePath = 'assets/images/first.png';
+                    break;
+                  case 1:
+                    imagePath = 'assets/images/second.png';
+                    break;
+                  case 2:
+                    imagePath = 'assets/images/third.png';
+                    break;
+                  default:
+                    imagePath = '';
+                }
+                return Column(
+                  children: [
+                    _buildTopStudentRow(
+                        index + 1, imagePath, topGrades[index]['email']),
+                    SizedBox(height: 5),
+                  ],
+                );
+              }),
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildTopStudentRow(int rank, String imagePath, String email) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // SizedBox(width: 20),
+        Image.asset(imagePath, height: 40),
+        SizedBox(width: 10),
+        Text(
+          email,
+          style: TextStyle(fontSize: 16, color: Colors.white),
+        ),
+      ],
     );
   }
 
@@ -453,23 +534,31 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Top hardest questions',
-            style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: const Color.fromARGB(255, 0, 0, 0)),
-          ),
-          SizedBox(height: 20),
-          Text('1. Placeholder question',
-              style: TextStyle(
-                  fontSize: 16, color: const Color.fromARGB(255, 0, 0, 0))),
-          Text('2. Placeholder question',
-              style: TextStyle(
-                  fontSize: 16, color: const Color.fromARGB(255, 0, 0, 0))),
-          Text('3. Placeholder question',
-              style: TextStyle(
-                  fontSize: 16, color: const Color.fromARGB(255, 0, 0, 0))),
+          Column(
+            children: [
+              Text(
+                'Top hardest questions',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: const Color.fromARGB(255, 0, 0, 0)),
+              ),
+              SizedBox(height: 80),
+              Text(
+                'Feature coming soon...',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: const Color.fromARGB(255, 0, 0, 0),
+                ),
+              ),
+              Center(
+                child: SvgPicture.asset(
+                  'assets/images/empty4.svg',
+                  height: 100,
+                ),
+              )
+            ],
+          )
         ],
       ),
     );
