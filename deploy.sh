@@ -10,4 +10,4 @@ echo "Building web..."
 flutter build web && echo 'examai.ai' > build/web/CNAME
 
 echo "Deploying to GitHub Pages..."
-PATH="/opt/homebrew/bin:$PATH" npx gh-pages -d build/web
+node deploy.js
