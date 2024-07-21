@@ -12,7 +12,7 @@ class TakeExamFinal extends StatefulWidget {
 }
 
 class _TakeExamFinalState extends State<TakeExamFinal> {
-  Map<int, TextEditingController> controllers = {};
+  Map<String, TextEditingController> controllers = {};
 
   Future<Map<String, dynamic>> _fetchExamDetails() async {
     DocumentSnapshot examSnapshot = await FirebaseFirestore.instance
@@ -22,8 +22,8 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
     return examSnapshot.data() as Map<String, dynamic>;
   }
 
-  void _showSubmissionConfirmationDialog(
-      BuildContext context, Map<String, dynamic> exam) {
+  void _showSubmissionConfirmationDialog(BuildContext context,
+      Map<String, dynamic> exam, Map<String, String> answers) {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -54,8 +54,9 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
                 ElevatedButton(
                   onPressed: () async {
                     Navigator.of(dialogContext).pop();
-                    await _saveStudentAnswers(context, exam);
+                    await _saveStudentAnswers(context, exam, answers);
                     _showThankYouDialog(context, exam);
+                    _showGradingStartedDialog(context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF6938EF),
@@ -74,8 +75,61 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
     );
   }
 
-  Future<void> _saveStudentAnswers(
-      BuildContext context, Map<String, dynamic> exam) async {
+  void _showGradingStartedDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: Center(
+            child: Icon(
+              Icons.hourglass_empty,
+              color: Colors.orange,
+              size: 50,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Grading Started',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Your assessment is being graded. Please come back in a few minutes to check your results.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+          actions: [
+            Align(
+              alignment: Alignment.bottomRight,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                },
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Color(0xFF6938EF),
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                child: Text('OK'),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _saveStudentAnswers(BuildContext context,
+      Map<String, dynamic> exam, Map<String, String> answers) async {
     String userEmail = FirebaseAuth.instance.currentUser?.email ?? 'anonymous';
     DocumentReference studentRef =
         FirebaseFirestore.instance.collection('Students').doc(userEmail);
@@ -85,14 +139,11 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
       await studentRef.set({'completedExams': {}});
     }
 
-    Map<int, String> answers =
-        controllers.map((key, value) => MapEntry(key, value.text));
-
     await studentRef.update({
       'completedExams.${widget.examId}': {
         'examName': exam['examName'],
         'course': exam['course'],
-        'answers': answers.map((key, value) => MapEntry(key.toString(), value)),
+        'answers': answers,
       }
     });
   }
@@ -251,8 +302,9 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
                       itemCount: questions.length,
                       itemBuilder: (context, index) {
                         var question = questions[index];
-                        if (!controllers.containsKey(index)) {
-                          controllers[index] = TextEditingController();
+                        String questionText = question['question'];
+                        if (!controllers.containsKey(questionText)) {
+                          controllers[questionText] = TextEditingController();
                         }
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10),
@@ -266,7 +318,7 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      'Question ${index + 1}: ${question['question']}',
+                                      'Question ${index + 1}: $questionText',
                                       style: const TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -298,7 +350,7 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
                               ),
                               const SizedBox(height: 10),
                               TextField(
-                                controller: controllers[index],
+                                controller: controllers[questionText],
                                 maxLines: null,
                                 decoration: const InputDecoration(
                                   hintText: 'Enter your answer here...',
@@ -336,8 +388,12 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
                     alignment: Alignment.bottomRight,
                     child: ElevatedButton(
                       onPressed: () {
+                        Map<String, String> answers = {};
+                        controllers.forEach((key, value) {
+                          answers[key] = value.text;
+                        });
                         _showSubmissionConfirmationDialog(
-                            context, exam); // Pass the exam data here
+                            context, exam, answers); // Pass the exam data here
                       },
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
