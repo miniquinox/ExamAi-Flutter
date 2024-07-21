@@ -11,7 +11,8 @@ exec('which git', (gitError, gitStdout, gitStderr) => {
     console.error(`Git not found: ${gitError.message}`);
     return;
   }
-  console.log(`Git found at: ${gitStdout.trim()}`);
+  const gitPath = gitStdout.trim();
+  console.log(`Git found at: ${gitPath}`);
 
   const cacheDir = path.join(process.env.HOME, '.gh-pages-cache');
 
@@ -20,7 +21,7 @@ exec('which git', (gitError, gitStdout, gitStderr) => {
     env: {
       ...process.env,
       PATH: '/opt/homebrew/bin:' + process.env.PATH,
-      GIT_EXEC_PATH: '/opt/homebrew/bin',
+      GIT_EXEC_PATH: path.dirname(gitPath),
       GH_PAGES_CACHE: cacheDir
     },
   };
