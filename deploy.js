@@ -22,9 +22,6 @@ exec('which git', (gitError, gitStdout, gitStderr) => {
   exec(command, options, (error, stdout, stderr) => {
     if (error) {
       console.error(`Error: ${error.message}`);
-      return;
-    }
-    if (stderr) {
       console.error(`stderr: ${stderr}`);
       return;
     }
