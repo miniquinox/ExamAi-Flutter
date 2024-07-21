@@ -1,5 +1,7 @@
 const { exec } = require('child_process');
 
+console.log('PATH:', process.env.PATH);
+
 const command = 'gh-pages -d build/web';
 const options = {
   env: {
