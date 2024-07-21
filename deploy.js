@@ -1,11 +1,13 @@
 const { exec } = require('child_process');
+const path = require('path');
+
+console.log('Current working directory:', process.cwd());
 
 const command = 'gh-pages -d build/web';
 const options = {
   env: {
     ...process.env,
     PATH: '/opt/homebrew/bin:' + process.env.PATH,
-    HOME: '/Users/quino' // Ensure HOME is set
   },
 };
 

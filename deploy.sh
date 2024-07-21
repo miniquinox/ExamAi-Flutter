@@ -1,21 +1,26 @@
 #!/bin/bash
 
-export PATH="/opt/homebrew/bin:/opt/homebrew/Cellar/git/2.45.2/bin:$PATH"
-export GIT_EXEC_PATH="/opt/homebrew/Cellar/git/2.45.2/libexec/git-core"
+# Set PATH to include homebrew binaries
+export PATH="/opt/homebrew/bin:$PATH"
 
+# Clean previous build
 flutter clean
-rm -rf build
+
+# Get dependencies
 flutter pub get
 
-echo "Building web..."
-flutter build web && echo 'examai.ai' > build/web/CNAME
+# Build the web app
+flutter build web
 
-# Check if the build/web directory exists
+# Ensure the build directory exists
 if [ -d "build/web" ]; then
   echo "Build directory exists, proceeding with deployment..."
 
-  echo "Deploying to GitHub Pages..."
-  node deploy.js
+  # Create CNAME file
+  echo 'examai.ai' > build/web/CNAME
+
+  # Deploy to GitHub Pages
+  gh-pages -d build/web
 else
   echo "Error: Build directory does not exist. Please check the build process."
   exit 1
