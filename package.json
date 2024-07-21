@@ -10,7 +10,7 @@
   "homepage": "https://examai.ai/",
   "scripts": {
     "predeploy": "flutter build web && echo 'examai.ai' > build/web/CNAME",
-    "deploy": "gh-pages -d build/web"
+    "deploy": "PATH=/opt/homebrew/bin:$PATH gh-pages -d build/web"
   },
   "keywords": [],
   "author": "",

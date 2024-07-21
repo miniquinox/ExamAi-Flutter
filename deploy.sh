@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export PATH="/opt/homebrew/bin:$PATH"
 flutter clean
 rm -rf build
 flutter pub get
