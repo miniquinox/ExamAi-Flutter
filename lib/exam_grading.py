@@ -51,8 +51,7 @@ def load_firebase(collection, document_id=None):
         return doc.to_dict() if doc.exists else None
     else:
         return [doc.to_dict() for doc in ref.get()]
-        
-# Function to load data from Firestore
+
 def grade_exam(exam_id):
     # Process each student's data
     exam_results = {
@@ -70,7 +69,9 @@ def grade_exam(exam_id):
     print(f"Grading exam for {len(students)} students")
     questions = exam_data.get("questions", [])
 
+    maximum_exam_score = sum(question['weight'] for question in questions)
     all_students_grades = []
+
     for student_email in students:
         # Check if the student has already been graded
         graded_ref = db.collection("Exams").document(exam_id).collection("graded").document(student_email).get()
@@ -96,8 +97,6 @@ def grade_exam(exam_id):
         }
 
         total_score = 0
-        
-        maximum_exam_score = sum(question['weight'] for question in questions)
         
         for question_data in questions:
             question_text = question_data.get("question")
@@ -148,11 +147,15 @@ def grade_exam(exam_id):
         student_ref.set(student_result, merge=True)
         print(f"Graded data saved for student {student_email}")
 
-    # Calculate average score and update exam document
-    avg_score = sum(
-        float(student["final_grade"].split('/')[0]) for student in all_students_grades
-    ) / len(all_students_grades)
-    exam_data["avgScore"] = f'{avg_score}/{maximum_exam_score}'
+    if all_students_grades:
+        # Calculate average score and update exam document
+        avg_score = sum(
+            float(student["final_grade"].split('/')[0]) for student in all_students_grades
+        ) / len(all_students_grades)
+        exam_data["avgScore"] = f'{avg_score}/{maximum_exam_score}'
+    else:
+        exam_data["avgScore"] = "0/0"
+
     exam_data["graded"] = True
     exam_data["dateLastGraded"] = datetime.now().strftime('%B %dth at %I:%M%p')
     exam_ref = db.collection("Exams").document(exam_id)
@@ -161,12 +164,6 @@ def grade_exam(exam_id):
     # Output the final JSON
     exam_results_json = json.dumps(exam_results, indent=4)
     print(exam_results_json)
-
-exam_id = os.getenv('EXAM_ID')
-print(f"Grading exam {exam_id}")
-grade_exam(exam_id)
-print("Grading completed.")
-
 
 exam_id = os.getenv('EXAM_ID')
 print(f"Grading exam {exam_id}")
