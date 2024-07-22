@@ -44,14 +44,6 @@ def ask_gemini(question):
     return response.text
 
 # Function to load data from Firestore
-def load_firebase(collection, document_id=None):
-    ref = db.collection(collection)
-    if document_id:
-        doc = ref.document(document_id).get()
-        return doc.to_dict() if doc.exists else None
-    else:
-        return [doc.to_dict() for doc in ref.get()]
-
 def grade_exam(exam_id):
     # Process each student's data
     exam_results = {
@@ -148,7 +140,9 @@ def grade_exam(exam_id):
         print(f"Graded data saved for student {student_email}")
 
     # Calculate average score and update exam document
-    avg_score = sum(student["final_grade"] for student in all_students_grades) / len(all_students_grades)
+    avg_score = sum(
+        float(student["final_grade"].split('/')[0]) for student in all_students_grades
+    ) / len(all_students_grades)
     exam_data["avgScore"] = f'{avg_score}/{maximum_exam_score}'
     exam_data["graded"] = True
     exam_data["dateLastGraded"] = datetime.now().strftime('%B %dth at %I:%M%p')
@@ -158,6 +152,12 @@ def grade_exam(exam_id):
     # Output the final JSON
     exam_results_json = json.dumps(exam_results, indent=4)
     print(exam_results_json)
+
+exam_id = os.getenv('EXAM_ID')
+print(f"Grading exam {exam_id}")
+grade_exam(exam_id)
+print("Grading completed.")
+
 
 exam_id = os.getenv('EXAM_ID')
 print(f"Grading exam {exam_id}")
