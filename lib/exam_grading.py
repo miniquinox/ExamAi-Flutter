@@ -44,6 +44,15 @@ def ask_gemini(question):
     return response.text
 
 # Function to load data from Firestore
+def load_firebase(collection, document_id=None):
+    ref = db.collection(collection)
+    if document_id:
+        doc = ref.document(document_id).get()
+        return doc.to_dict() if doc.exists else None
+    else:
+        return [doc.to_dict() for doc in ref.get()]
+        
+# Function to load data from Firestore
 def grade_exam(exam_id):
     # Process each student's data
     exam_results = {
