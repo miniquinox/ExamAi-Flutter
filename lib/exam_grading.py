@@ -95,6 +95,9 @@ def grade_exam(exam_id):
         }
 
         total_score = 0
+        
+        maximum_exam_score = sum(question['weight'] for question in questions)
+        
         for question_data in questions:
             question_text = question_data.get("question")
             rubrics = question_data.get("rubrics")
@@ -145,7 +148,6 @@ def grade_exam(exam_id):
         print(f"Graded data saved for student {student_email}")
 
     # Calculate average score and update exam document
-    maximum_exam_score = sum(question['weight'] for question in questions)
     avg_score = sum(student["final_grade"] for student in all_students_grades) / len(all_students_grades)
     exam_data["avgScore"] = f'{avg_score}/{maximum_exam_score}'
     exam_data["graded"] = True

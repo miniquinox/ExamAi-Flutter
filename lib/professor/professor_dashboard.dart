@@ -801,8 +801,8 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                   course: exam['course'] ?? 'Placeholder',
                                   dateLastGraded:
                                       exam['dateLastGraded'] ?? 'No grades yet',
-                                  averageScore: exam['avgScore']?.toString() ??
-                                      'Placeholder',
+                                  averageScore:
+                                      exam['avgScore']?.toString() ?? '0/10',
                                   graded: exam['graded'] ?? false,
                                   onAnalyticsClick: () {
                                     setState(() {
