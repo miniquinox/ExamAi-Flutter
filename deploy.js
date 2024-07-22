@@ -3,7 +3,10 @@ const path = require('path');
 
 console.log('Current working directory:', process.cwd());
 
-const command = 'gh-pages -d build/web';
+// Use the full path for the git binary
+const gitPath = '/opt/homebrew/bin/git';
+
+const command = `gh-pages -d build/web --git ${gitPath}`;
 const options = {
   env: {
     ...process.env,
@@ -13,12 +16,12 @@ const options = {
 
 exec(command, options, (error, stdout, stderr) => {
   if (error) {
-    console.error(`Error: ${error.message}`);
+    console.error('Deployment error:', error.message);
     return;
   }
   if (stderr) {
-    console.error(`stderr: ${stderr}`);
+    console.error('Deployment stderr:', stderr);
     return;
   }
-  console.log(`stdout: ${stdout}`);
+  console.log('Deployment stdout:', stdout);
 });
