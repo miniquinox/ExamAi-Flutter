@@ -56,7 +56,6 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
                     Navigator.of(dialogContext).pop();
                     await _saveStudentAnswers(context, exam, answers);
                     _showThankYouDialog(context, exam);
-                    _showGradingStartedDialog(context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF6938EF),
@@ -68,59 +67,6 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
                   child: Text('Submit', style: TextStyle(color: Colors.white)),
                 ),
               ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showGradingStartedDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          title: Center(
-            child: Icon(
-              Icons.hourglass_empty,
-              color: Colors.orange,
-              size: 50,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Grading Started',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Your assessment is being graded. Please come back in a few minutes to check your results.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
-              ),
-            ],
-          ),
-          actions: [
-            Align(
-              alignment: Alignment.bottomRight,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(dialogContext).pop();
-                },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Color(0xFF6938EF),
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
-                child: Text('OK'),
-              ),
             ),
           ],
         );

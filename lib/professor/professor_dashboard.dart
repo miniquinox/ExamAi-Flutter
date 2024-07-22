@@ -1557,8 +1557,32 @@ class _ExamRowState extends State<ExamRow> {
                                   TextButton(
                                     child: const Text('Submit'),
                                     onPressed: () async {
-                                      Navigator.of(context).pop();
-                                      triggerGrading(widget.examId);
+                                      Navigator.of(context)
+                                          .pop(); // Close the current dialog
+                                      triggerGrading(widget
+                                          .examId); // Trigger grading process
+                                      await showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: const Text(
+                                                'You\'re ready to go!'),
+                                            content: const Text(
+                                              'Come back in a couple of minutes and refresh the page for results!',
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                child: const Text('OK'),
+                                                onPressed: () {
+                                                  Navigator.of(context)
+                                                      .pop(); // Close the dialog
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
                                     },
                                   ),
                                 ],

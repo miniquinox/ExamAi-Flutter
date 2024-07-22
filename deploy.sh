@@ -22,29 +22,26 @@ if [ -d "build/web" ]; then
   # Create CNAME file
   echo 'examai.ai' > build/web/CNAME
 
-  # Run the deployment command using Node.js
-  node -e "
-    const { exec } = require('child_process');
-    const command = 'gh-pages -d build/web';
-    const options = {
-      env: {
-        ...process.env,
-        PATH: '/opt/homebrew/bin:' + process.env.PATH,
-      },
-    };
+  # Navigate to the build directory
+  cd build/web
 
-    exec(command, options, (error, stdout, stderr) => {
-      if (error) {
-        console.error('Deployment error:', error.message);
-        return;
-      }
-      if (stderr) {
-        console.error('Deployment stderr:', stderr);
-        return;
-      }
-      console.log('Deployment stdout:', stdout);
-    });
-  "
+  # Initialize a new Git repository
+  git init
+
+  # Add all files to the repository
+  git add .
+
+  # Commit the files
+  git commit -m "Deploy to GitHub Pages"
+
+  # Add your GitHub repository as a remote
+  git remote add origin https://github.com/<USERNAME>/<REPOSITORY>.git
+
+  # Force push the files to the gh-pages branch
+  git push -f origin master:gh-pages
+
+  # Navigate back to the project root
+  cd ../..
 else
   echo "Error: Build directory does not exist. Please check the build process."
   exit 1
