@@ -446,7 +446,7 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                   children: [
                     Expanded(
                       child: _buildGraphBox('Grade distribution',
-                          _buildGradeDistributionChart(_grades!)),
+                          _buildGradeDistributionChart(_grades!, totalScore)),
                     ),
                     SizedBox(width: 20),
                     Container(
@@ -460,8 +460,10 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                   children: [
                     Expanded(
                       flex: 2,
-                      child: _buildGraphBox('Grade line chart distribution',
-                          _buildGradeLineChartDistribution(_grades!)),
+                      child: _buildGraphBox(
+                          'Grade line chart distribution',
+                          _buildGradeLineChartDistribution(
+                              _grades!, totalScore)),
                     ),
                     SizedBox(width: 10),
                     Expanded(
@@ -710,49 +712,84 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
     );
   }
 
-  Widget _buildGradeDistributionChart(List<Map<String, dynamic>> grades) {
+  Widget _buildGradeDistributionChart(
+      List<Map<String, dynamic>> grades, int totalScore) {
     if (grades.isEmpty) {
       return Center(child: Text("No data available"));
     }
 
     Map<String, int> gradeDistribution = {
-      '0-10%': 0,
-      '10-20%': 0,
-      '20-30%': 0,
-      '30-40%': 0,
-      '40-50%': 0,
-      '50-60%': 0,
-      '60-70%': 0,
-      '70-80%': 0,
-      '80-90%': 0,
-      '90-100%': 0,
+      '0-${(totalScore * 0.1).round()}': 0,
+      '${(totalScore * 0.1).round() + 1}-${(totalScore * 0.2).round()}': 0,
+      '${(totalScore * 0.2).round() + 1}-${(totalScore * 0.3).round()}': 0,
+      '${(totalScore * 0.3).round() + 1}-${(totalScore * 0.4).round()}': 0,
+      '${(totalScore * 0.4).round() + 1}-${(totalScore * 0.5).round()}': 0,
+      '${(totalScore * 0.5).round() + 1}-${(totalScore * 0.6).round()}': 0,
+      '${(totalScore * 0.6).round() + 1}-${(totalScore * 0.7).round()}': 0,
+      '${(totalScore * 0.7).round() + 1}-${(totalScore * 0.8).round()}': 0,
+      '${(totalScore * 0.8).round() + 1}-${(totalScore * 0.9).round()}': 0,
+      '${(totalScore * 0.9).round() + 1}-${totalScore}': 0,
     };
 
     for (var student in grades) {
       List<String> scoreParts = student['grade'].split('/');
-      double grade = (double.tryParse(scoreParts[0]) ?? 0) /
-          (double.tryParse(scoreParts[1]) ?? 1) *
-          100;
-      if (grade < 10)
-        gradeDistribution['0-10%'] = gradeDistribution['0-10%']! + 1;
-      else if (grade < 20)
-        gradeDistribution['10-20%'] = gradeDistribution['10-20%']! + 1;
-      else if (grade < 30)
-        gradeDistribution['20-30%'] = gradeDistribution['20-30%']! + 1;
-      else if (grade < 40)
-        gradeDistribution['30-40%'] = gradeDistribution['30-40%']! + 1;
-      else if (grade < 50)
-        gradeDistribution['40-50%'] = gradeDistribution['40-50%']! + 1;
-      else if (grade < 60)
-        gradeDistribution['50-60%'] = gradeDistribution['50-60%']! + 1;
-      else if (grade < 70)
-        gradeDistribution['60-70%'] = gradeDistribution['60-70%']! + 1;
-      else if (grade < 80)
-        gradeDistribution['70-80%'] = gradeDistribution['70-80%']! + 1;
-      else if (grade < 90)
-        gradeDistribution['80-90%'] = gradeDistribution['80-90%']! + 1;
+      double grade = double.tryParse(scoreParts[0]) ?? 0;
+      if (grade <= (totalScore * 0.1).round())
+        gradeDistribution['0-${(totalScore * 0.1).round()}'] =
+            gradeDistribution['0-${(totalScore * 0.1).round()}']! + 1;
+      else if (grade <= (totalScore * 0.2).round())
+        gradeDistribution[
+                '${(totalScore * 0.1).round() + 1}-${(totalScore * 0.2).round()}'] =
+            gradeDistribution[
+                    '${(totalScore * 0.1).round() + 1}-${(totalScore * 0.2).round()}']! +
+                1;
+      else if (grade <= (totalScore * 0.3).round())
+        gradeDistribution[
+                '${(totalScore * 0.2).round() + 1}-${(totalScore * 0.3).round()}'] =
+            gradeDistribution[
+                    '${(totalScore * 0.2).round() + 1}-${(totalScore * 0.3).round()}']! +
+                1;
+      else if (grade <= (totalScore * 0.4).round())
+        gradeDistribution[
+                '${(totalScore * 0.3).round() + 1}-${(totalScore * 0.4).round()}'] =
+            gradeDistribution[
+                    '${(totalScore * 0.3).round() + 1}-${(totalScore * 0.4).round()}']! +
+                1;
+      else if (grade <= (totalScore * 0.5).round())
+        gradeDistribution[
+                '${(totalScore * 0.4).round() + 1}-${(totalScore * 0.5).round()}'] =
+            gradeDistribution[
+                    '${(totalScore * 0.4).round() + 1}-${(totalScore * 0.5).round()}']! +
+                1;
+      else if (grade <= (totalScore * 0.6).round())
+        gradeDistribution[
+                '${(totalScore * 0.5).round() + 1}-${(totalScore * 0.6).round()}'] =
+            gradeDistribution[
+                    '${(totalScore * 0.5).round() + 1}-${(totalScore * 0.6).round()}']! +
+                1;
+      else if (grade <= (totalScore * 0.7).round())
+        gradeDistribution[
+                '${(totalScore * 0.6).round() + 1}-${(totalScore * 0.7).round()}'] =
+            gradeDistribution[
+                    '${(totalScore * 0.6).round() + 1}-${(totalScore * 0.7).round()}']! +
+                1;
+      else if (grade <= (totalScore * 0.8).round())
+        gradeDistribution[
+                '${(totalScore * 0.7).round() + 1}-${(totalScore * 0.8).round()}'] =
+            gradeDistribution[
+                    '${(totalScore * 0.7).round() + 1}-${(totalScore * 0.8).round()}']! +
+                1;
+      else if (grade <= (totalScore * 0.9).round())
+        gradeDistribution[
+                '${(totalScore * 0.8).round() + 1}-${(totalScore * 0.9).round()}'] =
+            gradeDistribution[
+                    '${(totalScore * 0.8).round() + 1}-${(totalScore * 0.9).round()}']! +
+                1;
       else
-        gradeDistribution['90-100%'] = gradeDistribution['90-100%']! + 1;
+        gradeDistribution['${(totalScore * 0.9).round() + 1}-${totalScore}'] =
+            gradeDistribution[
+                    '${(totalScore * 0.9).round() + 1}-${totalScore}']! +
+                1;
     }
 
     List<BarChartGroupData> barGroups = gradeDistribution.entries.map((entry) {
@@ -841,7 +878,8 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
     );
   }
 
-  Widget _buildGradeLineChartDistribution(List<Map<String, dynamic>> grades) {
+  Widget _buildGradeLineChartDistribution(
+      List<Map<String, dynamic>> grades, int totalScore) {
     if (grades.isEmpty) {
       return Center(child: Text("No data available"));
     }
@@ -922,7 +960,7 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
-                  interval: 10,
+                  interval: totalScore / 10,
                   getTitlesWidget: (value, meta) {
                     return Text(
                       value.toInt().toString(),
@@ -950,7 +988,7 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
             minX: 0,
             maxX: 4,
             minY: 0,
-            maxY: 100,
+            maxY: totalScore.toDouble(),
             lineBarsData: [
               LineChartBarData(
                 isCurved: true,

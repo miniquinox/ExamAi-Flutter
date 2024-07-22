@@ -5,6 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:collection/collection.dart';
 
 class ExamResultsScreen extends StatefulWidget {
   final String examId;
@@ -203,6 +204,14 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
     if (user != null) {
       print('Fetching grade for user: ${user.email}');
     }
+
+    final userDoc =
+        _grades!.firstWhereOrNull((doc) => doc['email'] == user?.email);
+    if (userDoc == null) {
+      return Center(child: Text("Your exam hasn't been graded yet"));
+    }
+    final finalGrade = userDoc['grade'] ?? '0/1';
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -299,6 +308,12 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                     ],
                   ),
                 ),
+                HoverableCard(
+                  finalGrade: finalGrade,
+                  onTap: () {
+                    widget.onFeedbackClick(widget.examId);
+                  },
+                ),
                 // Column 2: Time Length
                 Expanded(
                   flex: 1,
@@ -366,14 +381,15 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                 Row(
                   children: [
                     Expanded(
+                      flex: 2,
                       child: _buildGraphBox('Grade distribution',
-                          _buildGradeDistributionChart(_grades!)),
+                          _buildGradeDistributionChart(_grades!, totalScore)),
                     ),
-                    SizedBox(width: 20),
-                    Container(
-                      width: 400,
+                    SizedBox(width: 10),
+                    Expanded(
+                      flex: 1,
                       child: _buildTopStudentsBox(),
-                    )
+                    ),
                   ],
                 ),
                 SizedBox(height: 20),
@@ -381,8 +397,10 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                   children: [
                     Expanded(
                       flex: 2,
-                      child: _buildGraphBox('Grade line chart distribution',
-                          _buildGradeLineChartDistribution(_grades!)),
+                      child: _buildGraphBox(
+                          'Grade line chart distribution',
+                          _buildGradeLineChartDistribution(
+                              _grades!, totalScore)),
                     ),
                     SizedBox(width: 10),
                     Expanded(
@@ -631,49 +649,79 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
     );
   }
 
-  Widget _buildGradeDistributionChart(List<Map<String, dynamic>> grades) {
+  Widget _buildGradeDistributionChart(
+      List<Map<String, dynamic>> grades, int totalScore) {
     if (grades.isEmpty) {
       return Center(child: Text("No data available"));
     }
 
+    // Update the gradeDistribution to use score ranges instead of percentages
     Map<String, int> gradeDistribution = {
-      '0-10%': 0,
-      '10-20%': 0,
-      '20-30%': 0,
-      '30-40%': 0,
-      '40-50%': 0,
-      '50-60%': 0,
-      '60-70%': 0,
-      '70-80%': 0,
-      '80-90%': 0,
-      '90-100%': 0,
+      '0-${totalScore ~/ 10}': 0,
+      '${totalScore ~/ 10 + 1}-${totalScore ~/ 5}': 0,
+      '${totalScore ~/ 5 + 1}-${totalScore * 3 ~/ 10}': 0,
+      '${totalScore * 3 ~/ 10 + 1}-${totalScore * 2 ~/ 5}': 0,
+      '${totalScore * 2 ~/ 5 + 1}-${totalScore ~/ 2}': 0,
+      '${totalScore ~/ 2 + 1}-${totalScore * 3 ~/ 5}': 0,
+      '${totalScore * 3 ~/ 5 + 1}-${totalScore * 7 ~/ 10}': 0,
+      '${totalScore * 7 ~/ 10 + 1}-${totalScore * 4 ~/ 5}': 0,
+      '${totalScore * 4 ~/ 5 + 1}-${totalScore * 9 ~/ 10}': 0,
+      '${totalScore * 9 ~/ 10 + 1}-$totalScore': 0,
     };
 
     for (var student in grades) {
       List<String> scoreParts = student['grade'].split('/');
-      double grade = (double.tryParse(scoreParts[0]) ?? 0) /
-          (double.tryParse(scoreParts[1]) ?? 1) *
-          100;
-      if (grade < 10)
-        gradeDistribution['0-10%'] = gradeDistribution['0-10%']! + 1;
-      else if (grade < 20)
-        gradeDistribution['10-20%'] = gradeDistribution['10-20%']! + 1;
-      else if (grade < 30)
-        gradeDistribution['20-30%'] = gradeDistribution['20-30%']! + 1;
-      else if (grade < 40)
-        gradeDistribution['30-40%'] = gradeDistribution['30-40%']! + 1;
-      else if (grade < 50)
-        gradeDistribution['40-50%'] = gradeDistribution['40-50%']! + 1;
-      else if (grade < 60)
-        gradeDistribution['50-60%'] = gradeDistribution['50-60%']! + 1;
-      else if (grade < 70)
-        gradeDistribution['60-70%'] = gradeDistribution['60-70%']! + 1;
-      else if (grade < 80)
-        gradeDistribution['70-80%'] = gradeDistribution['70-80%']! + 1;
-      else if (grade < 90)
-        gradeDistribution['80-90%'] = gradeDistribution['80-90%']! + 1;
+      double grade = (double.tryParse(scoreParts[0]) ?? 0);
+
+      if (grade <= totalScore * 1 / 10)
+        gradeDistribution['0-${totalScore ~/ 10}'] =
+            gradeDistribution['0-${totalScore ~/ 10}']! + 1;
+      else if (grade <= totalScore * 2 / 10)
+        gradeDistribution['${totalScore ~/ 10 + 1}-${totalScore ~/ 5}'] =
+            gradeDistribution['${totalScore ~/ 10 + 1}-${totalScore ~/ 5}']! +
+                1;
+      else if (grade <= totalScore * 3 / 10)
+        gradeDistribution['${totalScore ~/ 5 + 1}-${totalScore * 3 ~/ 10}'] =
+            gradeDistribution[
+                    '${totalScore ~/ 5 + 1}-${totalScore * 3 ~/ 10}']! +
+                1;
+      else if (grade <= totalScore * 4 / 10)
+        gradeDistribution[
+                '${totalScore * 3 ~/ 10 + 1}-${totalScore * 2 ~/ 5}'] =
+            gradeDistribution[
+                    '${totalScore * 3 ~/ 10 + 1}-${totalScore * 2 ~/ 5}']! +
+                1;
+      else if (grade <= totalScore * 5 / 10)
+        gradeDistribution['${totalScore * 2 ~/ 5 + 1}-${totalScore ~/ 2}'] =
+            gradeDistribution[
+                    '${totalScore * 2 ~/ 5 + 1}-${totalScore ~/ 2}']! +
+                1;
+      else if (grade <= totalScore * 6 / 10)
+        gradeDistribution['${totalScore ~/ 2 + 1}-${totalScore * 3 ~/ 5}'] =
+            gradeDistribution[
+                    '${totalScore ~/ 2 + 1}-${totalScore * 3 ~/ 5}']! +
+                1;
+      else if (grade <= totalScore * 7 / 10)
+        gradeDistribution[
+                '${totalScore * 3 ~/ 5 + 1}-${totalScore * 7 ~/ 10}'] =
+            gradeDistribution[
+                    '${totalScore * 3 ~/ 5 + 1}-${totalScore * 7 ~/ 10}']! +
+                1;
+      else if (grade <= totalScore * 8 / 10)
+        gradeDistribution[
+                '${totalScore * 7 ~/ 10 + 1}-${totalScore * 4 ~/ 5}'] =
+            gradeDistribution[
+                    '${totalScore * 7 ~/ 10 + 1}-${totalScore * 4 ~/ 5}']! +
+                1;
+      else if (grade <= totalScore * 9 / 10)
+        gradeDistribution[
+                '${totalScore * 4 ~/ 5 + 1}-${totalScore * 9 ~/ 10}'] =
+            gradeDistribution[
+                    '${totalScore * 4 ~/ 5 + 1}-${totalScore * 9 ~/ 10}']! +
+                1;
       else
-        gradeDistribution['90-100%'] = gradeDistribution['90-100%']! + 1;
+        gradeDistribution['${totalScore * 9 ~/ 10 + 1}-$totalScore'] =
+            gradeDistribution['${totalScore * 9 ~/ 10 + 1}-$totalScore']! + 1;
     }
 
     List<BarChartGroupData> barGroups = gradeDistribution.entries.map((entry) {
@@ -762,7 +810,8 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
     );
   }
 
-  Widget _buildGradeLineChartDistribution(List<Map<String, dynamic>> grades) {
+  Widget _buildGradeLineChartDistribution(
+      List<Map<String, dynamic>> grades, int totalScore) {
     if (grades.isEmpty) {
       return Center(child: Text("No data available"));
     }
@@ -843,7 +892,7 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
-                  interval: 10,
+                  interval: (totalScore / 10).ceil().toDouble(),
                   getTitlesWidget: (value, meta) {
                     return Text(
                       value.toInt().toString(),
@@ -871,7 +920,7 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
             minX: 0,
             maxX: 4,
             minY: 0,
-            maxY: 100,
+            maxY: totalScore.toDouble(),
             lineBarsData: [
               LineChartBarData(
                 isCurved: true,
@@ -897,6 +946,102 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                   FlSpot(3, upper25),
                   FlSpot(4, highest),
                 ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class HoverableCard extends StatefulWidget {
+  final String finalGrade;
+  final VoidCallback onTap;
+
+  const HoverableCard({required this.finalGrade, required this.onTap, Key? key})
+      : super(key: key);
+
+  @override
+  _HoverableCardState createState() => _HoverableCardState();
+}
+
+class _HoverableCardState extends State<HoverableCard> {
+  bool _isHovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    double finalGradeValue =
+        double.tryParse(widget.finalGrade.split('/')[0]) ?? 0.0;
+    double maxGradeValue =
+        double.tryParse(widget.finalGrade.split('/')[1]) ?? 100.0;
+
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovering = true),
+        onExit: (_) => setState(() => _isHovering = false),
+        child: Container(
+          height: 100,
+          width: 200,
+          decoration: BoxDecoration(
+            color: _isHovering ? Colors.grey.shade200 : Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Color(0xFFD0D5DD), width: 1),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  width: 50,
+                  height: 50,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      CircularProgressIndicator(
+                        value: finalGradeValue / maxGradeValue,
+                        backgroundColor: Colors.grey.shade200,
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Color(0xFF6938EF)),
+                        strokeWidth: 6,
+                      ),
+                      Center(
+                        child: Text(
+                          '${(finalGradeValue / maxGradeValue * 100).toStringAsFixed(1)}%',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 10.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'View',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'Feedback',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

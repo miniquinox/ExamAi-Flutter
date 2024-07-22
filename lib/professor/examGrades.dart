@@ -59,21 +59,7 @@ class ExamDetailsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFFCFCFD),
       appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('Your exams details'),
-            ElevatedButton(
-              onPressed: () {
-                // Add your onPressed code here
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green, // Button color
-              ),
-              child: const Text('Grade Remaining Students'),
-            ),
-          ],
-        ),
+        title: const Text('Your exams details'),
         backgroundColor: const Color(0xFFFCFCFD),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
@@ -150,8 +136,11 @@ class ExamDetailsScreen extends StatelessWidget {
                                         value: (student['finalGrade'] !=
                                                     'Placeholder'
                                                 ? double.parse(
-                                                        student['finalGrade']) /
-                                                    100
+                                                        student['finalGrade']
+                                                            .split('/')[0]) /
+                                                    double.parse(
+                                                        student['finalGrade']
+                                                            .split('/')[1])
                                                 : 0.0)
                                             .toDouble(),
                                         backgroundColor: Colors.grey.shade300,
