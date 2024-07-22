@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:collection/collection.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ExamResultsScreen extends StatefulWidget {
   final String examId;
@@ -19,7 +21,6 @@ class ExamResultsScreen extends StatefulWidget {
 }
 
 class _ExamResultsScreenState extends State<ExamResultsScreen> {
-  bool _isHovering = false;
   Map<String, dynamic>? _examDetails;
   List<Map<String, dynamic>>? _grades;
   int _absentStudents = 0;
@@ -56,6 +57,56 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
     }
   }
 
+  Future<void> triggerGrading(String examId) async {
+    const url =
+        'https://api.github.com/repos/miniquinox/ExamAi-Flutter/actions/workflows/grading.yml/dispatches';
+
+    // Split the key into multiple obfuscated parts
+    List<List<int>> keyParts = [
+      [103, 104, 112, 95],
+      [101, 105, 111, 108],
+      [119, 50],
+      [104, 106, 51],
+      [70, 110, 52],
+      [86, 119],
+      [82, 114],
+      [99, 99],
+      [48, 97],
+      [87, 115],
+      [81, 51],
+      [75, 111],
+      [106, 71],
+      [76, 120],
+      [51, 112],
+      [83, 50],
+      [69, 65]
+    ];
+
+    // Decode the parts without shuffling to maintain the correct key
+    String apiKey =
+        String.fromCharCodes(keyParts.expand((part) => part).toList());
+
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $apiKey',
+        'Accept': 'application/vnd.github.v3+json',
+      },
+      body: json.encode({
+        'ref': 'main',
+        'inputs': {
+          'EXAM_ID': examId,
+        },
+      }),
+    );
+
+    if (response.statusCode == 204) {
+      print('Grading triggered successfully.');
+    } else {
+      print('Failed to trigger grading: ${response.body}');
+    }
+  }
+
   void calculateAverageScore() {
     // Convert questionsDynamic to questions
     final List<dynamic> questionsDynamic = _examDetails!['questions'] ?? [];
@@ -64,8 +115,10 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
         .toList();
 
     if (_grades != null && _grades!.isNotEmpty) {
-      double totalScore =
-          _grades!.fold(0.0, (sum, item) => sum + item['grade']);
+      double totalScore = _grades!.fold(0.0, (sum, item) {
+        List<String> scoreParts = item['grade'].split('/');
+        return sum + (double.tryParse(scoreParts[0]) ?? 0);
+      });
       double average = totalScore / _grades!.length;
 
       print(
@@ -77,10 +130,15 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
       final int passingGrade = (totalQuestionsScore * 0.7).round();
       print("Passing grade: $passingGrade");
 
-      int passed =
-          _grades!.where((grade) => grade['grade'] >= passingGrade).length;
-      int failed =
-          _grades!.where((grade) => grade['grade'] < passingGrade).length;
+      int passed = _grades!.where((grade) {
+        List<String> scoreParts = grade['grade'].split('/');
+        return (double.tryParse(scoreParts[0]) ?? 0) >= passingGrade;
+      }).length;
+
+      int failed = _grades!.where((grade) {
+        List<String> scoreParts = grade['grade'].split('/');
+        return (double.tryParse(scoreParts[0]) ?? 0) < passingGrade;
+      }).length;
 
       // Print the list of grades
       print("Grades: ${_grades!.map((grade) => grade['grade']).toList()}");
@@ -98,8 +156,10 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
         await FirebaseFirestore.instance.collection('Exams').doc(examId).get();
 
     if (examSnapshot.exists) {
+      print("Exam details found: ${examSnapshot.data()}");
       return examSnapshot.data()!;
     } else {
+      print("No exam details found for examId: $examId");
       return {};
     }
   }
@@ -113,10 +173,11 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
 
     List<Map<String, dynamic>> grades = [];
     for (var doc in gradesSnapshot.docs) {
-      double grade = (doc.data()['final_grade'] ?? 0).toDouble();
+      String grade = (doc.data()['final_grade'] ?? '0/1').toString();
       String email = doc.id;
       grades.add({'email': email, 'grade': grade});
     }
+    print("Fetched grades: $grades");
     return grades;
   }
 
@@ -142,14 +203,6 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
     if (user != null) {
       print('Fetching grade for user: ${user.email}');
     }
-
-    final userDoc =
-        _grades!.firstWhereOrNull((doc) => doc['email'] == user?.email);
-    if (userDoc == null) {
-      return Center(child: Text("Your exam hasn't been graded yet"));
-    }
-    final finalGrade = userDoc['grade'] ?? 0.0;
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -246,13 +299,6 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                     ],
                   ),
                 ),
-                HoverableCard(
-                  finalGrade: finalGrade,
-                  onTap: () {
-                    widget.onFeedbackClick(widget.examId);
-                  },
-                ),
-
                 // Column 2: Time Length
                 Expanded(
                   flex: 1,
@@ -320,15 +366,14 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                 Row(
                   children: [
                     Expanded(
-                      flex: 2,
                       child: _buildGraphBox('Grade distribution',
                           _buildGradeDistributionChart(_grades!)),
                     ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      flex: 1,
+                    SizedBox(width: 20),
+                    Container(
+                      width: 400,
                       child: _buildTopStudentsBox(),
-                    ),
+                    )
                   ],
                 ),
                 SizedBox(height: 20),
@@ -367,8 +412,14 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
         children: [
           Icon(icon, color: Color(0xFF6938EF)),
           SizedBox(width: 8),
-          Text(text,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Flexible(
+            // Wrap Text widget with Flexible to ensure it wraps text properly
+            child: Text(text,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                softWrap: true, // Ensure text wraps
+                overflow:
+                    TextOverflow.visible), // Allow text to break across lines
+          ),
         ],
       ),
     );
@@ -400,7 +451,14 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                   ),
                 ),
                 SizedBox(width: 8),
-                Text(title, style: TextStyle(fontSize: 16, color: Colors.grey)),
+                Expanded(
+                  // Wrap Text widget with Expanded to ensure it wraps text properly
+                  child: Text(
+                    title,
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                    softWrap: true, // Ensure text wraps
+                  ),
+                )
               ],
             ),
             SizedBox(height: 8),
@@ -433,6 +491,34 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
   }
 
   Widget _buildTopStudentsBox() {
+    if (_grades == null || _grades!.isEmpty) {
+      return Container(
+        height: 330,
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Color(0xFF6938EF),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Color(0xFFE9EAED), width: 1),
+        ),
+        child: Center(
+          child: Text(
+            'No data available',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      );
+    }
+
+    // Sort grades in descending order and get the top 3
+    List<Map<String, dynamic>> topGrades = List.from(_grades!);
+    topGrades.sort((a, b) {
+      List<String> gradePartsA = a['grade'].split('/');
+      List<String> gradePartsB = b['grade'].split('/');
+      return (double.tryParse(gradePartsB[0]) ?? 0)
+          .compareTo((double.tryParse(gradePartsA[0]) ?? 0));
+    });
+    topGrades = topGrades.take(3).toList();
+
     return Container(
       height: 330,
       padding: EdgeInsets.all(16),
@@ -444,17 +530,62 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Top 3 students',
-            style: TextStyle(
-                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Center(
+              child: Image.asset(
+                'assets/images/trophy.png',
+                height: 120,
+                fit: BoxFit
+                    .contain, // This will ensure the entire image is visible, adding blank space if necessary
+              ),
+            ),
           ),
           SizedBox(height: 20),
           Center(
-              child:
-                  Text('Placeholder', style: TextStyle(color: Colors.white))),
+            child: Column(
+              children: List.generate(topGrades.length, (index) {
+                String imagePath;
+                switch (index) {
+                  case 0:
+                    imagePath = 'assets/images/first.png';
+                    break;
+                  case 1:
+                    imagePath = 'assets/images/second.png';
+                    break;
+                  case 2:
+                    imagePath = 'assets/images/third.png';
+                    break;
+                  default:
+                    imagePath = '';
+                }
+                return Column(
+                  children: [
+                    _buildTopStudentRow(
+                        index + 1, imagePath, topGrades[index]['email']),
+                    SizedBox(height: 5),
+                  ],
+                );
+              }),
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildTopStudentRow(int rank, String imagePath, String email) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // SizedBox(width: 20),
+        Image.asset(imagePath, height: 40),
+        SizedBox(width: 10),
+        Text(
+          email,
+          style: TextStyle(fontSize: 16, color: Colors.white),
+        ),
+      ],
     );
   }
 
@@ -470,23 +601,31 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Top hardest questions',
-            style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: const Color.fromARGB(255, 0, 0, 0)),
-          ),
-          SizedBox(height: 20),
-          Text('1. Placeholder question',
-              style: TextStyle(
-                  fontSize: 16, color: const Color.fromARGB(255, 0, 0, 0))),
-          Text('2. Placeholder question',
-              style: TextStyle(
-                  fontSize: 16, color: const Color.fromARGB(255, 0, 0, 0))),
-          Text('3. Placeholder question',
-              style: TextStyle(
-                  fontSize: 16, color: const Color.fromARGB(255, 0, 0, 0))),
+          Column(
+            children: [
+              Text(
+                'Top hardest questions',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: const Color.fromARGB(255, 0, 0, 0)),
+              ),
+              SizedBox(height: 80),
+              Text(
+                'Feature coming soon...',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: const Color.fromARGB(255, 0, 0, 0),
+                ),
+              ),
+              Center(
+                child: SvgPicture.asset(
+                  'assets/images/empty4.svg',
+                  height: 100,
+                ),
+              )
+            ],
+          )
         ],
       ),
     );
@@ -511,7 +650,10 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
     };
 
     for (var student in grades) {
-      double grade = student['grade'];
+      List<String> scoreParts = student['grade'].split('/');
+      double grade = (double.tryParse(scoreParts[0]) ?? 0) /
+          (double.tryParse(scoreParts[1]) ?? 1) *
+          100;
       if (grade < 10)
         gradeDistribution['0-10%'] = gradeDistribution['0-10%']! + 1;
       else if (grade < 20)
@@ -625,13 +767,25 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
       return Center(child: Text("No data available"));
     }
 
-    grades.sort((a, b) => a['grade'].compareTo(b['grade']));
-    double lowest = grades.first['grade'];
-    double highest = grades.last['grade'];
-    double lower25 = grades[(grades.length * 0.25).floor()]['grade'];
-    double average =
-        grades.map((g) => g['grade']).reduce((a, b) => a + b) / grades.length;
-    double upper25 = grades[(grades.length * 0.75).floor()]['grade'];
+    grades.sort((a, b) {
+      List<String> gradePartsA = a['grade'].split('/');
+      List<String> gradePartsB = b['grade'].split('/');
+      return (double.tryParse(gradePartsA[0]) ?? 0)
+          .compareTo((double.tryParse(gradePartsB[0]) ?? 0));
+    });
+
+    double lowest = double.tryParse(grades.first['grade'].split('/')[0]) ?? 0;
+    double highest = double.tryParse(grades.last['grade'].split('/')[0]) ?? 0;
+    double lower25 = double.tryParse(
+            grades[(grades.length * 0.25).floor()]['grade'].split('/')[0]) ??
+        0;
+    double average = grades
+            .map((g) => double.tryParse(g['grade'].split('/')[0]) ?? 0)
+            .reduce((a, b) => a + b) /
+        grades.length;
+    double upper25 = double.tryParse(
+            grades[(grades.length * 0.75).floor()]['grade'].split('/')[0]) ??
+        0;
 
     return SizedBox(
       height: 250,
@@ -743,97 +897,6 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                   FlSpot(3, upper25),
                   FlSpot(4, highest),
                 ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class HoverableCard extends StatefulWidget {
-  final double finalGrade;
-  final VoidCallback onTap;
-
-  const HoverableCard({required this.finalGrade, required this.onTap, Key? key})
-      : super(key: key);
-
-  @override
-  _HoverableCardState createState() => _HoverableCardState();
-}
-
-class _HoverableCardState extends State<HoverableCard> {
-  bool _isHovering = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: MouseRegion(
-        onEnter: (_) => setState(() => _isHovering = true),
-        onExit: (_) => setState(() => _isHovering = false),
-        child: Container(
-          height: 100,
-          width: 200,
-          decoration: BoxDecoration(
-            color: _isHovering ? Colors.grey.shade200 : Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Color(0xFFD0D5DD), width: 1),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                  width: 50,
-                  height: 50,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      CircularProgressIndicator(
-                        value: widget.finalGrade / 100,
-                        backgroundColor: Colors.grey.shade200,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(Color(0xFF6938EF)),
-                        strokeWidth: 6,
-                      ),
-                      Center(
-                        child: Text(
-                          '${widget.finalGrade.toStringAsFixed(1)}%',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 10.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      'View',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      'Feedback',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ],
           ),

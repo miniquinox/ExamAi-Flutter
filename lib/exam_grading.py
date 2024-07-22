@@ -135,7 +135,7 @@ def grade_exam(exam_id):
             total_score += result_dict["total_score"]
             student_result["grades"].append(result_dict)
 
-        student_result["final_grade"] = total_score
+        student_result["final_grade"] = f'{total_score}/{maximum_exam_score}'
         exam_results["students"].append(student_result)
         all_students_grades.append(student_result)
 

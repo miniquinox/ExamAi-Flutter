@@ -65,6 +65,7 @@ class _StudentScreenState extends State<StudentScreen> {
           studentDoc.data()?['completedExams'] as Map<String, dynamic>? ?? {};
 
       double totalScore = 0.0;
+      double totalMaxScore = 0.0;
       int examCount = 0;
 
       for (var examId in completedExams.keys) {
@@ -83,27 +84,31 @@ class _StudentScreenState extends State<StudentScreen> {
               .doc(email)
               .get();
 
-          final finalGrade =
-              gradedSnapshot.exists && gradedSnapshot.data() != null
-                  ? gradedSnapshot.data()!['final_grade'] ?? 0
-                  : 0;
+          if (gradedSnapshot.exists && gradedSnapshot.data() != null) {
+            final gradedData = gradedSnapshot.data()!;
+            final finalGrade = gradedData['final_grade'] ?? '0/0';
+            List<String> scoreParts = finalGrade.split('/');
+            double score = double.tryParse(scoreParts[0]) ?? 0;
+            double maxScore = double.tryParse(scoreParts[1]) ?? 1;
 
-          totalScore += finalGrade;
-          examCount++;
+            totalScore += score;
+            totalMaxScore += maxScore;
+            examCount++;
 
-          recentExams.add({
-            'examName': examDetails['examName'] ?? 'Placeholder',
-            'examId': examId,
-            'date': examDetails['date'] ?? 'Placeholder',
-            'time': examDetails['time'] ?? 'Placeholder',
-            'students': List<String>.from(examDetails['students'] ?? []),
-            'score': finalGrade,
-          });
+            recentExams.add({
+              'examName': examDetails['examName'] ?? 'Placeholder',
+              'examId': examId,
+              'date': examDetails['date'] ?? 'Placeholder',
+              'time': examDetails['time'] ?? 'Placeholder',
+              'students': List<String>.from(examDetails['students'] ?? []),
+              'score': finalGrade,
+            });
+          }
         }
       }
 
       if (examCount > 0) {
-        averageScore = totalScore / examCount;
+        averageScore = (totalScore / totalMaxScore) * 100;
       }
 
       setState(() {});
@@ -426,7 +431,7 @@ class _StudentScreenState extends State<StudentScreen> {
                               Expanded(flex: 1, child: Text('Score')),
                             ],
                           ),
-                          recentExams.length == 0
+                          recentExams.isEmpty
                               ? Center(
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -806,7 +811,7 @@ class ExamRow extends StatefulWidget {
   final String date;
   final String time;
   final List<String> students;
-  final double score;
+  final String score; // Changed from double to String to handle "x/y" format
   final Function(String examId) onRowClick;
 
   const ExamRow({
@@ -828,6 +833,11 @@ class _ExamRowState extends State<ExamRow> {
 
   @override
   Widget build(BuildContext context) {
+    List<String> scoreParts = widget.score.split('/');
+    double score = double.tryParse(scoreParts[0]) ?? 0;
+    double maxScore = double.tryParse(scoreParts[1]) ?? 100;
+    double percentage = (score / maxScore) * 100;
+
     return GestureDetector(
       onTap: () {
         widget.onRowClick(widget.examId);
@@ -891,13 +901,13 @@ class _ExamRowState extends State<ExamRow> {
                           width: 40,
                           height: 40,
                           child: CircularProgressIndicator(
-                            value: widget.score / 100,
+                            value: percentage / 100,
                             backgroundColor: Colors.grey[200],
                             valueColor:
                                 AlwaysStoppedAnimation<Color>(Colors.purple),
                           ),
                         ),
-                        Text('${widget.score.toInt()}%',
+                        Text('${score.toInt()}',
                             style: TextStyle(fontSize: 12)),
                       ],
                     ),

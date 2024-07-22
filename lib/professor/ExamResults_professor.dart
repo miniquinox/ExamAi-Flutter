@@ -115,8 +115,10 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
         .toList();
 
     if (_grades != null && _grades!.isNotEmpty) {
-      double totalScore =
-          _grades!.fold(0.0, (sum, item) => sum + item['grade']);
+      double totalScore = _grades!.fold(0.0, (sum, item) {
+        List<String> scoreParts = item['grade'].split('/');
+        return sum + (double.tryParse(scoreParts[0]) ?? 0);
+      });
       double average = totalScore / _grades!.length;
 
       print(
@@ -128,10 +130,15 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
       final int passingGrade = (totalQuestionsScore * 0.7).round();
       print("Passing grade: $passingGrade");
 
-      int passed =
-          _grades!.where((grade) => grade['grade'] >= passingGrade).length;
-      int failed =
-          _grades!.where((grade) => grade['grade'] < passingGrade).length;
+      int passed = _grades!.where((grade) {
+        List<String> scoreParts = grade['grade'].split('/');
+        return (double.tryParse(scoreParts[0]) ?? 0) >= passingGrade;
+      }).length;
+
+      int failed = _grades!.where((grade) {
+        List<String> scoreParts = grade['grade'].split('/');
+        return (double.tryParse(scoreParts[0]) ?? 0) < passingGrade;
+      }).length;
 
       // Print the list of grades
       print("Grades: ${_grades!.map((grade) => grade['grade']).toList()}");
@@ -149,8 +156,10 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
         await FirebaseFirestore.instance.collection('Exams').doc(examId).get();
 
     if (examSnapshot.exists) {
+      print("Exam details found: ${examSnapshot.data()}");
       return examSnapshot.data()!;
     } else {
+      print("No exam details found for examId: $examId");
       return {};
     }
   }
@@ -164,10 +173,11 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
 
     List<Map<String, dynamic>> grades = [];
     for (var doc in gradesSnapshot.docs) {
-      double grade = (doc.data()['final_grade'] ?? 0).toDouble();
+      String grade = (doc.data()['final_grade'] ?? '0/1').toString();
       String email = doc.id;
       grades.add({'email': email, 'grade': grade});
     }
+    print("Fetched grades: $grades");
     return grades;
   }
 
@@ -296,7 +306,9 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                           Color(0xFF6938EF)), // School icon for student grades
                   label: Padding(
                     padding: const EdgeInsets.only(
-                        left: 10), // 10px spacing between icon and text
+                        left: 10,
+                        top: 10,
+                        bottom: 10), // 10px spacing between icon and text
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: const [
@@ -578,7 +590,12 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
 
     // Sort grades in descending order and get the top 3
     List<Map<String, dynamic>> topGrades = List.from(_grades!);
-    topGrades.sort((a, b) => b['grade'].compareTo(a['grade']));
+    topGrades.sort((a, b) {
+      List<String> gradePartsA = a['grade'].split('/');
+      List<String> gradePartsB = b['grade'].split('/');
+      return (double.tryParse(gradePartsB[0]) ?? 0)
+          .compareTo((double.tryParse(gradePartsA[0]) ?? 0));
+    });
     topGrades = topGrades.take(3).toList();
 
     return Container(
@@ -712,7 +729,10 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
     };
 
     for (var student in grades) {
-      double grade = student['grade'];
+      List<String> scoreParts = student['grade'].split('/');
+      double grade = (double.tryParse(scoreParts[0]) ?? 0) /
+          (double.tryParse(scoreParts[1]) ?? 1) *
+          100;
       if (grade < 10)
         gradeDistribution['0-10%'] = gradeDistribution['0-10%']! + 1;
       else if (grade < 20)
@@ -826,13 +846,25 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
       return Center(child: Text("No data available"));
     }
 
-    grades.sort((a, b) => a['grade'].compareTo(b['grade']));
-    double lowest = grades.first['grade'];
-    double highest = grades.last['grade'];
-    double lower25 = grades[(grades.length * 0.25).floor()]['grade'];
-    double average =
-        grades.map((g) => g['grade']).reduce((a, b) => a + b) / grades.length;
-    double upper25 = grades[(grades.length * 0.75).floor()]['grade'];
+    grades.sort((a, b) {
+      List<String> gradePartsA = a['grade'].split('/');
+      List<String> gradePartsB = b['grade'].split('/');
+      return (double.tryParse(gradePartsA[0]) ?? 0)
+          .compareTo((double.tryParse(gradePartsB[0]) ?? 0));
+    });
+
+    double lowest = double.tryParse(grades.first['grade'].split('/')[0]) ?? 0;
+    double highest = double.tryParse(grades.last['grade'].split('/')[0]) ?? 0;
+    double lower25 = double.tryParse(
+            grades[(grades.length * 0.25).floor()]['grade'].split('/')[0]) ??
+        0;
+    double average = grades
+            .map((g) => double.tryParse(g['grade'].split('/')[0]) ?? 0)
+            .reduce((a, b) => a + b) /
+        grades.length;
+    double upper25 = double.tryParse(
+            grades[(grades.length * 0.75).floor()]['grade'].split('/')[0]) ??
+        0;
 
     return SizedBox(
       height: 250,
