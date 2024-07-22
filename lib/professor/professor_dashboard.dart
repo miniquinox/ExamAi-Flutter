@@ -179,7 +179,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Exams Assigned Over Time',
+            'Questions Graded Over Time',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
