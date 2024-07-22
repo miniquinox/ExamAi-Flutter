@@ -59,7 +59,21 @@ class ExamDetailsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFFCFCFD),
       appBar: AppBar(
-        title: const Text('Your exams details'),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Your exams details'),
+            ElevatedButton(
+              onPressed: () {
+                // Add your onPressed code here
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green, // Button color
+              ),
+              child: const Text('Grade Remaining Students'),
+            ),
+          ],
+        ),
         backgroundColor: const Color(0xFFFCFCFD),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(

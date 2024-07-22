@@ -26,7 +26,7 @@ genai.configure(api_key=gemini_api_key)
 
 # Create the model
 generation_config = {
-    "temperature": 1,
+    "temperature": 0.3,
     "top_p": 0.95,
     "top_k": 64,
     "max_output_tokens": 8192,
@@ -69,10 +69,12 @@ def grade_exam(exam_id):
     print(f"Grading exam for {len(students)} students")
     questions = exam_data.get("questions", [])
 
+    all_students_grades = []
     for student_email in students:
         # Check if the student has already been graded
         graded_ref = db.collection("Exams").document(exam_id).collection("graded").document(student_email).get()
         if graded_ref.exists:
+            all_students_grades.append(graded_ref.to_dict())
             print(f"Skipping student {student_email} as they have already been graded")
             continue
 
@@ -135,6 +137,7 @@ def grade_exam(exam_id):
 
         student_result["final_grade"] = total_score
         exam_results["students"].append(student_result)
+        all_students_grades.append(student_result)
 
         # Save graded data to student's entry
         student_ref = db.collection("Exams").document(exam_id).collection("graded").document(student_email)
@@ -143,7 +146,7 @@ def grade_exam(exam_id):
 
     # Calculate average score and update exam document
     maximum_exam_score = sum(question['weight'] for question in questions)
-    avg_score = sum(student["final_grade"] for student in exam_results["students"]) / len(exam_results["students"])
+    avg_score = sum(student["final_grade"] for student in all_students_grades) / len(all_students_grades)
     exam_data["avgScore"] = f'{avg_score}/{maximum_exam_score}'
     exam_data["graded"] = True
     exam_data["dateLastGraded"] = datetime.now().strftime('%B %dth at %I:%M%p')
