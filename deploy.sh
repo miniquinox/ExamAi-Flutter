@@ -35,7 +35,7 @@ if [ -d "build/web" ]; then
   git commit -m "Deploy to GitHub Pages"
 
   # Add your GitHub repository as a remote
-  git remote add origin https://github.com/<USERNAME>/<REPOSITORY>.git
+  git remote add origin https://github.com/miniquinox/ExamAi-Flutter.git
 
   # Force push the files to the gh-pages branch
   git push -f origin master:gh-pages

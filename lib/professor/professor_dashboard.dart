@@ -1410,8 +1410,11 @@ class _ExamRowState extends State<ExamRow> {
 
   @override
   Widget build(BuildContext context) {
-    double score =
-        double.tryParse(widget.averageScore.replaceAll('%', '')) ?? 0;
+    List<String> scoreParts = widget.averageScore.split('/');
+    double score = double.tryParse(scoreParts[0]) ?? 0;
+    double maxScore = double.tryParse(scoreParts[1]) ?? 100;
+    double percentage = (score / maxScore) * 100;
+
     return MouseRegion(
       onEnter: (event) => setState(() => _isHovered = true),
       onExit: (event) => setState(() => _isHovered = false),
@@ -1454,14 +1457,14 @@ class _ExamRowState extends State<ExamRow> {
                         width: 40,
                         height: 40,
                         child: CircularProgressIndicator(
-                          value: score / 100,
+                          value: percentage / 100,
                           backgroundColor: Colors.grey.shade300,
                           valueColor: const AlwaysStoppedAnimation<Color>(
                               Color(0xFF6938EF)),
                           strokeWidth: 5,
                         ),
                       ),
-                      Text('${score.toStringAsFixed(1)}%',
+                      Text('${score.toStringAsFixed(1)}',
                           style: const TextStyle(fontSize: 10)),
                     ],
                   ),
@@ -1497,9 +1500,10 @@ class _ExamRowState extends State<ExamRow> {
                                       EdgeInsets.symmetric(
                                           horizontal: 10, vertical: 0)),
                                   shape: MaterialStateProperty.all(
-                                      RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  )),
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
                                   shadowColor: MaterialStateProperty.all(
                                       Colors.transparent),
                                 ),

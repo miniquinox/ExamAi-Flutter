@@ -26,16 +26,16 @@ genai.configure(api_key=gemini_api_key)
 
 # Create the model
 generation_config = {
-  "temperature": 1,
-  "top_p": 0.95,
-  "top_k": 64,
-  "max_output_tokens": 8192,
-  "response_mime_type": "text/plain",
+    "temperature": 1,
+    "top_p": 0.95,
+    "top_k": 64,
+    "max_output_tokens": 8192,
+    "response_mime_type": "text/plain",
 }
 
 model = genai.GenerativeModel(
-  model_name="gemini-1.5-pro",
-  generation_config=generation_config,
+    model_name="gemini-1.5-pro",
+    generation_config=generation_config,
 )
 
 def ask_gemini(question):
@@ -70,6 +70,12 @@ def grade_exam(exam_id):
     questions = exam_data.get("questions", [])
 
     for student_email in students:
+        # Check if the student has already been graded
+        graded_ref = db.collection("Exams").document(exam_id).collection("graded").document(student_email).get()
+        if graded_ref.exists:
+            print(f"Skipping student {student_email} as they have already been graded")
+            continue
+
         student_exam_data = load_firebase("Students", student_email)
         if not student_exam_data:
             print(f"No data found for student {student_email}")
@@ -136,8 +142,9 @@ def grade_exam(exam_id):
         print(f"Graded data saved for student {student_email}")
 
     # Calculate average score and update exam document
+    maximum_exam_score = sum(question['weight'] for question in questions)
     avg_score = sum(student["final_grade"] for student in exam_results["students"]) / len(exam_results["students"])
-    exam_data["avgScore"] = avg_score
+    exam_data["avgScore"] = f'{avg_score}/{maximum_exam_score}'
     exam_data["graded"] = True
     exam_data["dateLastGraded"] = datetime.now().strftime('%B %dth at %I:%M%p')
     exam_ref = db.collection("Exams").document(exam_id)
