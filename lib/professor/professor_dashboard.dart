@@ -236,6 +236,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                 getTitlesWidget:
                                     (double value, TitleMeta meta) {
                                   int index = value.toInt();
+                                  // Ensure index is within the range of dates list
                                   if (index >= 0 && index < dates.length) {
                                     DateTime date = dates[index];
                                     return SideTitleWidget(
@@ -245,11 +246,14 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                     );
                                   } else {
                                     return const SideTitleWidget(
-                                        axisSide: AxisSide.bottom,
-                                        child: Text(''));
+                                      axisSide: AxisSide.bottom,
+                                      child: Text(''),
+                                    );
                                   }
                                 },
                                 reservedSize: 30,
+                                interval:
+                                    1, // Show labels only at the points with data
                               ),
                             ),
                             leftTitles: AxisTitles(
