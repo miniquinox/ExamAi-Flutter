@@ -268,22 +268,16 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
                                       style: const TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
-                                        height: 1.2, // Adjust line spacing
                                       ),
                                       textAlign: TextAlign
                                           .left, // Ensures text alignment
-                                      strutStyle: const StrutStyle(
-                                        height: 1.2, // Adjust the height
-                                        forceStrutHeight:
-                                            true, // Forces the height to be applied
-                                      ),
                                     ),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.only(
-                                        top: 2.0,
-                                        right:
-                                            8), // Adjust this value as needed
+                                      top: 2.0,
+                                      right: 8,
+                                    ), // Adjust this value as needed
                                     child: Text(
                                       '${question['weight']} pts',
                                       style: const TextStyle(
@@ -322,8 +316,8 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
                                 ),
                               ),
                               const SizedBox(
-                                  height:
-                                      20), // Add 20 pixels box between questions
+                                height: 20,
+                              ), // Add 20 pixels box between questions
                             ],
                           ),
                         );
