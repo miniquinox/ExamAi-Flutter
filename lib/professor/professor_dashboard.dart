@@ -13,6 +13,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
 import 'dart:math' as math;
+import 'colors_professor.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -53,6 +55,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
   final ScrollController _scrollController =
       ScrollController(); // Add ScrollController
   Map<DateTime, int> _questionsPerDate = {}; // Declare the variable here
+  String colorToggle = "light";
 
   @override
   void initState() {
@@ -168,27 +171,36 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorToggle == "light"
+            ? AppColorsLight.pure_white
+            : AppColorsDark.pure_white,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: const Color(0xFFD0D5DD), // Thin border color #d0d5dd
+          color: colorToggle == "light"
+              ? AppColorsLight.light_grey
+              : AppColorsDark.light_grey, // Thin border color #d0d5dd
           width: 1, // Border width 1 pixel
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Questions Graded Over Time',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
+              color: colorToggle == "light"
+                  ? AppColorsLight.black
+                  : AppColorsDark.black,
             ),
           ),
           const SizedBox(height: 20),
           Container(
             height: 232,
-            color: Colors.white, // Placeholder for graph
+            color: colorToggle == "light"
+                ? AppColorsLight.pure_white
+                : AppColorsDark.pure_white, // Placeholder for graph
             child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: spots.isNotEmpty
@@ -198,7 +210,9 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                             LineChartBarData(
                               spots: spots,
                               isCurved: true,
-                              color: Color(0xff9b8afb),
+                              color: colorToggle == "light"
+                                  ? AppColorsLight.main_purple_light
+                                  : AppColorsDark.main_purple_light,
                               barWidth: 3,
                               isStrokeCapRound: true,
                               dotData: FlDotData(
@@ -207,17 +221,26 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                       (spot, percent, barData, index) {
                                     return FlDotCirclePainter(
                                       radius: 4, // Make the spot larger
-                                      color: Color(0xFF6938EF),
+                                      color: colorToggle == "light"
+                                          ? AppColorsLight.main_purple
+                                          : AppColorsDark.main_purple,
                                       strokeWidth: 2,
-                                      strokeColor: Colors.white,
+                                      strokeColor: colorToggle == "light"
+                                          ? AppColorsLight.pure_white
+                                          : AppColorsDark.pure_white,
                                     );
                                   }),
                               belowBarData: BarAreaData(
                                 show: true,
                                 gradient: LinearGradient(
                                   colors: [
-                                    Color(0xFF6938EF).withOpacity(0.1),
-                                    Color(0xFF6938EF).withOpacity(0.0),
+                                    colorToggle == "light"
+                                        ? AppColorsLight.chart_gradientStart
+                                        : Color.fromARGB(201, 153, 255, 0),
+                                    colorToggle == "light"
+                                        ? AppColorsLight.chart_gradientEnd
+                                        : AppColorsDark.chart_gradientEnd,
+                                    Colors.transparent,
                                   ],
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
@@ -241,13 +264,23 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                     DateTime date = dates[index];
                                     return SideTitleWidget(
                                       axisSide: meta.axisSide,
-                                      child: Text(
-                                          DateFormat('MM/dd').format(date)),
+                                      child:
+                                          Text(DateFormat('MM/dd').format(date),
+                                              style: TextStyle(
+                                                color: colorToggle == "light"
+                                                    ? AppColorsLight.black
+                                                    : AppColorsDark.black,
+                                              )),
                                     );
                                   } else {
-                                    return const SideTitleWidget(
+                                    return SideTitleWidget(
                                       axisSide: AxisSide.bottom,
-                                      child: Text(''),
+                                      child: Text('',
+                                          style: TextStyle(
+                                            color: colorToggle == "light"
+                                                ? AppColorsLight.black
+                                                : AppColorsDark.black,
+                                          )),
                                     );
                                   }
                                 },
@@ -261,7 +294,12 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                 showTitles: true,
                                 getTitlesWidget:
                                     (double value, TitleMeta meta) {
-                                  return Text(meta.formattedValue);
+                                  return Text(meta.formattedValue,
+                                      style: TextStyle(
+                                        color: colorToggle == "light"
+                                            ? AppColorsLight.black
+                                            : AppColorsDark.black,
+                                      ));
                                 },
                                 reservedSize: 40,
                               ),
@@ -278,13 +316,17 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                             drawVerticalLine: true,
                             getDrawingHorizontalLine: (value) {
                               return FlLine(
-                                color: const Color(0xffe7e8ec),
+                                color: colorToggle == "light"
+                                    ? AppColorsLight.light_grey
+                                    : AppColorsDark.light_grey,
                                 strokeWidth: 1,
                               );
                             },
                             getDrawingVerticalLine: (value) {
                               return FlLine(
-                                color: const Color(0xffe7e8ec),
+                                color: colorToggle == "light"
+                                    ? AppColorsLight.light_grey
+                                    : AppColorsDark.light_grey,
                                 strokeWidth: 1,
                               );
                             },
@@ -292,10 +334,22 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                           borderData: FlBorderData(
                             show: true,
                             border: Border(
-                              bottom: BorderSide(color: Colors.transparent),
-                              left: BorderSide(color: Colors.transparent),
-                              right: BorderSide(color: Colors.transparent),
-                              top: BorderSide(color: Colors.transparent),
+                              bottom: BorderSide(
+                                  color: colorToggle == "light"
+                                      ? AppColorsLight.light_grey
+                                      : AppColorsDark.light_grey),
+                              left: BorderSide(
+                                  color: colorToggle == "light"
+                                      ? AppColorsLight.light_grey
+                                      : AppColorsDark.light_grey),
+                              right: BorderSide(
+                                  color: colorToggle == "light"
+                                      ? AppColorsLight.light_grey
+                                      : AppColorsDark.light_grey),
+                              top: BorderSide(
+                                  color: colorToggle == "light"
+                                      ? AppColorsLight.light_grey
+                                      : AppColorsDark.light_grey),
                             ),
                           ),
                           lineTouchData: LineTouchData(
@@ -304,7 +358,9 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                               return spotIndexes.map((index) {
                                 return TouchedSpotIndicatorData(
                                   FlLine(
-                                    color: Color(0xFF6938EF),
+                                    color: colorToggle == "light"
+                                        ? AppColorsLight.main_purple
+                                        : AppColorsDark.main_purple,
                                     strokeWidth: 3,
                                   ),
                                   FlDotData(
@@ -313,23 +369,32 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                         (spot, percent, barData, index) =>
                                             FlDotCirclePainter(
                                       radius: 8, // Make the touched spot larger
-                                      color: Color(0xFF6938EF),
+                                      color: colorToggle == "light"
+                                          ? AppColorsLight.main_purple
+                                          : AppColorsDark.main_purple,
                                       strokeWidth: 3,
-                                      strokeColor: Colors.white,
+                                      strokeColor: colorToggle == "light"
+                                          ? AppColorsLight.pure_white
+                                          : AppColorsDark.pure_white,
                                     ),
                                   ),
                                 );
                               }).toList();
                             },
                             touchTooltipData: LineTouchTooltipData(
-                              getTooltipColor: (_) =>
-                                  Color.fromARGB(255, 169, 137, 255),
+                              getTooltipColor: (_) => colorToggle == "light"
+                                  ? AppColorsLight.main_purple_light
+                                  : AppColorsDark.main_purple_light,
                               getTooltipItems:
                                   (List<LineBarSpot> touchedSpots) {
                                 return touchedSpots.map((barSpot) {
                                   return LineTooltipItem(
                                     '${barSpot.y}',
-                                    TextStyle(color: Colors.black),
+                                    TextStyle(
+                                      color: colorToggle == "light"
+                                          ? AppColorsLight.pure_white
+                                          : AppColorsDark.pure_white,
+                                    ),
                                   );
                                 }).toList();
                               },
@@ -344,11 +409,12 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                             Text(
                               "No available data yet",
                               style: TextStyle(
-                                // fontWeight: FontWeight.bold,
                                 fontSize: 16,
+                                color: colorToggle == "light"
+                                    ? AppColorsLight.black
+                                    : AppColorsDark.black,
                               ),
                             ),
-                            // SizedBox(height: 20), // Add some spacing
                             SvgPicture.asset(
                               'assets/images/empty1.svg',
                               width: 100,
@@ -553,12 +619,20 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                   children: [
                     Text(
                       'Welcome back, ${user?.displayName}!',
-                      style: const TextStyle(
-                          fontSize: 24, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: colorToggle == "light"
+                              ? AppColorsLight.black
+                              : AppColorsDark.black),
                     ),
-                    const Text(
+                    Text(
                       'Here\'s what\'s happening with your exams today.',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: colorToggle == "light"
+                              ? AppColorsLight.dark_grey
+                              : AppColorsDark.dark_grey),
                     ),
                   ],
                 ),
@@ -571,18 +645,24 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                     );
                   },
                   style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.resolveWith<Color>(
-                      (Set<WidgetState> states) {
-                        if (states.contains(WidgetState.hovered)) {
-                          return const Color(0xFF6938EF)
-                              .withOpacity(0.8); // Slightly lighter on hover
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                      (Set<MaterialState> states) {
+                        if (states.contains(MaterialState.hovered)) {
+                          return colorToggle == "light"
+                              ? AppColorsLight.main_purple_light
+                              : AppColorsDark
+                                  .main_purple_light; // Slightly lighter on hover
                         }
-                        return const Color(0xFF6938EF); // Default color
+                        return colorToggle == "light"
+                            ? AppColorsLight.main_purple
+                            : AppColorsDark.main_purple; // Default color
                       },
                     ),
-                    foregroundColor: WidgetStateProperty.all(
-                        Colors.white), // Button text color
-                    shape: WidgetStateProperty.all(
+                    foregroundColor: MaterialStateProperty.all(
+                        colorToggle == "light"
+                            ? AppColorsLight.pure_white
+                            : AppColorsDark.pure_white), // Button text color
+                    shape: MaterialStateProperty.all(
                       RoundedRectangleBorder(
                         borderRadius:
                             BorderRadius.circular(10), // Less rounded corners
@@ -610,7 +690,8 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                 label: 'Total exams created',
                                 value: '$totalExamsCreated',
                                 leftMargin: 0.0,
-                                rightMargin: 5.0),
+                                rightMargin: 5.0,
+                                colorToggle: colorToggle),
                           ),
                           const SizedBox(
                               width: 8), // Spacing between statistic boxes
@@ -620,7 +701,8 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                 label: "Total Exams Assigned",
                                 value: '$totalExamsTaken',
                                 leftMargin: 5.0,
-                                rightMargin: 5.0),
+                                rightMargin: 5.0,
+                                colorToggle: colorToggle),
                           ),
                           const SizedBox(
                               width: 8), // Spacing between statistic boxes
@@ -630,7 +712,8 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                 label: 'Total Questions Assigned',
                                 value: '$totalQuestions',
                                 leftMargin: 5.0,
-                                rightMargin: 0.0),
+                                rightMargin: 0.0,
+                                colorToggle: colorToggle),
                           ),
                         ],
                       ),
@@ -649,20 +732,28 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: colorToggle == "light"
+                          ? AppColorsLight.pure_white
+                          : AppColorsDark.card_background,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: const Color(
-                            0xFFD0D5DD), // Thin border color #d0d5dd
+                        color: colorToggle == "light"
+                            ? AppColorsLight.light_grey
+                            : AppColorsDark
+                                .light_grey, // Thin border color #d0d5dd
                         width: 1, // Border width 1 pixel
                       ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Your Students',
+                        Text('Your Students',
                             style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16)),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: colorToggle == "light"
+                                    ? AppColorsLight.black
+                                    : AppColorsDark.black)),
                         const SizedBox(height: 10),
                         // Container with a fixed height
                         students.isNotEmpty
@@ -674,8 +765,9 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                     controller:
                                         _scrollController, // Attach the ScrollController
                                     children: students
-                                        .map((student) =>
-                                            StudentRow(name: student))
+                                        .map((student) => StudentRow(
+                                            name: student,
+                                            colorToggle: colorToggle))
                                         .toList(),
                                   ),
                                 ),
@@ -686,8 +778,12 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Text(
+                                    Text(
                                       'No students yet',
+                                      style: TextStyle(
+                                          color: colorToggle == "light"
+                                              ? AppColorsLight.black
+                                              : AppColorsDark.black),
                                     ),
                                     Center(
                                       child: SvgPicture.asset(
@@ -706,7 +802,11 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                               padding: const EdgeInsets.only(right: 8.0),
                               child: TextButton(
                                 onPressed: _scrollDown,
-                                child: const Text('Scroll down'),
+                                child: Text('Scroll down',
+                                    style: TextStyle(
+                                        color: colorToggle == "light"
+                                            ? AppColorsLight.black
+                                            : AppColorsDark.black)),
                               ),
                             ),
                           ],
@@ -723,51 +823,85 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                   minHeight: 380), // Set minimum height constraint
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: colorToggle == "light"
+                    ? AppColorsLight.pure_white
+                    : AppColorsDark.pure_white,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: const Color(0xFFD0D5DD), // Thin border color #d0d5dd
+                  color: colorToggle == "light"
+                      ? AppColorsLight.light_grey
+                      : AppColorsDark.light_grey, // Thin border color #d0d5dd
                   width: 1, // Border width 1 pixel
                 ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Your Exams',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text('Your Exams',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: colorToggle == "light"
+                              ? AppColorsLight.black
+                              : AppColorsDark.black)),
                   const SizedBox(height: 10),
-                  const Row(
+                  Row(
                     children: [
                       Expanded(
                         flex: 3,
                         child: Padding(
                           padding: const EdgeInsets.only(left: 10.0),
-                          child: Text('Exam Name'),
+                          child: Text('Exam Name',
+                              style: TextStyle(
+                                  color: colorToggle == "light"
+                                      ? AppColorsLight.black
+                                      : AppColorsDark.black)),
                         ),
                       ), // Adjusted flex value
                       Expanded(
                           flex: 2,
-                          child: Text('Course')), // Adjusted flex value
+                          child: Text('Course',
+                              style: TextStyle(
+                                  color: colorToggle == "light"
+                                      ? AppColorsLight.black
+                                      : AppColorsDark
+                                          .black))), // Adjusted flex value
                       Expanded(
                           flex: 3,
-                          child: Text('Exam ID')), // Adjusted flex value
+                          child: Text('Exam ID',
+                              style: TextStyle(
+                                  color: colorToggle == "light"
+                                      ? AppColorsLight.black
+                                      : AppColorsDark
+                                          .black))), // Adjusted flex value
                       Expanded(
                           flex: 2,
-                          child:
-                              Text('Date last graded')), // Adjusted flex value
+                          child: Text('Date last graded',
+                              style: TextStyle(
+                                  color: colorToggle == "light"
+                                      ? AppColorsLight.black
+                                      : AppColorsDark
+                                          .black))), // Adjusted flex value
                       Expanded(
                         flex: 2,
                         child: Center(
                           // Center the text within the Expanded widget
-                          child: Text('Average score'),
+                          child: Text('Average score',
+                              style: TextStyle(
+                                  color: colorToggle == "light"
+                                      ? AppColorsLight.black
+                                      : AppColorsDark.black)),
                         ),
                       ), // Adjusted flex value
                       Expanded(
                         flex: 2,
                         child: Center(
                           // Center the text within the Expanded widget
-                          child: Text('Grade Status'),
+                          child: Text('Grade Status',
+                              style: TextStyle(
+                                  color: colorToggle == "light"
+                                      ? AppColorsLight.black
+                                      : AppColorsDark.black)),
                         ),
                       ), // Adjusted flex value
                       SizedBox(width: 110),
@@ -784,11 +918,12 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                               Text(
                                 "No available exams yet",
                                 style: TextStyle(
-                                  // fontWeight: FontWeight.bold,
                                   fontSize: 16,
+                                  color: colorToggle == "light"
+                                      ? AppColorsLight.black
+                                      : AppColorsDark.black,
                                 ),
                               ),
-                              // SizedBox(height: 20), // Add some spacing
                               SvgPicture.asset(
                                 'assets/images/empty7.svg',
                                 width: 100,
@@ -825,6 +960,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                   onDelete: () {
                                     fetchExams(); // Call fetchExams() to refresh the exams list
                                   },
+                                  colorToggle: colorToggle,
                                 )),
                           ],
                         )
@@ -853,26 +989,69 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
     final DateTime endOfYear = DateTime(today.year + 1, 1, 1);
     final double progress = today.difference(startOfYear).inDays /
         endOfYear.difference(startOfYear).inDays;
+
     return Scaffold(
-      backgroundColor: const Color(
-          0xFFFCFCFD), // Set the background color of the Scaffold to #fcfcfd
+      backgroundColor: colorToggle == "light"
+          ? AppColorsLight.pure_white
+          : AppColorsDark
+              .pure_white, // Set the background color of the Scaffold
       body: Row(
         children: [
           // Left menu
           Container(
             width: 250,
-            color: const Color(0xFF6938EF),
+            color: colorToggle == "light"
+                ? AppColorsLight.main_purple
+                : AppColorsDark.leftMenu_background,
             child: Column(
               children: [
                 // Exam AI header
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
                   child: Row(
+                    mainAxisAlignment:
+                        MainAxisAlignment.spaceBetween, // Add this line
                     children: [
-                      Icon(Icons.school, color: Colors.white),
-                      SizedBox(width: 8),
-                      Text('Exam AI',
-                          style: TextStyle(color: Colors.white, fontSize: 24)),
+                      Row(
+                        children: [
+                          Icon(Icons.school,
+                              color: colorToggle == "light"
+                                  ? AppColorsLight.pure_white
+                                  : AppColorsDark.main_purple),
+                          SizedBox(width: 8),
+                          Text(' Exam AI',
+                              style: TextStyle(
+                                  color: colorToggle == "light"
+                                      ? AppColorsLight.pure_white
+                                      : AppColorsDark.black,
+                                  fontSize: 24)),
+                        ],
+                      ),
+                      Transform.scale(
+                        scale: 0.65, // Adjust the scale factor as needed
+                        child: FlutterSwitch(
+                          value: colorToggle == "light",
+                          onToggle: (bool value) {
+                            setState(() {
+                              colorToggle = value ? "light" : "dark";
+                            });
+                          },
+                          activeColor: AppColorsLight.pure_white,
+                          inactiveColor: AppColorsDark.card_background,
+                          activeToggleColor:
+                              Colors.black, // Active circle color
+                          inactiveToggleColor:
+                              Colors.white, // Inactive circle color
+                          activeIcon: Icon(
+                            Icons.nightlight_round, // Moon icon
+                            color: const Color.fromARGB(255, 255, 255, 255),
+                          ),
+                          inactiveIcon: Icon(
+                            Icons.wb_sunny, // Sun icon
+                            color: Color.fromARGB(255, 255, 183, 0),
+                          ),
+                        ),
+                      )
                     ],
                   ),
                 ),
@@ -902,23 +1081,41 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                   child: MenuButton(
                     icon: Icons.dashboard,
                     label: 'Dashboard',
-                    color: Colors.white,
+                    colorToggle: colorToggle,
+                    enabled: true,
+                    isSelected: selectedExamId == null,
                   ),
                 ),
-                const MenuButton(
-                    icon: Icons.assignment, label: 'Exams', color: Colors.grey),
-                const MenuButton(
-                    icon: Icons.people, label: 'Students', color: Colors.grey),
-                const MenuButton(
-                    icon: Icons.class_, label: 'Classes', color: Colors.grey),
-                const MenuButton(
+                MenuButton(
+                    icon: Icons.assignment,
+                    label: 'Exams',
+                    enabled: false,
+                    colorToggle: colorToggle,
+                    isSelected: selectedExamId != null),
+                MenuButton(
+                    icon: Icons.people,
+                    label: 'Students',
+                    enabled: false,
+                    colorToggle: colorToggle,
+                    isSelected: selectedExamId != null),
+                MenuButton(
+                    icon: Icons.class_,
+                    label: 'Classes',
+                    enabled: false,
+                    colorToggle: colorToggle,
+                    isSelected: selectedExamId != null),
+                MenuButton(
                     icon: Icons.notifications,
                     label: 'Notifications',
-                    color: Colors.grey),
-                const MenuButton(
+                    enabled: false,
+                    colorToggle: colorToggle,
+                    isSelected: selectedExamId != null),
+                MenuButton(
                     icon: Icons.settings,
                     label: 'Settings',
-                    color: Colors.grey),
+                    enabled: false,
+                    colorToggle: colorToggle,
+                    isSelected: selectedExamId != null),
                 const Spacer(),
                 // Usage card
                 Padding(
@@ -926,7 +1123,9 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                   child: Container(
                     padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: colorToggle == "light"
+                          ? AppColorsLight.pure_white
+                          : AppColorsDark.expiration_background,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Column(
@@ -942,9 +1141,13 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                 value: progress,
                                 strokeWidth:
                                     8, // Adjust the stroke width as needed
-                                backgroundColor: Colors.grey[200],
+                                backgroundColor: colorToggle == "light"
+                                    ? AppColorsLight.light_grey
+                                    : AppColorsDark.light_grey,
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                    Color(0xFF6938EF)),
+                                    colorToggle == "light"
+                                        ? AppColorsLight.main_purple
+                                        : AppColorsDark.main_purple),
                               ),
                             ),
                             Column(
@@ -954,10 +1157,18 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                   '$daysLeft', // Display the number of days left
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
+                                    color: colorToggle == "light"
+                                        ? AppColorsLight.black
+                                        : AppColorsDark.black,
                                   ),
                                 ),
                                 Text(
                                   'days', // Display the text "days left"
+                                  style: TextStyle(
+                                    color: colorToggle == "light"
+                                        ? AppColorsLight.black
+                                        : AppColorsDark.black,
+                                  ),
                                 ),
                               ],
                             ),
@@ -965,9 +1176,16 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                         ),
                         SizedBox(height: 20),
                         Text('ExamAI Access',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text(
-                            'ExamAI is free to use until December 31st, 2024.'),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: colorToggle == "light"
+                                    ? AppColorsLight.black
+                                    : AppColorsDark.black)),
+                        Text('ExamAI is free to use until December 31st, 2024.',
+                            style: TextStyle(
+                                color: colorToggle == "light"
+                                    ? AppColorsLight.dark_grey
+                                    : AppColorsDark.dark_grey)),
                         SizedBox(height: 10),
                       ],
                     ),
@@ -983,12 +1201,16 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                             ? NetworkImage(user!.photoURL!)
                             : null,
                         backgroundColor: user?.photoURL == null
-                            ? const Color(0xFF6938EF)
+                            ? colorToggle == "light"
+                                ? AppColorsLight.pure_white
+                                : AppColorsDark.black
                             : Colors.transparent,
                         child: user?.photoURL == null
-                            ? const Icon(
+                            ? Icon(
                                 Icons.person,
-                                color: Colors.white,
+                                color: colorToggle == "light"
+                                    ? AppColorsLight.pure_white
+                                    : AppColorsDark.black,
                               )
                             : null,
                       ),
@@ -1002,18 +1224,26 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                       user!.displayName!.length > 17
                                   ? user!.displayName!.substring(0, 17)
                                   : user?.displayName ?? 'No Name',
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(
+                                  color: colorToggle == "light"
+                                      ? AppColorsLight.pure_white
+                                      : AppColorsDark.black),
                             ),
-                            const Text(
+                            Text(
                               'Professor',
-                              style: TextStyle(color: Colors.grey),
+                              style: TextStyle(
+                                  color: colorToggle == "light"
+                                      ? AppColorsLight.light_grey
+                                      : AppColorsDark.dark_grey),
                             ),
                           ],
                         ),
                       ),
                       IconButton(
-                        icon:
-                            const Icon(Icons.exit_to_app, color: Colors.white),
+                        icon: Icon(Icons.exit_to_app,
+                            color: colorToggle == "light"
+                                ? AppColorsLight.pure_white
+                                : AppColorsDark.pure_white),
                         onPressed: _showSignOutDialog,
                       ),
                     ],
@@ -1039,27 +1269,46 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
 class DeleteConfirmationDialog extends StatelessWidget {
   final String examId;
   final VoidCallback onDelete;
+  final String colorToggle; // Add a color parameter
 
-  const DeleteConfirmationDialog(
-      {required this.examId, required this.onDelete});
+  const DeleteConfirmationDialog({
+    required this.examId,
+    required this.onDelete,
+    required this.colorToggle,
+  });
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: Colors.white,
+      backgroundColor: colorToggle == "light"
+          ? AppColorsLight.pure_white
+          : AppColorsDark.pure_white,
       title: Column(
         children: [
-          Icon(MdiIcons.alertCircleOutline, color: Colors.red, size: 50),
+          Icon(MdiIcons.alertCircleOutline,
+              color: colorToggle == "light"
+                  ? AppColorsLight.red
+                  : AppColorsDark.red,
+              size: 50),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'Are you sure you want to delete this exam?',
             textAlign: TextAlign.center,
+            style: TextStyle(
+              color: colorToggle == "light"
+                  ? AppColorsLight.black
+                  : AppColorsDark.black,
+            ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Deletions are irreversible. Students will lose access\nto the exam and results if applicable.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(
+              color: colorToggle == "light"
+                  ? AppColorsLight.dark_grey
+                  : AppColorsDark.dark_grey,
+            ),
           ),
         ],
       ),
@@ -1069,8 +1318,12 @@ class DeleteConfirmationDialog extends StatelessWidget {
             Navigator.of(context).pop();
           },
           style: TextButton.styleFrom(
-            foregroundColor: Colors.black,
-            backgroundColor: Colors.white,
+            foregroundColor: colorToggle == "light"
+                ? AppColorsLight.black
+                : AppColorsDark.black,
+            backgroundColor: colorToggle == "light"
+                ? AppColorsLight.pure_white
+                : AppColorsDark.pure_white,
             padding: const EdgeInsets.symmetric(horizontal: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
@@ -1084,15 +1337,20 @@ class DeleteConfirmationDialog extends StatelessWidget {
             await _deleteExam(context);
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
+            backgroundColor:
+                colorToggle == "light" ? AppColorsLight.red : AppColorsDark.red,
             padding: const EdgeInsets.symmetric(horizontal: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          child: const Text(
+          child: Text(
             'Confirm',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(
+              color: colorToggle == "light"
+                  ? AppColorsLight.pure_white
+                  : AppColorsDark.pure_white,
+            ),
           ),
         ),
       ],
@@ -1172,7 +1430,9 @@ class DeleteConfirmationDialog extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Exam deleted successfully.'),
-          backgroundColor: Colors.green,
+          backgroundColor: colorToggle == "light"
+              ? AppColorsLight.green
+              : AppColorsDark.green,
         ),
       );
 
@@ -1187,7 +1447,8 @@ class DeleteConfirmationDialog extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Failed to delete exam. Please try again.'),
-          backgroundColor: Colors.red,
+          backgroundColor:
+              colorToggle == "light" ? AppColorsLight.red : AppColorsDark.red,
         ),
       );
     }
@@ -1197,13 +1458,17 @@ class DeleteConfirmationDialog extends StatelessWidget {
 class MenuButton extends StatefulWidget {
   final IconData icon;
   final String label;
-  final Color color; // Add a color parameter
+  final String colorToggle; // Color parameter
+  final bool isSelected; // Selection state parameter
+  final bool enabled; // Enabled state parameter
 
   const MenuButton({
     super.key,
     required this.icon,
     required this.label,
-    this.color = Colors.grey, // Default color is grey if not specified
+    required this.colorToggle,
+    this.isSelected = false, // Default to false if not specified
+    this.enabled = true, // Default to true if not specified
   });
 
   @override
@@ -1215,23 +1480,32 @@ class _MenuButtonState extends State<MenuButton> {
 
   @override
   Widget build(BuildContext context) {
-    const hoverColor =
-        Color(0xFF7A56FF); // A bit lighter purple for hover state
+    final hoverColor = widget.colorToggle == "light"
+        ? AppColorsLight.main_purple_light
+        : AppColorsDark.main_purple_light;
+    final iconColor = widget.enabled
+        ? AppColorsLight.pure_white
+        : AppColorsLight.disabled_grey;
+    final textColor = widget.enabled
+        ? AppColorsLight.pure_white
+        : AppColorsLight.disabled_grey;
+    final selectedColor = widget.colorToggle == "light"
+        ? AppColorsLight.main_purple_dark
+        : AppColorsDark.main_purple_dark;
 
     return MouseRegion(
       onEnter: (event) => setState(() => _isHovered = true),
       onExit: (event) => setState(() => _isHovered = false),
       child: Container(
-        color: _isHovered
-            ? hoverColor
-            : Colors.transparent, // Keep the container transparent
+        color: widget.isSelected
+            ? selectedColor
+            : (_isHovered ? hoverColor : Colors.transparent),
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
         child: Row(
           children: [
-            Icon(widget.icon, color: widget.color), // Use the passed color
+            Icon(widget.icon, color: iconColor),
             const SizedBox(width: 16),
-            Text(widget.label,
-                style: TextStyle(color: widget.color)), // Use the passed color
+            Text(widget.label, style: TextStyle(color: textColor)),
           ],
         ),
       ),
@@ -1245,28 +1519,42 @@ class StatisticBox extends StatelessWidget {
   final String value;
   final double leftMargin;
   final double rightMargin;
+  final String colorToggle;
 
   const StatisticBox({
     super.key,
     required this.icon,
     required this.label,
     required this.value,
+    required this.colorToggle,
     this.leftMargin = 0.0, // Default left margin
     this.rightMargin = 0.0, // Default right margin
   });
 
   @override
   Widget build(BuildContext context) {
+    final textColor =
+        colorToggle == "light" ? AppColorsLight.black : AppColorsDark.black;
+    final iconColor = colorToggle == "light"
+        ? AppColorsLight.main_purple
+        : AppColorsDark.main_purple;
+    final containerColor = colorToggle == "light"
+        ? AppColorsLight.pure_white
+        : AppColorsDark.card_background;
+    final borderColor = colorToggle == "light"
+        ? AppColorsLight.light_grey
+        : AppColorsDark.light_grey;
+
     return Expanded(
       child: Container(
         height: 150, // Fixed height for better layout consistency
         margin: EdgeInsets.only(left: leftMargin, right: rightMargin),
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: containerColor,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: const Color(0xFFD0D5DD), // Thin border color #d0d5dd
+            color: borderColor, // Thin border color #d0d5dd
             width: 1, // Border width 1 pixel
           ),
         ),
@@ -1275,12 +1563,14 @@ class StatisticBox extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, color: Color.fromARGB(255, 137, 68, 255), size: 40),
+                Icon(icon, color: iconColor, size: 40),
                 SizedBox(width: 8), // Add a SizedBox for spacing
                 Flexible(
                   child: Text(label,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: textColor),
                       overflow: TextOverflow.clip, // Ensure text wraps
                       textAlign:
                           TextAlign.left), // TextAlign.left for start alignment
@@ -1293,8 +1583,10 @@ class StatisticBox extends StatelessWidget {
                 SizedBox(width: 8), // SizedBox for spacing before the text
                 Text(
                   value,
-                  style: const TextStyle(
-                      fontSize: 30, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: textColor),
                 ),
               ],
             )
@@ -1307,23 +1599,34 @@ class StatisticBox extends StatelessWidget {
 
 class StudentRow extends StatelessWidget {
   final String name;
+  final String colorToggle;
 
-  const StudentRow({super.key, required this.name});
+  const StudentRow({super.key, required this.name, required this.colorToggle});
 
   @override
   Widget build(BuildContext context) {
+    final textColor =
+        colorToggle == "light" ? AppColorsLight.black : AppColorsDark.black;
+    final iconColor = colorToggle == "light"
+        ? AppColorsLight.main_purple
+        : AppColorsDark.main_purple;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          const CircleAvatar(
-            backgroundColor: Color(0xFF6938EF),
+          CircleAvatar(
+            backgroundColor: iconColor,
             child: Icon(Icons.person,
-                color: Colors.white), // Updated to preferred color
+                color: colorToggle == "light"
+                    ? AppColorsLight.pure_white
+                    : AppColorsDark.pure_white),
           ),
           const SizedBox(width: 10),
           Flexible(
-            child: Text(name, overflow: TextOverflow.clip),
+            child: Text(name,
+                overflow: TextOverflow.clip,
+                style: TextStyle(color: textColor)),
           )
         ],
       ),
@@ -1341,6 +1644,7 @@ class ExamRow extends StatefulWidget {
   final VoidCallback onAnalyticsClick;
   final VoidCallback onStudentGradesClick;
   final VoidCallback onDelete; // Add the onDelete callback
+  final String colorToggle;
 
   const ExamRow({
     super.key,
@@ -1353,6 +1657,7 @@ class ExamRow extends StatefulWidget {
     required this.onAnalyticsClick,
     required this.onStudentGradesClick,
     required this.onDelete, // Add the onDelete parameter
+    required this.colorToggle,
   });
 
   @override
@@ -1418,6 +1723,26 @@ class _ExamRowState extends State<ExamRow> {
     double score = double.tryParse(scoreParts[0]) ?? 0;
     double maxScore = double.tryParse(scoreParts[1]) ?? 100;
     double percentage = (score / maxScore) * 100;
+    final textColor = widget.colorToggle == "light"
+        ? AppColorsLight.black
+        : AppColorsDark.black;
+    final iconColor = widget.colorToggle == "light"
+        ? AppColorsLight.main_purple
+        : AppColorsDark.main_purple;
+    final progressColor = widget.colorToggle == "light"
+        ? AppColorsLight.main_purple
+        : AppColorsDark.main_purple;
+    final buttonBackgroundColor = widget.colorToggle == "light"
+        ? AppColorsLight.main_purple
+        : AppColorsDark.main_purple;
+    final buttonHoverColor = widget.colorToggle == "light"
+        ? AppColorsLight.main_purple_light
+        : AppColorsDark.main_purple_light;
+    final buttonTextColor = widget.colorToggle == "light"
+        ? AppColorsLight.light_grey
+        : AppColorsDark.light_grey;
+    final redColor =
+        widget.colorToggle == "light" ? AppColorsLight.red : AppColorsDark.red;
 
     return MouseRegion(
       onEnter: (event) => setState(() => _isHovered = true),
@@ -1428,8 +1753,13 @@ class _ExamRowState extends State<ExamRow> {
         },
         child: Container(
           color: _isHovered
-              ? Colors.grey[200]
-              : Colors.white, // Slight gray when hovered, white otherwise
+              ? widget.colorToggle == "light"
+                  ? AppColorsLight.light_grey
+                  : AppColorsDark.light_grey
+              : widget.colorToggle == "light"
+                  ? AppColorsLight.pure_white
+                  : AppColorsDark
+                      .pure_white, // Slight gray when hovered, white otherwise
           padding: const EdgeInsets.symmetric(vertical: 4.0),
           child: Row(
             children: [
@@ -1439,17 +1769,26 @@ class _ExamRowState extends State<ExamRow> {
                   padding: const EdgeInsets.only(left: 10.0),
                   child: Text(
                     widget.examName,
-                    style: TextStyle(fontWeight: FontWeight.w500),
+                    style: TextStyle(
+                        fontWeight: FontWeight.w500, color: textColor),
                   ),
                 ),
               ), // Adjusted flex value
               Expanded(
-                  flex: 2, child: Text(widget.course)), // Adjusted flex value
+                  flex: 2,
+                  child: Text(widget.course,
+                      style:
+                          TextStyle(color: textColor))), // Adjusted flex value
               Expanded(
-                  flex: 3, child: Text(widget.examId)), // Adjusted flex value
+                  flex: 3,
+                  child: Text(widget.examId,
+                      style:
+                          TextStyle(color: textColor))), // Adjusted flex value
               Expanded(
                   flex: 2,
-                  child: Text(widget.dateLastGraded)), // Adjusted flex value
+                  child: Text(widget.dateLastGraded,
+                      style:
+                          TextStyle(color: textColor))), // Adjusted flex value
               Expanded(
                 flex: 2, // Adjusted flex value
                 child: Center(
@@ -1462,14 +1801,16 @@ class _ExamRowState extends State<ExamRow> {
                         height: 40,
                         child: CircularProgressIndicator(
                           value: percentage / 100,
-                          backgroundColor: Colors.grey.shade300,
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                              Color(0xFF6938EF)),
+                          backgroundColor: widget.colorToggle == "light"
+                              ? AppColorsLight.light_grey
+                              : AppColorsDark.light_grey,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(progressColor),
                           strokeWidth: 5,
                         ),
                       ),
                       Text('${score.toStringAsFixed(1)}',
-                          style: const TextStyle(fontSize: 10)),
+                          style: TextStyle(fontSize: 10, color: textColor)),
                     ],
                   ),
                 ),
@@ -1513,7 +1854,7 @@ class _ExamRowState extends State<ExamRow> {
                                 ),
                                 child: Text(
                                   'Analytics',
-                                  style: TextStyle(color: Colors.white),
+                                  style: TextStyle(color: buttonTextColor),
                                 ),
                               ),
                             ),
@@ -1521,7 +1862,7 @@ class _ExamRowState extends State<ExamRow> {
                             ElevatedButton(
                               onPressed: widget.onStudentGradesClick,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF6938EF),
+                                backgroundColor: buttonBackgroundColor,
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 10, vertical: 10),
                                 shape: RoundedRectangleBorder(
@@ -1531,7 +1872,7 @@ class _ExamRowState extends State<ExamRow> {
                               child: Text(
                                 'Student\nGrades',
                                 textAlign: TextAlign.center,
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(color: buttonTextColor),
                               ),
                             ),
                           ],
@@ -1598,7 +1939,9 @@ class _ExamRowState extends State<ExamRow> {
                             },
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
+                            backgroundColor: widget.colorToggle == "light"
+                                ? AppColorsLight.green
+                                : AppColorsDark.green,
                             padding: EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 0),
                             shape: RoundedRectangleBorder(
@@ -1607,7 +1950,7 @@ class _ExamRowState extends State<ExamRow> {
                           ),
                           child: Text(
                             'Grade Exam',
-                            style: TextStyle(color: Colors.white),
+                            style: TextStyle(color: buttonTextColor),
                           ),
                         ),
                 ),
@@ -1618,7 +1961,12 @@ class _ExamRowState extends State<ExamRow> {
                 child: ButtonBar(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.grey),
+                      icon: Icon(
+                        Icons.edit,
+                        color: widget.colorToggle == "light"
+                            ? AppColorsLight.dark_grey
+                            : AppColorsDark.dark_grey,
+                      ),
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -1631,7 +1979,10 @@ class _ExamRowState extends State<ExamRow> {
                       },
                     ),
                     IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
+                      icon: Icon(
+                        Icons.delete,
+                        color: redColor,
+                      ),
                       onPressed: () {
                         showDialog(
                           context: context,
@@ -1639,6 +1990,7 @@ class _ExamRowState extends State<ExamRow> {
                             return DeleteConfirmationDialog(
                               examId: widget.examId,
                               onDelete: widget.onDelete,
+                              colorToggle: widget.colorToggle,
                             );
                           },
                         );
