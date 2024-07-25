@@ -240,7 +240,9 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                     colorToggle == "light"
                                         ? AppColorsLight.chart_gradientEnd
                                         : AppColorsDark.chart_gradientEnd,
-                                    Colors.transparent,
+                                    colorToggle == "light"
+                                        ? Color.fromARGB(0, 255, 255, 255)
+                                        : Color.fromARGB(0, 0, 0, 0),
                                   ],
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
