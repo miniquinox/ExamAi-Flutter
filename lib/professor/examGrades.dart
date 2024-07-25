@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'colors_professor.dart';
+
 class ExamDetailsScreen extends StatelessWidget {
   final String examId;
+  final String colorToggle; // Add a color parameter
 
   const ExamDetailsScreen({
     Key? key,
     required this.examId,
+    required this.colorToggle, // Update the constructor
   }) : super(key: key);
 
   Future<List<Map<String, dynamic>>> fetchStudentDetails() async {
@@ -57,10 +61,21 @@ class ExamDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFCFCFD),
+      backgroundColor: colorToggle == "light"
+          ? AppColorsLight.pure_white
+          : AppColorsDark.pure_white,
       appBar: AppBar(
-        title: const Text('Your exams details'),
-        backgroundColor: const Color(0xFFFCFCFD),
+        title: Text(
+          'Your exams details',
+          style: TextStyle(
+            color: colorToggle == "light"
+                ? AppColorsLight.black
+                : AppColorsDark.black,
+          ),
+        ),
+        backgroundColor: colorToggle == "light"
+            ? AppColorsLight.pure_white
+            : AppColorsDark.pure_white,
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: fetchStudentDetails(),
@@ -68,7 +83,16 @@ class ExamDetailsScreen extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return const Center(child: Text('Error loading exam details'));
+            return Center(
+              child: Text(
+                'Error loading exam details',
+                style: TextStyle(
+                  color: colorToggle == "light"
+                      ? AppColorsLight.black
+                      : AppColorsDark.black,
+                ),
+              ),
+            );
           } else {
             final studentDetails = snapshot.data ?? [];
             if (studentDetails.isEmpty) {
@@ -82,7 +106,9 @@ class ExamDetailsScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 24, // Adjust the font size as needed
                         fontWeight: FontWeight.bold, // Make the text bold
-                        color: Colors.grey, // Set the text color
+                        color: colorToggle == "light"
+                            ? AppColorsLight.black
+                            : AppColorsDark.black, // Set the text color
                       ),
                     ),
                     SizedBox(
@@ -100,7 +126,14 @@ class ExamDetailsScreen extends StatelessWidget {
                 ? List.generate(
                     studentDetails[0].length - 2,
                     (index) => DataColumn(
-                          label: Text('Q${index + 1} (20 pts)'),
+                          label: Text(
+                            'Q${index + 1} (20 pts)',
+                            style: TextStyle(
+                              color: colorToggle == "light"
+                                  ? AppColorsLight.black
+                                  : AppColorsDark.black,
+                            ),
+                          ),
                         ))
                 : [];
 
@@ -111,20 +144,64 @@ class ExamDetailsScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(16.0),
                   child: DataTable(
                     columns: [
-                      const DataColumn(label: Text('Student email')),
+                      DataColumn(
+                        label: Text(
+                          'Student email',
+                          style: TextStyle(
+                            color: colorToggle == "light"
+                                ? AppColorsLight.black
+                                : AppColorsDark.black,
+                          ),
+                        ),
+                      ),
                       ...questionColumns,
-                      const DataColumn(label: Text('Final grades (100 pts)')),
-                      const DataColumn(label: Text('')),
+                      DataColumn(
+                        label: Text(
+                          'Final grades (100 pts)',
+                          style: TextStyle(
+                            color: colorToggle == "light"
+                                ? AppColorsLight.black
+                                : AppColorsDark.black,
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Text(
+                          '',
+                          style: TextStyle(
+                            color: colorToggle == "light"
+                                ? AppColorsLight.black
+                                : AppColorsDark.black,
+                          ),
+                        ),
+                      ),
                     ],
                     rows: studentDetails
                         .map(
                           (student) => DataRow(cells: [
-                            DataCell(Text(student['email'] ?? 'Placeholder')),
+                            DataCell(
+                              Text(
+                                student['email'] ?? 'Placeholder',
+                                style: TextStyle(
+                                  color: colorToggle == "light"
+                                      ? AppColorsLight.black
+                                      : AppColorsDark.black,
+                                ),
+                              ),
+                            ),
                             ...List.generate(
-                                student.length - 2,
-                                (index) => DataCell(Text(
-                                    student['q${index + 1}'] ??
-                                        'Placeholder'))),
+                              student.length - 2,
+                              (index) => DataCell(
+                                Text(
+                                  student['q${index + 1}'] ?? 'Placeholder',
+                                  style: TextStyle(
+                                    color: colorToggle == "light"
+                                        ? AppColorsLight.black
+                                        : AppColorsDark.black,
+                                  ),
+                                ),
+                              ),
+                            ),
                             DataCell(Row(
                               children: [
                                 Expanded(
@@ -143,14 +220,25 @@ class ExamDetailsScreen extends StatelessWidget {
                                                             .split('/')[1])
                                                 : 0.0)
                                             .toDouble(),
-                                        backgroundColor: Colors.grey.shade300,
-                                        color: Color(0xFF6539EF),
+                                        backgroundColor: colorToggle == "light"
+                                            ? AppColorsLight.light_grey
+                                            : AppColorsDark.light_grey,
+                                        color: colorToggle == "light"
+                                            ? AppColorsLight.main_purple
+                                            : AppColorsDark.main_purple,
                                       ),
                                     ),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
-                                Text(student['finalGrade']),
+                                Text(
+                                  student['finalGrade'],
+                                  style: TextStyle(
+                                    color: colorToggle == "light"
+                                        ? AppColorsLight.black
+                                        : AppColorsDark.black,
+                                  ),
+                                ),
                               ],
                             )),
                             DataCell(Row(
@@ -187,6 +275,7 @@ class ExamDetailsScreen extends StatelessWidget {
 void main() {
   runApp(MaterialApp(
     home: ExamDetailsScreen(
+      colorToggle: 'light',
       examId: 'exam123',
     ),
   ));

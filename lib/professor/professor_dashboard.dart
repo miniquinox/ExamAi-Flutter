@@ -979,7 +979,10 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
         onFeedbackClick: (String examId) {},
       );
     } else {
-      mainContent = ExamDetailsScreen(examId: selectedExamId!);
+      mainContent = ExamDetailsScreen(
+        examId: selectedExamId!,
+        colorToggle: colorToggle,
+      );
     }
 
     final DateTime today = DateTime.now();
