@@ -270,13 +270,3 @@ class ExamDetailsScreen extends StatelessWidget {
     );
   }
 }
-
-// Sample usage of the ExamDetailsScreen
-void main() {
-  runApp(MaterialApp(
-    home: ExamDetailsScreen(
-      colorToggle: 'light',
-      examId: 'exam123',
-    ),
-  ));
-}

@@ -6,15 +6,20 @@ import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'colors_professor.dart';
+
 class ExamResultsScreen extends StatefulWidget {
   final String examId;
   final Function(String examId) onFeedbackClick;
+  final String colorToggle; // Add a color parameter
 
-  const ExamResultsScreen({
-    Key? key,
-    required this.examId,
-    required this.onFeedbackClick,
-  }) : super(key: key);
+  const ExamResultsScreen(
+      {Key? key,
+      required this.examId,
+      required this.onFeedbackClick,
+      required this.colorToggle // Update the constructor
+      })
+      : super(key: key);
 
   @override
   _ExamResultsScreenState createState() => _ExamResultsScreenState();
@@ -205,28 +210,49 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
     }
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: widget.colorToggle == "light"
+            ? AppColorsLight.light_grey
+            : AppColorsDark.card_background,
         elevation: 0,
         title: Row(
           children: [
-            const Icon(Icons.home, color: Colors.black),
+            Icon(
+              Icons.home,
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.black
+                  : AppColorsDark.black,
+            ),
             const SizedBox(width: 4),
-            const Text(
-              'Home',
+            Text(
+              ' Home',
               style: TextStyle(
-                  color: Colors.black,
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.black
+                      : AppColorsDark.black,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
             const SizedBox(width: 4),
-            const Icon(Icons.chevron_right, color: Colors.black),
+            Icon(
+              Icons.chevron_right,
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.black
+                  : AppColorsDark.black,
+            ),
             const SizedBox(width: 4),
-            const Icon(Icons.analytics, color: Color(0xFF6938EF)),
+            Icon(
+              Icons.analytics,
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.main_purple
+                  : AppColorsDark.main_purple,
+            ),
             const SizedBox(width: 4),
-            const Text(
-              'Exam Analytics',
+            Text(
+              ' Exam Analytics',
               style: TextStyle(
-                  color: Color(0xFF6938EF),
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.main_purple
+                      : AppColorsDark.main_purple,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
@@ -236,24 +262,44 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                   FirebaseAuth.instance.currentUser?.photoURL ?? ''),
               backgroundColor: Colors.transparent,
               child: FirebaseAuth.instance.currentUser?.photoURL == null
-                  ? const Icon(Icons.person, color: Colors.white)
+                  ? Icon(
+                      Icons.person,
+                      color: widget.colorToggle == "light"
+                          ? AppColorsLight.main_purple
+                          : AppColorsDark.main_purple,
+                    )
                   : null,
             ),
           ],
         ),
       ),
-      backgroundColor: Color(0xFFFCFCFE),
+      backgroundColor: widget.colorToggle == "light"
+          ? AppColorsLight.pure_white
+          : AppColorsDark.pure_white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
-            Text('Overview',
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+            Text(
+              'Overview',
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: widget.colorToggle == "light"
+                    ? AppColorsLight.black
+                    : AppColorsDark.black,
+              ),
+            ),
             Text(
               'We graded your class exams and these are the results...',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 16,
+                color: widget.colorToggle == "light"
+                    ? AppColorsLight.black
+                    : AppColorsDark.black,
+              ),
             ),
             SizedBox(height: 20),
 
@@ -274,12 +320,24 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                         text: TextSpan(
                           children: [
                             TextSpan(
-                                text: 'Exam:',
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold)),
+                              text: 'Exam:',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: widget.colorToggle == "light"
+                                    ? AppColorsLight.black
+                                    : AppColorsDark.black,
+                              ),
+                            ),
                             TextSpan(
-                                text: ' $examName',
-                                style: TextStyle(fontSize: 16)),
+                              text: ' $examName',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: widget.colorToggle == "light"
+                                    ? AppColorsLight.black
+                                    : AppColorsDark.dark_grey,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -287,12 +345,24 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                         text: TextSpan(
                           children: [
                             TextSpan(
-                                text: 'Questions:',
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold)),
+                              text: 'Questions:',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: widget.colorToggle == "light"
+                                    ? AppColorsLight.black
+                                    : AppColorsDark.black,
+                              ),
+                            ),
                             TextSpan(
-                                text: ' $questionCount',
-                                style: TextStyle(fontSize: 16)),
+                              text: ' $questionCount',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: widget.colorToggle == "light"
+                                    ? AppColorsLight.black
+                                    : AppColorsDark.dark_grey,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -301,9 +371,12 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                 ),
                 // Column 2: Time Length
                 ElevatedButton.icon(
-                  icon: Icon(Icons.school,
-                      color:
-                          Color(0xFF6938EF)), // School icon for student grades
+                  icon: Icon(
+                    Icons.school,
+                    color: widget.colorToggle == "light"
+                        ? AppColorsLight.main_purple
+                        : AppColorsDark.pure_white,
+                  ), // School icon for student grades
                   label: Padding(
                     padding: const EdgeInsets.only(
                         left: 10,
@@ -311,16 +384,26 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                         bottom: 10), // 10px spacing between icon and text
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Text('Regrade Absent',
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold)),
-                        Text('Students',
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.center),
+                      children: [
+                        Text(
+                          'Regrade Absent',
+                          style: TextStyle(
+                            color: widget.colorToggle == "light"
+                                ? AppColorsLight.black
+                                : AppColorsDark.pure_white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Students',
+                          style: TextStyle(
+                            color: widget.colorToggle == "light"
+                                ? AppColorsLight.black
+                                : AppColorsDark.pure_white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ],
                     ),
                   ),
@@ -384,7 +467,9 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                     },
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white, // Button background color
+                    backgroundColor: widget.colorToggle == "light"
+                        ? AppColorsLight.pure_white
+                        : AppColorsDark.main_purple, // Button background color
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8), // Rounded corners
                     ),
@@ -403,11 +488,31 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text('${_examDetails!['date'] ?? 'Placeholder'}'),
+                          Text(
+                            '${_examDetails!['date'] ?? 'Placeholder'}',
+                            style: TextStyle(
+                              color: widget.colorToggle == "light"
+                                  ? AppColorsLight.black
+                                  : AppColorsDark.black,
+                            ),
+                          ),
                           SizedBox(width: 5),
-                          Icon(Icons.arrow_forward, size: 20.0),
+                          Icon(
+                            Icons.arrow_forward,
+                            size: 20.0,
+                            color: widget.colorToggle == "light"
+                                ? AppColorsLight.black
+                                : AppColorsDark.black,
+                          ),
                           SizedBox(width: 5),
-                          Text('${_examDetails!['time'] ?? 'Placeholder'}'),
+                          Text(
+                            '${_examDetails!['time'] ?? 'Placeholder'}',
+                            style: TextStyle(
+                              color: widget.colorToggle == "light"
+                                  ? AppColorsLight.black
+                                  : AppColorsDark.black,
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -484,22 +589,41 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
     return Container(
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: widget.colorToggle == "light"
+            ? AppColorsLight.pure_white
+            : AppColorsDark.card_background,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Color(0xFFE9EAED), width: 1),
+        border: Border.all(
+            color: widget.colorToggle == "light"
+                ? AppColorsLight.light_grey
+                : AppColorsDark.light_grey,
+            width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: Color(0xFF6938EF)),
+          Icon(
+            icon,
+            color: widget.colorToggle == "light"
+                ? AppColorsLight.main_purple
+                : AppColorsDark.main_purple,
+          ),
           SizedBox(width: 8),
           Flexible(
             // Wrap Text widget with Flexible to ensure it wraps text properly
-            child: Text(text,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                softWrap: true, // Ensure text wraps
-                overflow:
-                    TextOverflow.visible), // Allow text to break across lines
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: widget.colorToggle == "light"
+                    ? AppColorsLight.black
+                    : AppColorsDark.black,
+              ),
+              softWrap: true, // Ensure text wraps
+              overflow:
+                  TextOverflow.visible, // Allow text to break across lines
+            ),
           ),
         ],
       ),
@@ -511,9 +635,15 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
       child: Container(
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: widget.colorToggle == "light"
+              ? AppColorsLight.pure_white
+              : AppColorsDark.card_background,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Color(0xFFE9EAED), width: 1),
+          border: Border.all(
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.light_grey
+                  : AppColorsDark.light_grey,
+              width: 1),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -523,12 +653,16 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                 Container(
                   padding: EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Color(0xFFFAFAFF),
+                    color: widget.colorToggle == "light"
+                        ? AppColorsLight.main_purple_lightest
+                        : AppColorsDark.main_purple_lightest,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
                     icon,
-                    color: Color(0xFF6938EF),
+                    color: widget.colorToggle == "light"
+                        ? AppColorsLight.main_purple
+                        : AppColorsDark.main_purple,
                   ),
                 ),
                 SizedBox(width: 8),
@@ -536,15 +670,28 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                   // Wrap Text widget with Expanded to ensure it wraps text properly
                   child: Text(
                     title,
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: widget.colorToggle == "light"
+                          ? AppColorsLight.dark_grey
+                          : AppColorsDark.dark_grey,
+                    ),
                     softWrap: true, // Ensure text wraps
                   ),
                 )
               ],
             ),
             SizedBox(height: 8),
-            Text(value,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: widget.colorToggle == "light"
+                    ? AppColorsLight.black
+                    : AppColorsDark.black,
+              ),
+            ),
           ],
         ),
       ),
@@ -555,17 +702,41 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: widget.colorToggle == "light"
+            ? AppColorsLight.pure_white
+            : AppColorsDark.card_background,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Color(0xFFE9EAED), width: 1),
+        border: Border.all(
+            color: widget.colorToggle == "light"
+                ? AppColorsLight.light_grey
+                : AppColorsDark.light_grey,
+            width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.black
+                  : AppColorsDark.black,
+            ),
+          ),
           SizedBox(height: 20),
-          content ?? Center(child: Text("Placeholder")),
+          content ??
+              Center(
+                child: Text(
+                  "Placeholder",
+                  style: TextStyle(
+                    color: widget.colorToggle == "light"
+                        ? AppColorsLight.black
+                        : AppColorsDark.black,
+                  ),
+                ),
+              ),
         ],
       ),
     );
@@ -577,14 +748,24 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
         height: 330,
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Color(0xFF6938EF),
+          color: widget.colorToggle == "light"
+              ? AppColorsLight.main_purple
+              : AppColorsDark.main_purple,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Color(0xFFE9EAED), width: 1),
+          border: Border.all(
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.light_grey
+                  : AppColorsDark.light_grey,
+              width: 1),
         ),
         child: Center(
           child: Text(
             'No data available',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.pure_white
+                  : AppColorsDark.pure_white,
+            ),
           ),
         ),
       );
@@ -604,9 +785,15 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
       height: 330,
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Color(0xFF6938EF),
+        color: widget.colorToggle == "light"
+            ? AppColorsLight.main_purple
+            : AppColorsDark.main_purple,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Color(0xFFE9EAED), width: 1),
+        border: Border.all(
+            color: widget.colorToggle == "light"
+                ? AppColorsLight.light_grey
+                : AppColorsDark.light_grey,
+            width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -664,7 +851,12 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
         SizedBox(width: 10),
         Text(
           email,
-          style: TextStyle(fontSize: 16, color: Colors.white),
+          style: TextStyle(
+            fontSize: 16,
+            color: widget.colorToggle == "light"
+                ? AppColorsLight.pure_white
+                : AppColorsDark.pure_white,
+          ),
         ),
       ],
     );
@@ -675,9 +867,15 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
       height: 330,
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Color.fromARGB(255, 255, 255, 255),
+        color: widget.colorToggle == "light"
+            ? AppColorsLight.pure_white
+            : AppColorsDark.card_background,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Color(0xFFE9EAED), width: 1),
+        border: Border.all(
+            color: widget.colorToggle == "light"
+                ? AppColorsLight.light_grey
+                : AppColorsDark.light_grey,
+            width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -687,16 +885,21 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
               Text(
                 'Top hardest questions',
                 style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: const Color.fromARGB(255, 0, 0, 0)),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.black
+                      : AppColorsDark.black,
+                ),
               ),
               SizedBox(height: 80),
               Text(
                 'Feature coming soon...',
                 style: TextStyle(
                   fontSize: 16,
-                  color: const Color.fromARGB(255, 0, 0, 0),
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.black
+                      : AppColorsDark.black,
                 ),
               ),
               Center(
@@ -799,7 +1002,9 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
         barRods: [
           BarChartRodData(
             toY: entry.value.toDouble(),
-            color: Color(0xff9b8afb),
+            color: widget.colorToggle == "light"
+                ? AppColorsLight.main_purple_light
+                : AppColorsDark.main_purple,
             width: 30,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(10),
@@ -813,7 +1018,7 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
     return SizedBox(
       height: 250,
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 24.0),
+        padding: const EdgeInsets.only(bottom: 0.0),
         child: BarChart(
           BarChartData(
             barGroups: barGroups,
@@ -825,7 +1030,12 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                   getTitlesWidget: (value, meta) {
                     return Text(
                       value.toInt().toString(),
-                      style: TextStyle(fontSize: 12),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: widget.colorToggle == "light"
+                            ? AppColorsLight.black
+                            : AppColorsDark.black,
+                      ),
                     );
                   },
                 ),
@@ -834,15 +1044,19 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                 sideTitles: SideTitles(
                   showTitles: true,
                   getTitlesWidget: (double value, TitleMeta meta) {
-                    const style = TextStyle(
-                      color: Colors.black,
-                      fontSize: 12,
-                    );
                     List<String> titles = gradeDistribution.keys.toList();
+
                     return SideTitleWidget(
                       axisSide: meta.axisSide,
-                      space: 8.0,
-                      child: Text(titles[value.toInt()], style: style),
+                      space: 0.0,
+                      child: Text(
+                        titles[value.toInt()],
+                        style: TextStyle(
+                          color: widget.colorToggle == "light"
+                              ? AppColorsLight.black
+                              : AppColorsDark.black,
+                        ),
+                      ),
                     );
                   },
                 ),
@@ -859,12 +1073,14 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
               touchTooltipData: BarTouchTooltipData(
                 tooltipMargin:
                     2, // Reduce the margin to bring the tooltip closer
-                getTooltipColor: (_) => const Color.fromARGB(0, 96, 125, 139),
+                getTooltipColor: (_) => Colors.transparent,
                 getTooltipItem: (group, groupIndex, rod, rodIndex) {
                   return BarTooltipItem(
                     '${rod.toY}', // This is the number you want to display
-                    const TextStyle(
-                      color: Colors.black, // Set the text color to black
+                    TextStyle(
+                      color: widget.colorToggle == "light"
+                          ? AppColorsLight.black
+                          : AppColorsDark.black, // Set the text color to black
                       fontWeight: FontWeight.bold,
                     ),
                   );
@@ -912,13 +1128,15 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
           LineChartData(
             lineTouchData: LineTouchData(
               touchTooltipData: LineTouchTooltipData(
-                getTooltipColor: (_) => Color.fromARGB(0, 96, 125, 139),
+                getTooltipColor: (_) => Colors.transparent,
                 getTooltipItems: (List<LineBarSpot> touchedSpots) {
                   return touchedSpots.map((LineBarSpot touchedSpot) {
                     return LineTooltipItem(
                       '${touchedSpot.y % 1 == 0 ? touchedSpot.y.toInt() : touchedSpot.y.toStringAsFixed(1)}', // This is the number you want to display
-                      const TextStyle(
-                        color: Colors.black, // Set the text color to black
+                      TextStyle(
+                        color: widget.colorToggle == "light"
+                            ? AppColorsLight.black
+                            : AppColorsDark.black,
                         fontWeight: FontWeight.bold,
                       ),
                     );
@@ -933,10 +1151,6 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                   showTitles: true,
                   reservedSize: 32,
                   getTitlesWidget: (double value, TitleMeta meta) {
-                    const style = TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
-                    );
                     List<String> titles = [
                       'Lowest',
                       'Lower 25%',
@@ -946,11 +1160,16 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                     ];
                     Widget text = Text('');
                     if (value.toInt() >= 0 && value.toInt() < titles.length) {
-                      text = Text(titles[value.toInt()], style: style);
+                      text = Text(titles[value.toInt()],
+                          style: TextStyle(
+                            color: widget.colorToggle == "light"
+                                ? AppColorsLight.black
+                                : AppColorsDark.black,
+                            fontSize: 14,
+                          ));
                     }
                     return SideTitleWidget(
                       axisSide: meta.axisSide,
-                      space: 10.0,
                       child: text,
                     );
                   },
@@ -992,7 +1211,9 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
             lineBarsData: [
               LineChartBarData(
                 isCurved: true,
-                color: Color(0xff9b8afb),
+                color: widget.colorToggle == "light"
+                    ? AppColorsLight.main_purple_light
+                    : AppColorsDark.main_purple,
                 barWidth: 3,
                 isStrokeCapRound: true,
                 dotData: FlDotData(show: false),
@@ -1000,8 +1221,15 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                   show: true,
                   gradient: LinearGradient(
                     colors: [
-                      Color(0xFF6938EF).withOpacity(0.1),
-                      Color(0xFF6938EF).withOpacity(0.0),
+                      widget.colorToggle == "light"
+                          ? const Color.fromARGB(50, 105, 56, 239)
+                          : const Color.fromARGB(50, 161, 255, 19),
+                      widget.colorToggle == "light"
+                          ? Color.fromARGB(24, 229, 60, 255)
+                          : Color.fromARGB(24, 19, 255, 231),
+                      widget.colorToggle == "light"
+                          ? const Color.fromARGB(0, 105, 56, 239)
+                          : const Color.fromARGB(0, 161, 255, 19),
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,

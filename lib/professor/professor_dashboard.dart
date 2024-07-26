@@ -975,6 +975,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
       );
     } else if (showExamResults) {
       mainContent = ExamResultsScreen(
+        colorToggle: colorToggle,
         examId: selectedExamId!,
         onFeedbackClick: (String examId) {},
       );
@@ -1130,7 +1131,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                     decoration: BoxDecoration(
                       color: colorToggle == "light"
                           ? AppColorsLight.pure_white
-                          : AppColorsDark.expiration_background,
+                          : AppColorsDark.main_purple,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Column(
@@ -1164,7 +1165,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                     fontWeight: FontWeight.bold,
                                     color: colorToggle == "light"
                                         ? AppColorsLight.black
-                                        : AppColorsDark.black,
+                                        : AppColorsDark.pure_white,
                                   ),
                                 ),
                                 Text(
@@ -1172,7 +1173,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                   style: TextStyle(
                                     color: colorToggle == "light"
                                         ? AppColorsLight.black
-                                        : AppColorsDark.black,
+                                        : AppColorsDark.pure_white,
                                   ),
                                 ),
                               ],
@@ -1185,12 +1186,12 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                 fontWeight: FontWeight.bold,
                                 color: colorToggle == "light"
                                     ? AppColorsLight.black
-                                    : AppColorsDark.black)),
+                                    : AppColorsDark.pure_white)),
                         Text('ExamAI is free to use until December 31st, 2024.',
                             style: TextStyle(
                                 color: colorToggle == "light"
                                     ? AppColorsLight.dark_grey
-                                    : AppColorsDark.dark_grey)),
+                                    : AppColorsDark.light_grey)),
                         SizedBox(height: 10),
                       ],
                     ),

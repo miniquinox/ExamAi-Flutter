@@ -3,6 +3,7 @@ import 'dart:ui';
 class AppColorsLight {
   static const Color main_purple = Color.fromARGB(255, 105, 56, 239);
   static const Color main_purple_light = Color(0xFF9B8AFB);
+  static const Color main_purple_lightest = Color.fromARGB(25, 105, 56, 239);
   static const Color main_purple_dark = Color(0xFF5422E0);
   static const Color pure_white = Color.fromARGB(255, 255, 255, 255);
   static const Color light_grey = Color.fromARGB(255, 232, 232, 232);
@@ -18,6 +19,7 @@ class AppColorsLight {
 class AppColorsDark {
   static const Color main_purple = Color.fromARGB(255, 161, 255, 19);
   static const Color main_purple_light = Color.fromARGB(255, 216, 255, 157);
+  static const Color main_purple_lightest = Color.fromARGB(25, 216, 255, 157);
   static const Color main_purple_dark = Color.fromARGB(255, 91, 127, 36);
   static const Color pure_white = Color.fromARGB(255, 26, 28, 30);
   static const Color light_grey = Color.fromARGB(255, 52, 52, 52);
