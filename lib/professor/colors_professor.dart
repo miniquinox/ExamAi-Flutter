@@ -7,6 +7,7 @@ class AppColorsLight {
   static const Color main_purple_dark = Color(0xFF5422E0);
   static const Color pure_white = Color.fromARGB(255, 255, 255, 255);
   static const Color light_grey = Color.fromARGB(255, 232, 232, 232);
+  static const Color lightest_grey = Color.fromARGB(255, 252, 252, 252);
   static const Color dark_grey = Color.fromARGB(255, 101, 101, 101);
   static const Color disabled_grey = Color.fromARGB(255, 169, 169, 169);
   static const Color black = Color.fromARGB(255, 18, 18, 18);
@@ -23,6 +24,7 @@ class AppColorsDark {
   static const Color main_purple_dark = Color.fromARGB(255, 91, 127, 36);
   static const Color pure_white = Color.fromARGB(255, 26, 28, 30);
   static const Color light_grey = Color.fromARGB(255, 52, 52, 52);
+  static const Color lightest_grey = Color.fromARGB(255, 100, 100, 100);
   static const Color dark_grey = Color.fromARGB(255, 215, 215, 215);
   static const Color disabled_grey = Color.fromARGB(255, 169, 169, 169);
   static const Color black = Color.fromARGB(255, 255, 255, 255);

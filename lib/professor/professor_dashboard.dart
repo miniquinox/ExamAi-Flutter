@@ -643,7 +643,9 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => CreateExamDetails()),
+                          builder: (context) => CreateExamDetails(
+                                colorToggle: colorToggle,
+                              )),
                     );
                   },
                   style: ButtonStyle(
@@ -1978,6 +1980,7 @@ class _ExamRowState extends State<ExamRow> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => CreateExamDetails(
+                              colorToggle: widget.colorToggle,
                               examId: widget.examId,
                             ),
                           ),

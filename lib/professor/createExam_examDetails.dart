@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'colors_professor.dart';
 import 'createExam_addQuestions.dart';
 
 class CreateExamDetails extends StatefulWidget {
   final String? examId;
+  final String colorToggle; // Add a color parameter
 
-  CreateExamDetails({this.examId});
+  CreateExamDetails(
+      {this.examId, required this.colorToggle}); // Update the constructor
 
   @override
   _CreateExamDetailsState createState() => _CreateExamDetailsState();
@@ -57,30 +60,53 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFCFCFD),
+      backgroundColor: widget.colorToggle == "light"
+          ? AppColorsLight.lightest_grey
+          : AppColorsDark.pure_white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: widget.colorToggle == "light"
+            ? AppColorsLight.light_grey
+            : AppColorsDark.light_grey,
         elevation: 0,
         title: Row(
           children: [
-            Icon(Icons.home, color: Colors.black),
+            Icon(
+              Icons.home,
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.black
+                  : AppColorsDark.black,
+            ),
             SizedBox(width: 4),
             Text(
               'Home',
               style: TextStyle(
-                  color: Colors.black,
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.black
+                      : AppColorsDark.black,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
             SizedBox(width: 4),
-            Icon(Icons.chevron_right, color: Colors.black),
+            Icon(
+              Icons.chevron_right,
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.black
+                  : AppColorsDark.black,
+            ),
             SizedBox(width: 4),
-            Icon(Icons.assignment, color: Color(0xFF6938EF)),
+            Icon(
+              Icons.assignment,
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.main_purple
+                  : AppColorsDark.main_purple,
+            ),
             SizedBox(width: 4),
             Text(
               'Create new exam',
               style: TextStyle(
-                  color: Color(0xFF6938EF),
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.main_purple
+                      : AppColorsDark.main_purple,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
@@ -90,7 +116,12 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
                   FirebaseAuth.instance.currentUser?.photoURL ?? ''),
               backgroundColor: Colors.transparent,
               child: FirebaseAuth.instance.currentUser?.photoURL == null
-                  ? Icon(Icons.person, color: Colors.white)
+                  ? Icon(
+                      Icons.person,
+                      color: widget.colorToggle == "light"
+                          ? AppColorsLight.pure_white
+                          : AppColorsDark.pure_white,
+                    )
                   : null,
             ),
           ],
@@ -120,8 +151,16 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Steps',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(
+            'Steps',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.black
+                  : AppColorsDark.black,
+            ),
+          ),
           SizedBox(height: 16),
           _buildStepper(),
         ],
@@ -169,7 +208,9 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
               CircleAvatar(
                 radius: 12,
                 backgroundColor: isActive
-                    ? Color(0xFF6938EF)
+                    ? widget.colorToggle == "light"
+                        ? AppColorsLight.main_purple
+                        : AppColorsDark.main_purple
                     : isCompleted
                         ? Colors.green
                         : Colors.grey,
@@ -195,14 +236,24 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: isActive ? Color(0xFF6938EF) : Colors.black,
+                  color: isActive
+                      ? widget.colorToggle == "light"
+                          ? AppColorsLight.main_purple
+                          : AppColorsDark.main_purple
+                      : widget.colorToggle == "light"
+                          ? AppColorsLight.black
+                          : AppColorsDark.black,
                 ),
               ),
               Text(
                 subtitle,
                 style: TextStyle(
                   fontSize: 14,
-                  color: isActive ? Color(0xFF6938EF) : Colors.grey,
+                  color: isActive
+                      ? widget.colorToggle == "light"
+                          ? AppColorsLight.main_purple
+                          : AppColorsDark.main_purple
+                      : Colors.grey,
                 ),
               ),
             ],
@@ -223,23 +274,31 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
               width: double.infinity,
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: widget.colorToggle == "light"
+                    ? AppColorsLight.pure_white
+                    : AppColorsDark.card_background,
                 borderRadius: BorderRadius.circular(8.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                  ),
-                ],
+                border: Border.all(
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.light_grey
+                      : AppColorsDark.light_grey,
+                  width: 1.0,
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  Text('Exam Details',
-                      style: TextStyle(
-                          fontSize: 24.0, fontWeight: FontWeight.bold)),
+                  Text(
+                    'Exam Details',
+                    style: TextStyle(
+                      fontSize: 24.0,
+                      fontWeight: FontWeight.bold,
+                      color: widget.colorToggle == "light"
+                          ? AppColorsLight.black
+                          : AppColorsDark.black,
+                    ),
+                  ),
                   SizedBox(height: 16),
                   _buildTextField('Exam name', _examNameController),
                   _buildTextField('Course', _courseController),
@@ -272,13 +331,33 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          hintText: labelDescription, // Use hintText for the label description
+          labelStyle: TextStyle(
+            color: widget.colorToggle == "light"
+                ? AppColorsLight.dark_grey
+                : AppColorsDark.black,
+          ),
+          hintText: labelDescription,
+          hintStyle: TextStyle(
+            color: widget.colorToggle == "light"
+                ? AppColorsLight.dark_grey
+                : AppColorsDark.black,
+          ),
           border: OutlineInputBorder(),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey, width: 1.0),
+            borderSide: BorderSide(
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.light_grey
+                  : AppColorsDark.lightest_grey,
+              width: 1.0,
+            ),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Color(0xFF6938EF), width: 3.0),
+            borderSide: BorderSide(
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.main_purple
+                  : AppColorsDark.main_purple,
+              width: 3.0,
+            ),
           ),
         ),
         onTap: () {
@@ -311,12 +390,25 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
               controller: dateController,
               decoration: InputDecoration(
                 labelText: dateLabel,
+                labelStyle: TextStyle(
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.dark_grey
+                      : AppColorsDark.black,
+                ),
                 border: OutlineInputBorder(),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                  borderSide: BorderSide(
+                      color: widget.colorToggle == "light"
+                          ? AppColorsLight.light_grey
+                          : AppColorsDark.lightest_grey,
+                      width: 1.0),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFF6938EF), width: 3.0),
+                  borderSide: BorderSide(
+                      color: widget.colorToggle == "light"
+                          ? AppColorsLight.main_purple
+                          : AppColorsDark.main_purple,
+                      width: 3.0),
                 ),
               ),
               onTap: () async {
@@ -341,12 +433,25 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
               controller: timeController,
               decoration: InputDecoration(
                 labelText: timeLabel,
+                labelStyle: TextStyle(
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.dark_grey
+                      : AppColorsDark.black,
+                ),
                 border: OutlineInputBorder(),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                  borderSide: BorderSide(
+                      color: widget.colorToggle == "light"
+                          ? AppColorsLight.light_grey
+                          : AppColorsDark.lightest_grey,
+                      width: 1.0),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFF6938EF), width: 3.0),
+                  borderSide: BorderSide(
+                      color: widget.colorToggle == "light"
+                          ? AppColorsLight.main_purple
+                          : AppColorsDark.main_purple,
+                      width: 3.0),
                 ),
               ),
               onTap: () async {
@@ -373,14 +478,25 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
             Navigator.pop(context);
           },
           style: TextButton.styleFrom(
-            foregroundColor: Colors.black,
+            foregroundColor: widget.colorToggle == "light"
+                ? AppColorsLight.black
+                : AppColorsDark.black,
             padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            backgroundColor: Colors.white,
+            backgroundColor: widget.colorToggle == "light"
+                ? AppColorsLight.pure_white
+                : AppColorsDark.card_background,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),
           ),
-          child: Text('Cancel'),
+          child: Text(
+            'Cancel',
+            style: TextStyle(
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.black
+                  : AppColorsDark.black,
+            ),
+          ),
         ),
         SizedBox(width: 16),
         ElevatedButton(
@@ -403,20 +519,28 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
             );
           },
           style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white,
-            backgroundColor: Color(0xFF6938EF),
+            foregroundColor: widget.colorToggle == "light"
+                ? AppColorsLight.pure_white
+                : AppColorsDark.pure_white,
+            backgroundColor: widget.colorToggle == "light"
+                ? AppColorsLight.main_purple
+                : AppColorsDark.main_purple,
             padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),
           ),
-          child: Text('Next'),
+          child: Text(
+            'Next',
+            style: TextStyle(
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.pure_white
+                  : AppColorsDark.pure_white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ],
     );
   }
 }
-
-void main() => runApp(MaterialApp(
-      home: CreateExamDetails(),
-    ));
