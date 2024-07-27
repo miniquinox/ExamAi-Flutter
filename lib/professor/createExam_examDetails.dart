@@ -360,6 +360,11 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
             ),
           ),
         ),
+        style: TextStyle(
+          color: widget.colorToggle == "light"
+              ? AppColorsLight.black
+              : AppColorsDark.black,
+        ),
         onTap: () {
           // Clear the hintText if it matches the labelDescription when the TextField is tapped
           if (controller.text == labelDescription) {
@@ -411,6 +416,11 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
                       width: 3.0),
                 ),
               ),
+              style: TextStyle(
+                color: widget.colorToggle == "light"
+                    ? AppColorsLight.black
+                    : AppColorsDark.black,
+              ),
               onTap: () async {
                 DateTime? pickedDate = await showDatePicker(
                   context: context,
@@ -453,6 +463,11 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
                           : AppColorsDark.main_purple,
                       width: 3.0),
                 ),
+              ),
+              style: TextStyle(
+                color: widget.colorToggle == "light"
+                    ? AppColorsLight.black
+                    : AppColorsDark.black,
               ),
               onTap: () async {
                 TimeOfDay? pickedTime = await showTimePicker(
@@ -514,6 +529,7 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
                       .map((email) => email.trim())
                       .toList(),
                   examId: widget.examId, // Pass the examId here
+                  colorToggle: widget.colorToggle, // Pass the colorToggle here
                 ),
               ),
             );

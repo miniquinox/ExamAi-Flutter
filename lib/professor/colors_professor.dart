@@ -35,5 +35,6 @@ class AppColorsDark {
 
   static const Color leftMenu_background = Color.fromARGB(255, 30, 32, 36);
   static const Color card_background = Color.fromARGB(255, 39, 41, 45);
+  static const Color card_light_background = Color.fromARGB(255, 60, 62, 66);
   static const Color expiration_background = Color.fromARGB(255, 45, 211, 152);
 }

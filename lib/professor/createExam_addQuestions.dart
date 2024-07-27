@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'colors_professor.dart';
 import 'createExam_review.dart'; // Ensure you have this import
 
 class CreateExamAddQuestions extends StatefulWidget {
@@ -10,15 +11,16 @@ class CreateExamAddQuestions extends StatefulWidget {
   final String time;
   final List<String> students;
   final String? examId;
+  final String colorToggle; // Add a color parameter
 
-  const CreateExamAddQuestions({
-    required this.examName,
-    required this.course,
-    required this.date,
-    required this.time,
-    required this.students,
-    this.examId,
-  });
+  const CreateExamAddQuestions(
+      {required this.examName,
+      required this.course,
+      required this.date,
+      required this.time,
+      required this.students,
+      this.examId,
+      required this.colorToggle});
 
   @override
   _CreateExamAddQuestionsState createState() => _CreateExamAddQuestionsState();
@@ -113,9 +115,13 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFCFCFD),
+      backgroundColor: widget.colorToggle == "light"
+          ? AppColorsLight.lightest_grey
+          : AppColorsDark.pure_white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: widget.colorToggle == "light"
+            ? AppColorsLight.light_grey
+            : AppColorsDark.light_grey,
         elevation: 0,
         title: Row(
           children: [
@@ -124,19 +130,33 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
             Text(
               'Home',
               style: TextStyle(
-                  color: Colors.black,
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.black
+                      : AppColorsDark.black,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
             SizedBox(width: 4),
-            Icon(Icons.chevron_right, color: Colors.black),
+            Icon(
+              Icons.chevron_right,
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.black
+                  : AppColorsDark.black,
+            ),
             SizedBox(width: 4),
-            Icon(Icons.assignment, color: Color(0xFF6938EF)),
+            Icon(
+              Icons.assignment,
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.main_purple
+                  : AppColorsDark.main_purple,
+            ),
             SizedBox(width: 4),
             Text(
               'Create new exam',
               style: TextStyle(
-                  color: Color(0xFF6938EF),
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.main_purple
+                      : AppColorsDark.main_purple,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
@@ -146,7 +166,12 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                   FirebaseAuth.instance.currentUser?.photoURL ?? ''),
               backgroundColor: Colors.transparent,
               child: FirebaseAuth.instance.currentUser?.photoURL == null
-                  ? Icon(Icons.person, color: Colors.white)
+                  ? Icon(
+                      Icons.person,
+                      color: widget.colorToggle == "light"
+                          ? AppColorsLight.pure_white
+                          : AppColorsDark.pure_white,
+                    )
                   : null,
             ),
           ],
@@ -176,8 +201,16 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Steps',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(
+            'Steps',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.black
+                  : AppColorsDark.black,
+            ),
+          ),
           SizedBox(height: 16),
           _buildStepper(),
         ],
@@ -225,12 +258,17 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
               CircleAvatar(
                 radius: 12,
                 backgroundColor: isActive
-                    ? Color(0xFF6938EF)
+                    ? widget.colorToggle == "light"
+                        ? AppColorsLight.main_purple
+                        : AppColorsDark.main_purple
                     : isCompleted
                         ? Colors.green
                         : Colors.grey,
-                child: Icon(isActive ? Icons.check_circle : Icons.circle,
-                    color: Colors.white, size: 16),
+                child: Icon(
+                  isActive ? Icons.check_circle : Icons.circle,
+                  color: Colors.white,
+                  size: 16,
+                ),
               ),
               Container(
                 height: 40,
@@ -246,15 +284,27 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
               Text(
                 title,
                 style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: isActive ? Color(0xFF6938EF) : Colors.black),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: isActive
+                      ? widget.colorToggle == "light"
+                          ? AppColorsLight.main_purple
+                          : AppColorsDark.main_purple
+                      : widget.colorToggle == "light"
+                          ? AppColorsLight.black
+                          : AppColorsDark.black,
+                ),
               ),
               Text(
                 subtitle,
                 style: TextStyle(
-                    fontSize: 14,
-                    color: isActive ? Color(0xFF6938EF) : Colors.grey),
+                  fontSize: 14,
+                  color: isActive
+                      ? widget.colorToggle == "light"
+                          ? AppColorsLight.main_purple
+                          : AppColorsDark.main_purple
+                      : Colors.grey,
+                ),
               ),
             ],
           ),
@@ -274,23 +324,31 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.pure_white
+                      : AppColorsDark.card_background,
                   borderRadius: BorderRadius.circular(8.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                    ),
-                  ],
+                  border: Border.all(
+                    color: widget.colorToggle == "light"
+                        ? AppColorsLight.light_grey
+                        : AppColorsDark.light_grey,
+                    width: 1.0,
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    Text('Add Questions',
-                        style: TextStyle(
-                            fontSize: 24.0, fontWeight: FontWeight.bold)),
+                    Text(
+                      'Add Questions',
+                      style: TextStyle(
+                        fontSize: 24.0,
+                        fontWeight: FontWeight.bold,
+                        color: widget.colorToggle == "light"
+                            ? AppColorsLight.black
+                            : AppColorsDark.black,
+                      ),
+                    ),
                     SizedBox(height: 16),
                     Expanded(
                       child: SingleChildScrollView(
@@ -309,15 +367,26 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                               Navigator.pop(context);
                             },
                             style: TextButton.styleFrom(
-                              foregroundColor: Colors.black,
+                              foregroundColor: widget.colorToggle == "light"
+                                  ? AppColorsLight.black
+                                  : AppColorsDark.black,
                               padding: EdgeInsets.symmetric(
                                   horizontal: 24, vertical: 12),
-                              backgroundColor: Colors.white,
+                              backgroundColor: widget.colorToggle == "light"
+                                  ? AppColorsLight.pure_white
+                                  : AppColorsDark.pure_white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
                             ),
-                            child: Text('Back'),
+                            child: Text(
+                              'Back',
+                              style: TextStyle(
+                                color: widget.colorToggle == "light"
+                                    ? AppColorsLight.black
+                                    : AppColorsDark.black,
+                              ),
+                            ),
                           ),
                           ElevatedButton(
                             onPressed: () {
@@ -338,15 +407,26 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                               );
                             },
                             style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              backgroundColor: Color(0xFF6938EF),
+                              foregroundColor: widget.colorToggle == "light"
+                                  ? AppColorsLight.pure_white
+                                  : AppColorsDark.pure_white,
+                              backgroundColor: widget.colorToggle == "light"
+                                  ? AppColorsLight.main_purple
+                                  : AppColorsDark.main_purple,
                               padding: EdgeInsets.symmetric(
                                   horizontal: 24, vertical: 12),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
                             ),
-                            child: Text('Next'),
+                            child: Text(
+                              'Next',
+                              style: TextStyle(
+                                color: widget.colorToggle == "light"
+                                    ? AppColorsLight.pure_white
+                                    : AppColorsDark.pure_white,
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -368,29 +448,55 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
           child: Container(
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: Color(0xfffcfcfd),
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.lightest_grey
+                  : AppColorsDark.card_light_background,
               borderRadius: BorderRadius.circular(8.0),
-              border: Border.all(color: Color(0xffcbcfd7)),
+              border: Border.all(
+                color: widget.colorToggle == "light"
+                    ? AppColorsLight.light_grey
+                    : AppColorsDark.light_grey,
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Text('Question ${i + 1}',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    Spacer(),
-                    IconButton(
-                      icon: Icon(Icons.remove),
-                      onPressed: () {
-                        setState(() {
-                          questions[i]['weight']--;
-                        });
-                      },
+                    Text(
+                      'Question ${i + 1}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: widget.colorToggle == "light"
+                            ? AppColorsLight.black
+                            : AppColorsDark.black,
+                      ),
                     ),
-                    Text('${questions[i]['weight']}'),
+                    Spacer(),
+                    Text(
+                      'Question ${i + 1}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: widget.colorToggle == "light"
+                            ? AppColorsLight.black
+                            : AppColorsDark.black,
+                      ),
+                    ),
+                    Text(
+                      '${questions[i]['weight']}',
+                      style: TextStyle(
+                        color: widget.colorToggle == "light"
+                            ? AppColorsLight.black
+                            : AppColorsDark.black,
+                      ),
+                    ),
                     IconButton(
-                      icon: Icon(Icons.add),
+                      icon: Icon(
+                        Icons.add,
+                        color: widget.colorToggle == "light"
+                            ? AppColorsLight.black
+                            : AppColorsDark.black,
+                      ),
                       onPressed: () {
                         setState(() {
                           questions[i]['weight']++;
@@ -398,7 +504,12 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                       },
                     ),
                     IconButton(
-                      icon: Icon(Icons.close),
+                      icon: Icon(
+                        Icons.close,
+                        color: widget.colorToggle == "light"
+                            ? AppColorsLight.black
+                            : AppColorsDark.black,
+                      ),
                       onPressed: () {
                         removeQuestion(i);
                       },
@@ -410,9 +521,21 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                   controller: questions[i]['question'],
                   decoration: InputDecoration(
                     labelText: 'Enter question',
+                    labelStyle: TextStyle(
+                      color: widget.colorToggle == "light"
+                          ? AppColorsLight.black
+                          : AppColorsDark.black,
+                    ),
                     border: OutlineInputBorder(),
-                    fillColor: Colors.white,
+                    fillColor: widget.colorToggle == "light"
+                        ? AppColorsLight.pure_white
+                        : AppColorsDark.light_grey,
                     filled: true,
+                  ),
+                  style: TextStyle(
+                    color: widget.colorToggle == "light"
+                        ? AppColorsLight.black
+                        : AppColorsDark.black,
                   ),
                   keyboardType: TextInputType.multiline,
                   maxLines:
@@ -426,29 +549,51 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                     TextButton(
                       onPressed: () => addRubric(i),
                       style: TextButton.styleFrom(
-                        foregroundColor: Color(0xFF6938EF),
+                        foregroundColor: widget.colorToggle == "light"
+                            ? AppColorsLight.main_purple
+                            : AppColorsDark.main_purple,
                         padding:
                             EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                        backgroundColor: Colors.white,
+                        backgroundColor: widget.colorToggle == "light"
+                            ? AppColorsLight.pure_white
+                            : AppColorsDark.pure_white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
-                      child: Text('+ Add Rubric'),
+                      child: Text(
+                        '+ Add Rubric',
+                        style: TextStyle(
+                          color: widget.colorToggle == "light"
+                              ? AppColorsLight.black
+                              : AppColorsDark.black,
+                        ),
+                      ),
                     ),
                     SizedBox(width: 8),
                     ElevatedButton(
                       onPressed: addQuestion,
                       style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: Color(0xFF6938EF),
+                        foregroundColor: widget.colorToggle == "light"
+                            ? AppColorsLight.black
+                            : AppColorsDark.black,
+                        backgroundColor: widget.colorToggle == "light"
+                            ? AppColorsLight.main_purple
+                            : AppColorsDark.main_purple,
                         padding:
                             EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
-                      child: Text('+ Add Question'),
+                      child: Text(
+                        '+ Add Question',
+                        style: TextStyle(
+                          color: widget.colorToggle == "light"
+                              ? AppColorsLight.black
+                              : AppColorsDark.pure_white,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -477,9 +622,21 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                         ['rubric'],
                     decoration: InputDecoration(
                       labelText: 'Enter rubric description',
+                      labelStyle: TextStyle(
+                        color: widget.colorToggle == "light"
+                            ? AppColorsLight.black
+                            : AppColorsDark.black,
+                      ),
                       border: OutlineInputBorder(),
-                      fillColor: Colors.white,
+                      fillColor: widget.colorToggle == "light"
+                          ? AppColorsLight.pure_white
+                          : AppColorsDark.light_grey,
                       filled: true,
+                    ),
+                    style: TextStyle(
+                      color: widget.colorToggle == "light"
+                          ? AppColorsLight.black
+                          : AppColorsDark.black,
                     ),
                     keyboardType: TextInputType.multiline,
                     maxLines:
@@ -488,16 +645,33 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                 ),
                 SizedBox(width: 8),
                 IconButton(
-                  icon: Icon(Icons.remove),
+                  icon: Icon(
+                    Icons.remove,
+                    color: widget.colorToggle == "light"
+                        ? AppColorsLight.black
+                        : AppColorsDark.black,
+                  ),
                   onPressed: () {
                     setState(() {
                       questions[questionIndex]['rubrics'][i]['weight']--;
                     });
                   },
                 ),
-                Text('${questions[questionIndex]['rubrics'][i]['weight']}'),
+                Text(
+                  '${questions[questionIndex]['rubrics'][i]['weight']}',
+                  style: TextStyle(
+                    color: widget.colorToggle == "light"
+                        ? AppColorsLight.black
+                        : AppColorsDark.black,
+                  ),
+                ),
                 IconButton(
-                  icon: Icon(Icons.add),
+                  icon: Icon(
+                    Icons.add,
+                    color: widget.colorToggle == "light"
+                        ? AppColorsLight.black
+                        : AppColorsDark.black,
+                  ),
                   onPressed: () {
                     setState(() {
                       questions[questionIndex]['rubrics'][i]['weight']++;
@@ -505,7 +679,12 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                   },
                 ),
                 IconButton(
-                  icon: Icon(Icons.close),
+                  icon: Icon(
+                    Icons.close,
+                    color: widget.colorToggle == "light"
+                        ? AppColorsLight.black
+                        : AppColorsDark.black,
+                  ),
                   onPressed: () {
                     removeRubric(questionIndex, i);
                   },
