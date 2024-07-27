@@ -213,7 +213,9 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
                         : AppColorsDark.main_purple
                     : isCompleted
                         ? Colors.green
-                        : Colors.grey,
+                        : widget.colorToggle == "light"
+                            ? AppColorsLight.disabled_grey
+                            : AppColorsDark.disabled_grey,
                 child: Icon(
                   isActive ? Icons.check_circle : Icons.circle,
                   color: Colors.white,
@@ -253,7 +255,9 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
                       ? widget.colorToggle == "light"
                           ? AppColorsLight.main_purple
                           : AppColorsDark.main_purple
-                      : Colors.grey,
+                      : widget.colorToggle == "light"
+                          ? AppColorsLight.disabled_grey
+                          : AppColorsDark.disabled_grey,
                 ),
               ),
             ],

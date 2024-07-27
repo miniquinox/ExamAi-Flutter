@@ -125,7 +125,12 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
         elevation: 0,
         title: Row(
           children: [
-            Icon(Icons.home, color: Colors.black),
+            Icon(
+              Icons.home,
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.black
+                  : AppColorsDark.black,
+            ),
             SizedBox(width: 4),
             Text(
               'Home',
@@ -263,7 +268,9 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                         : AppColorsDark.main_purple
                     : isCompleted
                         ? Colors.green
-                        : Colors.grey,
+                        : widget.colorToggle == "light"
+                            ? AppColorsLight.disabled_grey
+                            : AppColorsDark.disabled_grey,
                 child: Icon(
                   isActive ? Icons.check_circle : Icons.circle,
                   color: Colors.white,
@@ -303,7 +310,9 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                       ? widget.colorToggle == "light"
                           ? AppColorsLight.main_purple
                           : AppColorsDark.main_purple
-                      : Colors.grey,
+                      : widget.colorToggle == "light"
+                          ? AppColorsLight.disabled_grey
+                          : AppColorsDark.disabled_grey,
                 ),
               ),
             ],
@@ -402,6 +411,7 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                                     questions: formatQuestionsForReview(),
                                     examId:
                                         widget.examId, // Pass the examId here
+                                    colorToggle: widget.colorToggle,
                                   ),
                                 ),
                               );
@@ -422,6 +432,7 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                             child: Text(
                               'Next',
                               style: TextStyle(
+                                fontWeight: FontWeight.bold,
                                 color: widget.colorToggle == "light"
                                     ? AppColorsLight.pure_white
                                     : AppColorsDark.pure_white,
@@ -473,14 +484,18 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                       ),
                     ),
                     Spacer(),
-                    Text(
-                      'Question ${i + 1}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
+                    IconButton(
+                      icon: Icon(
+                        Icons.remove,
                         color: widget.colorToggle == "light"
                             ? AppColorsLight.black
                             : AppColorsDark.black,
                       ),
+                      onPressed: () {
+                        setState(() {
+                          questions[i]['weight']--;
+                        });
+                      },
                     ),
                     Text(
                       '${questions[i]['weight']}',
@@ -590,7 +605,7 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                         '+ Add Question',
                         style: TextStyle(
                           color: widget.colorToggle == "light"
-                              ? AppColorsLight.black
+                              ? AppColorsLight.pure_white
                               : AppColorsDark.pure_white,
                         ),
                       ),
