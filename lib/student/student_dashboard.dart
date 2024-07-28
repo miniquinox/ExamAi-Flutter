@@ -519,6 +519,7 @@ class _StudentScreenState extends State<StudentScreen> {
       mainContent = ExamResultsScreen(
         examId: selectedExamId!,
         onFeedbackClick: onFeedbackClick,
+        colorToggle: "dark",
       );
     }
 
