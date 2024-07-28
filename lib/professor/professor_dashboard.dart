@@ -12,7 +12,6 @@ import 'dart:convert';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
-// import 'dart:math' as math;
 import 'colors_professor.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 
@@ -1155,7 +1154,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                 valueColor: AlwaysStoppedAnimation<Color>(
                                     colorToggle == "light"
                                         ? AppColorsLight.main_purple
-                                        : AppColorsDark.main_purple),
+                                        : AppColorsDark.expiration_background),
                               ),
                             ),
                             Column(
@@ -1251,7 +1250,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                         icon: Icon(Icons.exit_to_app,
                             color: colorToggle == "light"
                                 ? AppColorsLight.pure_white
-                                : AppColorsDark.pure_white),
+                                : AppColorsDark.black),
                         onPressed: _showSignOutDialog,
                       ),
                     ],

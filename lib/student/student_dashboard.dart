@@ -6,7 +6,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 import 'package:intl/intl.dart';
+import '../professor/colors_professor.dart';
 import 'examResults.dart';
 
 void main() async {
@@ -36,6 +38,7 @@ class _StudentScreenState extends State<StudentScreen> {
   String? selectedExamId;
   String? feedbackExamId;
   double averageScore = 0.0;
+  String colorToggle = "light";
 
   @override
   void initState() {
@@ -187,21 +190,52 @@ class _StudentScreenState extends State<StudentScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Sign Out'),
-        content: const Text('Are you sure you would like to sign out?'),
+        backgroundColor: colorToggle == "light"
+            ? AppColorsLight.pure_white
+            : AppColorsDark.pure_white,
+        title: Text(
+          'Sign Out',
+          style: TextStyle(
+            color: colorToggle == "light"
+                ? AppColorsLight.black
+                : AppColorsDark.black,
+          ),
+        ),
+        content: Text(
+          'Are you sure you would like to sign out?',
+          style: TextStyle(
+            color: colorToggle == "light"
+                ? AppColorsLight.black
+                : AppColorsDark.black,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: const Text('Cancel'),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: colorToggle == "light"
+                    ? AppColorsLight.main_purple
+                    : AppColorsDark.main_purple,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               _signOut();
             },
-            child: const Text('Yes'),
+            child: Text(
+              'Yes',
+              style: TextStyle(
+                color: colorToggle == "light"
+                    ? AppColorsLight.main_purple
+                    : AppColorsDark.main_purple,
+              ),
+            ),
           ),
         ],
       ),
@@ -217,16 +251,29 @@ class _StudentScreenState extends State<StudentScreen> {
           children: [
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+              alignment: Alignment
+                  .centerLeft, // Ensure the container aligns its content to the start
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Welcome back, ${user?.displayName}!',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: colorToggle == "light"
+                          ? AppColorsLight.black
+                          : AppColorsDark.black,
+                    ),
                   ),
                   Text(
                     'Here\'s what\'s happening with your exams today.',
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: colorToggle == "light"
+                          ? AppColorsLight.dark_grey
+                          : AppColorsDark.dark_grey,
+                    ),
                   ),
                 ],
               ),
@@ -249,6 +296,7 @@ class _StudentScreenState extends State<StudentScreen> {
                               bottomMargin: 10,
                               leftMargin: 0,
                               rightMargin: 10,
+                              colorToggle: colorToggle,
                             ),
                             StatisticBox(
                               iconPath: 'assets/images/empty2.svg',
@@ -258,6 +306,7 @@ class _StudentScreenState extends State<StudentScreen> {
                               bottomMargin: 10,
                               leftMargin: 10,
                               rightMargin: 10,
+                              colorToggle: colorToggle,
                             ),
                             StatisticBox(
                               iconPath: 'assets/images/empty3.svg',
@@ -267,6 +316,7 @@ class _StudentScreenState extends State<StudentScreen> {
                               bottomMargin: 10,
                               leftMargin: 10,
                               rightMargin: 0,
+                              colorToggle: colorToggle,
                             ),
                           ],
                         ),
@@ -280,6 +330,7 @@ class _StudentScreenState extends State<StudentScreen> {
                               bottomMargin: 0,
                               leftMargin: 0,
                               rightMargin: 10,
+                              colorToggle: colorToggle,
                             ),
                             StatisticBox(
                               iconPath: 'assets/images/empty5.svg',
@@ -289,6 +340,7 @@ class _StudentScreenState extends State<StudentScreen> {
                               bottomMargin: 0,
                               leftMargin: 10,
                               rightMargin: 10,
+                              colorToggle: colorToggle,
                             ),
                             StatisticBox(
                               iconPath: 'assets/images/empty6.svg',
@@ -298,6 +350,7 @@ class _StudentScreenState extends State<StudentScreen> {
                               bottomMargin: 0,
                               leftMargin: 10,
                               rightMargin: 0,
+                              colorToggle: colorToggle,
                             ),
                           ],
                         ),
@@ -309,16 +362,29 @@ class _StudentScreenState extends State<StudentScreen> {
                     width: 240,
                     padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: colorToggle == "light"
+                          ? AppColorsLight.pure_white
+                          : AppColorsDark.card_background,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Color(0xFFD0D5DD), width: 1),
+                      border: Border.all(
+                          color: colorToggle == "light"
+                              ? AppColorsLight.light_grey
+                              : AppColorsDark.pure_white,
+                          width: 1),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Center(
-                          child: Text('Overall Performance',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          child: Text(
+                            'Overall Performance',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: colorToggle == "light"
+                                  ? AppColorsLight.black
+                                  : AppColorsDark.black,
+                            ),
+                          ),
                         ),
                         SizedBox(height: 20),
                         Row(
@@ -332,16 +398,27 @@ class _StudentScreenState extends State<StudentScreen> {
                                   width: 120,
                                   child: CircularProgressIndicator(
                                     value: averageScore / 100,
-                                    backgroundColor: Colors.grey[200],
+                                    backgroundColor: colorToggle == "light"
+                                        ? AppColorsLight.light_grey
+                                        : AppColorsDark.light_grey,
                                     valueColor: AlwaysStoppedAnimation<Color>(
-                                        Color(0xFF6938EF)),
+                                      colorToggle == "light"
+                                          ? AppColorsLight.main_purple
+                                          : AppColorsDark.main_purple,
+                                    ),
                                     strokeWidth: 10,
                                   ),
                                 ),
-                                Text('${averageScore.toInt()}%',
-                                    style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold)),
+                                Text(
+                                  '${averageScore.toInt()}%',
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: colorToggle == "light"
+                                        ? AppColorsLight.black
+                                        : AppColorsDark.black,
+                                  ),
+                                ),
                               ],
                             ),
                           ],
@@ -354,41 +431,68 @@ class _StudentScreenState extends State<StudentScreen> {
                     width: 270,
                     padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Color(0xFF6938EF),
+                      color: colorToggle == "light"
+                          ? AppColorsLight.main_purple
+                          : AppColorsDark.main_purple,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Color(0xFFD0D5DD), width: 1),
+                      border: Border.all(
+                          color: colorToggle == "light"
+                              ? AppColorsLight.light_grey
+                              : AppColorsDark.light_grey,
+                          width: 1),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Today\'s Exam',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold)),
+                        Text(
+                          'Today\'s Exam',
+                          style: TextStyle(
+                            color: colorToggle == "light"
+                                ? AppColorsLight.pure_white
+                                : AppColorsDark.pure_white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         SizedBox(height: 10),
                         Text(
                           '11:24 AM',
                           style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold),
+                            color: colorToggle == "light"
+                                ? AppColorsLight.pure_white
+                                : AppColorsDark.pure_white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         SizedBox(height: 10),
                         Text(
                           'Biology',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
+                          style: TextStyle(
+                            color: colorToggle == "light"
+                                ? AppColorsLight.pure_white
+                                : AppColorsDark.pure_white,
+                            fontSize: 16,
+                          ),
                         ),
                         Text(
                           'The human body',
-                          style: TextStyle(color: Colors.white, fontSize: 14),
+                          style: TextStyle(
+                            color: colorToggle == "light"
+                                ? AppColorsLight.pure_white
+                                : AppColorsDark.pure_white,
+                            fontSize: 14,
+                          ),
                         ),
                         SizedBox(height: 10),
                         Text(
                           '12 : 24 : 00 PM',
                           style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold),
+                            color: colorToggle == "light"
+                                ? AppColorsLight.pure_white
+                                : AppColorsDark.pure_white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -405,16 +509,29 @@ class _StudentScreenState extends State<StudentScreen> {
                     child: Container(
                       padding: EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: colorToggle == "light"
+                            ? AppColorsLight.pure_white
+                            : AppColorsDark.pure_white,
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Color(0xFFD0D5DD), width: 1),
+                        border: Border.all(
+                            color: colorToggle == "light"
+                                ? AppColorsLight.light_grey
+                                : AppColorsDark.light_grey,
+                            width: 1),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Recent exams',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 18)),
+                          Text(
+                            'Recent exams',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: colorToggle == "light"
+                                  ? AppColorsLight.black
+                                  : AppColorsDark.black,
+                            ),
+                          ),
                           SizedBox(height: 10),
                           Row(
                             children: [
@@ -422,13 +539,60 @@ class _StudentScreenState extends State<StudentScreen> {
                                 flex: 3,
                                 child: Padding(
                                   padding: const EdgeInsets.only(left: 10.0),
-                                  child: Text('Exam Name'),
+                                  child: Text(
+                                    'Exam Name',
+                                    style: TextStyle(
+                                      color: colorToggle == "light"
+                                          ? AppColorsLight.black
+                                          : AppColorsDark.black,
+                                    ),
+                                  ),
                                 ),
                               ),
-                              Expanded(flex: 1, child: Text('Date')),
-                              Expanded(flex: 2, child: Text('Time')),
-                              Expanded(flex: 2, child: Text('Students')),
-                              Expanded(flex: 1, child: Text('Score')),
+                              Expanded(
+                                flex: 1,
+                                child: Text(
+                                  'Date',
+                                  style: TextStyle(
+                                    color: colorToggle == "light"
+                                        ? AppColorsLight.black
+                                        : AppColorsDark.black,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Text(
+                                  'Time',
+                                  style: TextStyle(
+                                    color: colorToggle == "light"
+                                        ? AppColorsLight.black
+                                        : AppColorsDark.black,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Text(
+                                  'Students',
+                                  style: TextStyle(
+                                    color: colorToggle == "light"
+                                        ? AppColorsLight.black
+                                        : AppColorsDark.black,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: Text(
+                                  'Score',
+                                  style: TextStyle(
+                                    color: colorToggle == "light"
+                                        ? AppColorsLight.black
+                                        : AppColorsDark.black,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                           recentExams.isEmpty
@@ -441,6 +605,9 @@ class _StudentScreenState extends State<StudentScreen> {
                                         "No available exams yet",
                                         style: TextStyle(
                                           fontSize: 16,
+                                          color: colorToggle == "light"
+                                              ? AppColorsLight.black
+                                              : AppColorsDark.black,
                                         ),
                                       ),
                                       SvgPicture.asset(
@@ -462,6 +629,7 @@ class _StudentScreenState extends State<StudentScreen> {
                                           students: exam['students'],
                                           score: exam['score'],
                                           onRowClick: onExamRowClick,
+                                          colorToggle: colorToggle,
                                         )),
                                   ],
                                 )
@@ -475,16 +643,29 @@ class _StudentScreenState extends State<StudentScreen> {
                     child: Container(
                       padding: EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: colorToggle == "light"
+                            ? AppColorsLight.pure_white
+                            : AppColorsDark.pure_white,
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Color(0xFFD0D5DD), width: 1),
+                        border: Border.all(
+                            color: colorToggle == "light"
+                                ? AppColorsLight.light_grey
+                                : AppColorsDark.light_grey,
+                            width: 1),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Upcoming exams',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 18)),
+                          Text(
+                            'Upcoming exams',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: colorToggle == "light"
+                                  ? AppColorsLight.black
+                                  : AppColorsDark.black,
+                            ),
+                          ),
                           SizedBox(height: 10),
                           Expanded(
                             child: ListView.builder(
@@ -499,6 +680,7 @@ class _StudentScreenState extends State<StudentScreen> {
                                       exam['formattedDateTime'] ??
                                           'Placeholder',
                                   icon: Icons.calendar_today,
+                                  colorToggle: colorToggle,
                                 );
                               },
                             ),
@@ -519,7 +701,7 @@ class _StudentScreenState extends State<StudentScreen> {
       mainContent = ExamResultsScreen(
         examId: selectedExamId!,
         onFeedbackClick: onFeedbackClick,
-        colorToggle: "dark",
+        colorToggle: colorToggle,
       );
     }
 
@@ -535,23 +717,64 @@ class _StudentScreenState extends State<StudentScreen> {
         endOfYear.difference(startOfYear).inDays;
 
     return Scaffold(
-      backgroundColor: Color(0xFFFCFCFD),
+      backgroundColor: colorToggle == "light"
+          ? AppColorsLight.lightest_grey
+          : AppColorsDark.pure_white,
       body: Row(
         children: [
           Container(
             width: 250,
-            color: Color(0xFF6938EF),
+            color: colorToggle == "light"
+                ? AppColorsLight.main_purple
+                : AppColorsDark.leftMenu_background,
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(
-                      left: 16.0, top: 16.0, bottom: 16.0),
+                  padding: const EdgeInsets.all(16.0),
                   child: Row(
+                    mainAxisAlignment:
+                        MainAxisAlignment.spaceBetween, // Add this line
                     children: [
-                      Icon(Icons.school, color: Colors.white),
-                      SizedBox(width: 8),
-                      Text('Exam AI',
-                          style: TextStyle(color: Colors.white, fontSize: 24)),
+                      Row(
+                        children: [
+                          Icon(Icons.school,
+                              color: colorToggle == "light"
+                                  ? AppColorsLight.pure_white
+                                  : AppColorsDark.pure_white),
+                          SizedBox(width: 8),
+                          Text(' Exam AI',
+                              style: TextStyle(
+                                  color: colorToggle == "light"
+                                      ? AppColorsLight.pure_white
+                                      : AppColorsDark.black,
+                                  fontSize: 24)),
+                        ],
+                      ),
+                      Transform.scale(
+                        scale: 0.65, // Adjust the scale factor as needed
+                        child: FlutterSwitch(
+                          value: colorToggle == "light",
+                          onToggle: (bool value) {
+                            setState(() {
+                              colorToggle = value ? "light" : "dark";
+                            });
+                          },
+                          activeColor: AppColorsLight.pure_white,
+                          inactiveColor: AppColorsDark.card_background,
+                          activeToggleColor:
+                              Colors.black, // Active circle color
+                          inactiveToggleColor:
+                              Colors.white, // Inactive circle color
+                          activeIcon: Icon(
+                            Icons.nightlight_round, // Moon icon
+                            color: const Color.fromARGB(255, 255, 255, 255),
+                          ),
+                          inactiveIcon: Icon(
+                            Icons.wb_sunny, // Sun icon
+                            color: Color.fromARGB(255, 255, 183, 0),
+                          ),
+                        ),
+                      )
                     ],
                   ),
                 ),
@@ -592,10 +815,12 @@ class _StudentScreenState extends State<StudentScreen> {
                     );
                   },
                   child: MenuButton(
-                    icon: Icons.dashboard,
-                    label: 'Dashboard',
-                    color: Colors.white,
-                  ),
+                      icon: Icons.dashboard,
+                      label: 'Dashboard',
+                      color: colorToggle == "light"
+                          ? AppColorsLight.pure_white
+                          : AppColorsDark.black,
+                      colorToggle: colorToggle),
                 ),
                 GestureDetector(
                   onTap: () {
@@ -608,27 +833,50 @@ class _StudentScreenState extends State<StudentScreen> {
                   child: MenuButton(
                       icon: Icons.assignment,
                       label: 'Exams',
-                      color: Colors.white),
+                      color: colorToggle == "light"
+                          ? AppColorsLight.disabled_grey
+                          : AppColorsDark.disabled_grey,
+                      colorToggle: colorToggle),
                 ),
-                const MenuButton(
-                    icon: Icons.people, label: 'Students', color: Colors.grey),
-                const MenuButton(
-                    icon: Icons.class_, label: 'Classes', color: Colors.grey),
-                const MenuButton(
+                MenuButton(
+                    icon: Icons.people,
+                    label: 'Students',
+                    color: colorToggle == "light"
+                        ? AppColorsLight.disabled_grey
+                        : AppColorsDark.disabled_grey,
+                    colorToggle: colorToggle),
+                MenuButton(
+                    icon: Icons.class_,
+                    label: 'Classes',
+                    color: colorToggle == "light"
+                        ? AppColorsLight.disabled_grey
+                        : AppColorsDark.disabled_grey,
+                    colorToggle: colorToggle),
+                MenuButton(
                     icon: Icons.notifications,
                     label: 'Notifications',
-                    color: Colors.grey),
-                const MenuButton(
+                    color: colorToggle == "light"
+                        ? AppColorsLight.disabled_grey
+                        : AppColorsDark.disabled_grey,
+                    colorToggle: colorToggle),
+
+                MenuButton(
                     icon: Icons.settings,
                     label: 'Settings',
-                    color: Colors.grey),
+                    color: colorToggle == "light"
+                        ? AppColorsLight.disabled_grey
+                        : AppColorsDark.disabled_grey,
+                    colorToggle: colorToggle),
+
                 Spacer(),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Container(
                     padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: colorToggle == "light"
+                          ? AppColorsLight.pure_white
+                          : AppColorsDark.main_purple,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Column(
@@ -644,9 +892,13 @@ class _StudentScreenState extends State<StudentScreen> {
                                 value: progress,
                                 strokeWidth:
                                     8, // Adjust the stroke width as needed
-                                backgroundColor: Colors.grey[200],
+                                backgroundColor: colorToggle == "light"
+                                    ? AppColorsLight.light_grey
+                                    : AppColorsDark.light_grey,
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                    Color(0xFF6938EF)),
+                                    colorToggle == "light"
+                                        ? AppColorsLight.main_purple
+                                        : AppColorsDark.expiration_background),
                               ),
                             ),
                             Column(
@@ -656,10 +908,18 @@ class _StudentScreenState extends State<StudentScreen> {
                                   '$daysLeft', // Display the number of days left
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
+                                    color: colorToggle == "light"
+                                        ? AppColorsLight.black
+                                        : AppColorsDark.pure_white,
                                   ),
                                 ),
                                 Text(
                                   'days', // Display the text "days left"
+                                  style: TextStyle(
+                                    color: colorToggle == "light"
+                                        ? AppColorsLight.black
+                                        : AppColorsDark.pure_white,
+                                  ),
                                 ),
                               ],
                             ),
@@ -667,9 +927,16 @@ class _StudentScreenState extends State<StudentScreen> {
                         ),
                         SizedBox(height: 20),
                         Text('ExamAI Access',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text(
-                            'ExamAI is free to use until December 31st, 2024.'),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: colorToggle == "light"
+                                    ? AppColorsLight.black
+                                    : AppColorsDark.pure_white)),
+                        Text('ExamAI is free to use until December 31st, 2024.',
+                            style: TextStyle(
+                                color: colorToggle == "light"
+                                    ? AppColorsLight.dark_grey
+                                    : AppColorsDark.light_grey)),
                         SizedBox(height: 10),
                       ],
                     ),
@@ -685,10 +952,15 @@ class _StudentScreenState extends State<StudentScreen> {
                             ? NetworkImage(user!.photoURL!)
                             : null,
                         backgroundColor: user?.photoURL == null
-                            ? Color(0xFF6938EF)
+                            ? colorToggle == "light"
+                                ? AppColorsLight.main_purple_light
+                                : AppColorsDark.main_purple
                             : Colors.transparent,
                         child: user?.photoURL == null
-                            ? Icon(Icons.person, color: Colors.white)
+                            ? Icon(Icons.person,
+                                color: colorToggle == "light"
+                                    ? AppColorsLight.pure_white
+                                    : AppColorsDark.pure_white)
                             : null,
                       ),
                       SizedBox(width: 20),
@@ -701,18 +973,26 @@ class _StudentScreenState extends State<StudentScreen> {
                                       user!.displayName!.length > 17
                                   ? user!.displayName!.substring(0, 17)
                                   : user?.displayName ?? 'No Name',
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(
+                                  color: colorToggle == "light"
+                                      ? AppColorsLight.pure_white
+                                      : AppColorsDark.black),
                             ),
-                            const Text(
+                            Text(
                               'Student',
-                              style: TextStyle(color: Colors.grey),
+                              style: TextStyle(
+                                  color: colorToggle == "light"
+                                      ? AppColorsLight.disabled_grey
+                                      : AppColorsDark.disabled_grey),
                             ),
                           ],
                         ),
                       ),
                       IconButton(
-                        icon:
-                            const Icon(Icons.exit_to_app, color: Colors.white),
+                        icon: Icon(Icons.exit_to_app,
+                            color: colorToggle == "light"
+                                ? AppColorsLight.pure_white
+                                : AppColorsDark.black),
                         onPressed: _showSignOutDialog,
                       ),
                     ],
@@ -741,6 +1021,7 @@ class StatisticBox extends StatelessWidget {
   final double bottomMargin;
   final double leftMargin;
   final double rightMargin;
+  final String colorToggle; // Add a color parameter
 
   const StatisticBox({
     required this.iconPath,
@@ -750,6 +1031,7 @@ class StatisticBox extends StatelessWidget {
     required this.bottomMargin,
     required this.leftMargin,
     required this.rightMargin,
+    required this.colorToggle,
   });
 
   @override
@@ -764,9 +1046,15 @@ class StatisticBox extends StatelessWidget {
           right: rightMargin),
       padding: EdgeInsets.all(8.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorToggle == "light"
+            ? AppColorsLight.pure_white
+            : AppColorsDark.card_background,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Color(0xFFD0D5DD), width: 1),
+        border: Border.all(
+            color: colorToggle == "light"
+                ? AppColorsLight.light_grey
+                : AppColorsDark.light_grey,
+            width: 1),
       ),
       child: Row(
         children: [
@@ -790,11 +1078,24 @@ class StatisticBox extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: colorToggle == "light"
+                        ? AppColorsLight.black
+                        : AppColorsDark.black,
+                  ),
+                ),
                 SizedBox(height: 5),
                 Text(
                   value,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: colorToggle == "light"
+                        ? AppColorsLight.dark_grey
+                        : AppColorsDark.dark_grey,
+                  ),
                   overflow: TextOverflow.ellipsis, // Handle overflow
                 ),
               ],
@@ -814,16 +1115,17 @@ class ExamRow extends StatefulWidget {
   final List<String> students;
   final String score; // Changed from double to String to handle "x/y" format
   final Function(String examId) onRowClick;
+  final String colorToggle; // Add a color parameter
 
-  const ExamRow({
-    required this.examName,
-    required this.examId,
-    required this.date,
-    required this.time,
-    required this.students,
-    required this.score,
-    required this.onRowClick,
-  });
+  const ExamRow(
+      {required this.examName,
+      required this.examId,
+      required this.date,
+      required this.time,
+      required this.students,
+      required this.score,
+      required this.onRowClick,
+      required this.colorToggle});
 
   @override
   _ExamRowState createState() => _ExamRowState();
@@ -848,7 +1150,13 @@ class _ExamRowState extends State<ExamRow> {
         onEnter: (_) => setState(() => _isHovered = true),
         onExit: (_) => setState(() => _isHovered = false),
         child: Container(
-          color: _isHovered ? Color(0xFFD2D5DC) : Colors.white,
+          color: _isHovered
+              ? widget.colorToggle == "light"
+                  ? AppColorsLight.pure_white
+                  : AppColorsDark.card_background
+              : widget.colorToggle == "light"
+                  ? AppColorsLight.pure_white
+                  : AppColorsDark.pure_white,
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: Row(
             children: [
@@ -858,19 +1166,36 @@ class _ExamRowState extends State<ExamRow> {
                   padding: const EdgeInsets.only(left: 10.0),
                   child: Text(
                     widget.examName,
-                    style: TextStyle(fontWeight: FontWeight.w500),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: widget.colorToggle == "light"
+                          ? AppColorsLight.dark_grey
+                          : AppColorsDark.dark_grey,
+                    ),
                   ),
                 ),
               ),
               Expanded(
                 flex: 1,
-                child: Text(widget.date,
-                    style: TextStyle(color: Colors.grey[700])),
+                child: Text(
+                  widget.date,
+                  style: TextStyle(
+                    color: widget.colorToggle == "light"
+                        ? AppColorsLight.dark_grey
+                        : AppColorsDark.dark_grey,
+                  ),
+                ),
               ),
               Expanded(
                 flex: 2,
-                child: Text(widget.time,
-                    style: TextStyle(color: Colors.grey[700])),
+                child: Text(
+                  widget.time,
+                  style: TextStyle(
+                    color: widget.colorToggle == "light"
+                        ? AppColorsLight.dark_grey
+                        : AppColorsDark.dark_grey,
+                  ),
+                ),
               ),
               Expanded(
                 flex: 2,
@@ -879,15 +1204,23 @@ class _ExamRowState extends State<ExamRow> {
                     ...widget.students.take(4).map((_) => Padding(
                           padding: const EdgeInsets.only(right: 5.0),
                           child: CircleAvatar(
-                            backgroundColor: Colors.grey[300],
+                            backgroundColor: widget.colorToggle == "light"
+                                ? AppColorsLight.light_grey
+                                : AppColorsDark.light_grey,
                             child: Icon(Icons.person,
-                                color: Colors.white, size: 16),
+                                color: widget.colorToggle == "light"
+                                    ? AppColorsLight.pure_white
+                                    : AppColorsDark.pure_white,
+                                size: 16),
                             radius: 12,
                           ),
                         )),
                     if (widget.students.length > 4)
                       Text('+${widget.students.length - 4}',
-                          style: TextStyle(color: Colors.grey[700])),
+                          style: TextStyle(
+                              color: widget.colorToggle == "light"
+                                  ? AppColorsLight.dark_grey
+                                  : AppColorsDark.dark_grey)),
                   ],
                 ),
               ),
@@ -903,13 +1236,25 @@ class _ExamRowState extends State<ExamRow> {
                           height: 40,
                           child: CircularProgressIndicator(
                             value: percentage / 100,
-                            backgroundColor: Colors.grey[200],
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.purple),
+                            backgroundColor: widget.colorToggle == "light"
+                                ? AppColorsLight.light_grey
+                                : AppColorsDark.light_grey,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              widget.colorToggle == "light"
+                                  ? AppColorsLight.main_purple
+                                  : AppColorsDark.main_purple,
+                            ),
                           ),
                         ),
-                        Text('${score.toInt()}',
-                            style: TextStyle(fontSize: 12)),
+                        Text(
+                          '${score.toInt()}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: widget.colorToggle == "light"
+                                ? AppColorsLight.black
+                                : AppColorsDark.black,
+                          ),
+                        ),
                       ],
                     ),
                     Spacer(),
@@ -929,41 +1274,71 @@ class ExamRowSimple extends StatelessWidget {
   final String description;
   final String formattedDateTime;
   final IconData icon;
+  final String colorToggle; // Add a color parameter
 
-  const ExamRowSimple({
-    required this.examName,
-    required this.description,
-    required this.formattedDateTime,
-    required this.icon,
-  });
+  const ExamRowSimple(
+      {required this.examName,
+      required this.description,
+      required this.formattedDateTime,
+      required this.icon,
+      required this.colorToggle});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          Icon(icon, color: Color(0xFF6938EF)),
-          SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(examName, style: TextStyle(fontWeight: FontWeight.w500)),
-                Text(description, style: TextStyle(color: Colors.grey[700])),
-              ],
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: colorToggle == "light"
+                  ? AppColorsLight.main_purple
+                  : AppColorsDark.main_purple,
             ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(formattedDateTime,
-                    style: TextStyle(color: Colors.grey[700])),
-              ],
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    examName,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: colorToggle == "light"
+                          ? AppColorsLight.black
+                          : AppColorsDark.black,
+                    ),
+                  ),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      color: colorToggle == "light"
+                          ? AppColorsLight.dark_grey
+                          : AppColorsDark.dark_grey,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    formattedDateTime,
+                    style: TextStyle(
+                      color: colorToggle == "light"
+                          ? AppColorsLight.dark_grey
+                          : AppColorsDark.dark_grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -973,13 +1348,14 @@ class MenuButton extends StatefulWidget {
   final IconData icon;
   final String label;
   final Color color; // Add a color parameter
+  final String colorToggle; // Add a color parameter
 
-  const MenuButton({
-    super.key,
-    required this.icon,
-    required this.label,
-    this.color = Colors.grey, // Default color is grey if not specified
-  });
+  const MenuButton(
+      {super.key,
+      required this.icon,
+      required this.label,
+      this.color = Colors.grey, // Default color is grey if not specified
+      required this.colorToggle});
 
   @override
   _MenuButtonState createState() => _MenuButtonState();
@@ -990,15 +1366,14 @@ class _MenuButtonState extends State<MenuButton> {
 
   @override
   Widget build(BuildContext context) {
-    const hoverColor =
-        Color(0xFF7A56FF); // A bit lighter purple for hover state
-
     return MouseRegion(
       onEnter: (event) => setState(() => _isHovered = true),
       onExit: (event) => setState(() => _isHovered = false),
       child: Container(
         color: _isHovered
-            ? hoverColor
+            ? widget.colorToggle == "light"
+                ? AppColorsLight.main_purple_light
+                : AppColorsDark.main_purple_light
             : Colors.transparent, // Keep the container transparent
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
         child: Row(
