@@ -335,7 +335,7 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                 decoration: BoxDecoration(
                   color: widget.colorToggle == "light"
                       ? AppColorsLight.pure_white
-                      : AppColorsDark.card_background,
+                      : AppColorsDark.pure_white,
                   borderRadius: BorderRadius.circular(8.0),
                   border: Border.all(
                     color: widget.colorToggle == "light"
@@ -461,7 +461,7 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
             decoration: BoxDecoration(
               color: widget.colorToggle == "light"
                   ? AppColorsLight.lightest_grey
-                  : AppColorsDark.card_light_background,
+                  : AppColorsDark.card_background,
               borderRadius: BorderRadius.circular(8.0),
               border: Border.all(
                 color: widget.colorToggle == "light"
@@ -543,8 +543,8 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                     ),
                     border: OutlineInputBorder(),
                     fillColor: widget.colorToggle == "light"
-                        ? AppColorsLight.pure_white
-                        : AppColorsDark.light_grey,
+                        ? AppColorsLight.light_grey
+                        : AppColorsDark.card_light_background,
                     filled: true,
                   ),
                   style: TextStyle(
@@ -558,6 +558,7 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                 ),
                 SizedBox(height: 8),
                 ..._buildRubricFields(i),
+                SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [

@@ -411,9 +411,19 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
+                        backgroundColor: widget.colorToggle == "light"
+                            ? AppColorsLight.pure_white
+                            : AppColorsDark.card_light_background,
                         title: Column(
                           children: [
-                            const Text('Start Grading'),
+                            Text(
+                              'Start Grading',
+                              style: TextStyle(
+                                color: widget.colorToggle == "light"
+                                    ? AppColorsLight.black
+                                    : AppColorsDark.black,
+                              ),
+                            ),
                             const SizedBox(height: 10),
                             Image.asset(
                               'assets/images/aiGrade.png',
@@ -421,19 +431,44 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                             ),
                           ],
                         ),
-                        content: const Text(
+                        content: Text(
                           'The AI will start grading after you click "Submit". \nEnsure all students have submitted their exams to avoid early feedback.',
                           textAlign: TextAlign.center, // Center align
+                          style: TextStyle(
+                            color: widget.colorToggle == "light"
+                                ? AppColorsLight.black
+                                : AppColorsDark.black,
+                          ),
                         ),
                         actions: <Widget>[
                           TextButton(
-                            child: const Text('Cancel'),
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                color: widget.colorToggle == "light"
+                                    ? AppColorsLight.black
+                                    : AppColorsDark.black,
+                              ),
+                            ),
                             onPressed: () {
                               Navigator.of(context).pop();
                             },
                           ),
                           TextButton(
-                            child: const Text('Submit'),
+                            child: Text(
+                              'Submit',
+                              style: TextStyle(
+                                color: widget.colorToggle == "light"
+                                    ? AppColorsLight.pure_white
+                                    : AppColorsDark.pure_white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            style: TextButton.styleFrom(
+                              backgroundColor: widget.colorToggle == "light"
+                                  ? AppColorsLight.main_purple
+                                  : AppColorsDark.main_purple,
+                            ),
                             onPressed: () async {
                               Navigator.of(context)
                                   .pop(); // Close the current dialog
@@ -443,14 +478,43 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    title: const Text('You\'re ready to go!'),
-                                    content: const Text(
+                                    backgroundColor: widget.colorToggle ==
+                                            "light"
+                                        ? AppColorsLight.pure_white
+                                        : AppColorsDark.card_light_background,
+                                    title: Text(
+                                      'You\'re ready to go!',
+                                      style: TextStyle(
+                                        color: widget.colorToggle == "light"
+                                            ? AppColorsLight.black
+                                            : AppColorsDark.black,
+                                      ),
+                                    ),
+                                    content: Text(
                                       'Come back in a couple of minutes and refresh the page for results!',
                                       textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: widget.colorToggle == "light"
+                                            ? AppColorsLight.black
+                                            : AppColorsDark.black,
+                                      ),
                                     ),
                                     actions: <Widget>[
                                       TextButton(
-                                        child: const Text('OK'),
+                                        child: Text(
+                                          'OK',
+                                          style: TextStyle(
+                                            color: widget.colorToggle == "light"
+                                                ? AppColorsLight.pure_white
+                                                : AppColorsDark.pure_white,
+                                          ),
+                                        ),
+                                        style: TextButton.styleFrom(
+                                          backgroundColor:
+                                              widget.colorToggle == "light"
+                                                  ? AppColorsLight.main_purple
+                                                  : AppColorsDark.main_purple,
+                                        ),
                                         onPressed: () {
                                           Navigator.of(context)
                                               .pop(); // Close the dialog

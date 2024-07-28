@@ -280,7 +280,7 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
               decoration: BoxDecoration(
                 color: widget.colorToggle == "light"
                     ? AppColorsLight.pure_white
-                    : AppColorsDark.card_background,
+                    : AppColorsDark.pure_white,
                 borderRadius: BorderRadius.circular(8.0),
                 border: Border.all(
                   color: widget.colorToggle == "light"
@@ -363,6 +363,10 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
               width: 3.0,
             ),
           ),
+          filled: true,
+          fillColor: widget.colorToggle == "light"
+              ? AppColorsLight.lightest_grey
+              : AppColorsDark.card_background,
         ),
         style: TextStyle(
           color: widget.colorToggle == "light"
@@ -393,98 +397,108 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
     return Row(
       children: [
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: TextField(
-              controller: dateController,
-              decoration: InputDecoration(
-                labelText: dateLabel,
-                labelStyle: TextStyle(
-                  color: widget.colorToggle == "light"
-                      ? AppColorsLight.dark_grey
-                      : AppColorsDark.black,
-                ),
-                border: OutlineInputBorder(),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                      color: widget.colorToggle == "light"
-                          ? AppColorsLight.light_grey
-                          : AppColorsDark.lightest_grey,
-                      width: 1.0),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                      color: widget.colorToggle == "light"
-                          ? AppColorsLight.main_purple
-                          : AppColorsDark.main_purple,
-                      width: 3.0),
-                ),
-              ),
-              style: TextStyle(
+            child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: TextField(
+            controller: dateController,
+            decoration: InputDecoration(
+              labelText: dateLabel,
+              labelStyle: TextStyle(
                 color: widget.colorToggle == "light"
-                    ? AppColorsLight.black
+                    ? AppColorsLight.dark_grey
                     : AppColorsDark.black,
               ),
-              onTap: () async {
-                DateTime? pickedDate = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2100),
-                );
-                if (pickedDate != null) {
-                  dateController.text = pickedDate.toString().substring(0, 10);
-                }
-              },
+              border: OutlineInputBorder(),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.light_grey
+                      : AppColorsDark.lightest_grey,
+                  width: 1.0,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.main_purple
+                      : AppColorsDark.main_purple,
+                  width: 3.0,
+                ),
+              ),
+              filled: true,
+              fillColor: widget.colorToggle == "light"
+                  ? AppColorsLight.lightest_grey
+                  : AppColorsDark.card_background,
             ),
+            style: TextStyle(
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.black
+                  : AppColorsDark.black,
+            ),
+            onTap: () async {
+              DateTime? pickedDate = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2100),
+              );
+              if (pickedDate != null) {
+                dateController.text = pickedDate.toString().substring(0, 10);
+              }
+            },
           ),
-        ),
+        )),
         SizedBox(width: 16),
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: TextField(
-              controller: timeController,
-              decoration: InputDecoration(
-                labelText: timeLabel,
-                labelStyle: TextStyle(
-                  color: widget.colorToggle == "light"
-                      ? AppColorsLight.dark_grey
-                      : AppColorsDark.black,
-                ),
-                border: OutlineInputBorder(),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                      color: widget.colorToggle == "light"
-                          ? AppColorsLight.light_grey
-                          : AppColorsDark.lightest_grey,
-                      width: 1.0),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                      color: widget.colorToggle == "light"
-                          ? AppColorsLight.main_purple
-                          : AppColorsDark.main_purple,
-                      width: 3.0),
-                ),
-              ),
-              style: TextStyle(
+            child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: TextField(
+            controller: timeController,
+            decoration: InputDecoration(
+              labelText: timeLabel,
+              labelStyle: TextStyle(
                 color: widget.colorToggle == "light"
-                    ? AppColorsLight.black
+                    ? AppColorsLight.dark_grey
                     : AppColorsDark.black,
               ),
-              onTap: () async {
-                TimeOfDay? pickedTime = await showTimePicker(
-                  context: context,
-                  initialTime: TimeOfDay.now(),
-                );
-                if (pickedTime != null) {
-                  timeController.text = pickedTime.format(context);
-                }
-              },
+              border: OutlineInputBorder(),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.light_grey
+                      : AppColorsDark.lightest_grey,
+                  width: 1.0,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.main_purple
+                      : AppColorsDark.main_purple,
+                  width: 3.0,
+                ),
+              ),
+              filled: true,
+              fillColor: widget.colorToggle == "light"
+                  ? AppColorsLight.lightest_grey
+                  : AppColorsDark.card_background,
             ),
+            style: TextStyle(
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.black
+                  : AppColorsDark.black,
+            ),
+            onTap: () async {
+              TimeOfDay? pickedTime = await showTimePicker(
+                context: context,
+                initialTime: TimeOfDay.now(),
+              );
+              if (pickedTime != null) {
+                timeController.text = pickedTime.format(context);
+              }
+            },
           ),
-        ),
+        )),
       ],
     );
   }
