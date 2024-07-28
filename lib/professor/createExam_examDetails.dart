@@ -48,8 +48,7 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
           _dateController.text = data['date'] ?? '';
           _timeController.text = data['time'] ?? '';
           _studentsController.text =
-              (data['students'] as List<dynamic>).join(', ') ??
-                  ''; // Converting list to comma-separated string
+              (data['students'] as List<dynamic>).join(', ');
         });
       }
     } catch (e) {

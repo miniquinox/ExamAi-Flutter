@@ -12,7 +12,7 @@ import 'dart:convert';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
-import 'dart:math' as math;
+// import 'dart:math' as math;
 import 'colors_professor.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 
@@ -1734,18 +1734,12 @@ class _ExamRowState extends State<ExamRow> {
     final textColor = widget.colorToggle == "light"
         ? AppColorsLight.black
         : AppColorsDark.black;
-    final iconColor = widget.colorToggle == "light"
-        ? AppColorsLight.main_purple
-        : AppColorsDark.main_purple;
     final progressColor = widget.colorToggle == "light"
         ? AppColorsLight.main_purple
         : AppColorsDark.main_purple;
     final buttonBackgroundColor = widget.colorToggle == "light"
         ? AppColorsLight.main_purple
         : AppColorsDark.main_purple;
-    final buttonHoverColor = widget.colorToggle == "light"
-        ? AppColorsLight.main_purple_light
-        : AppColorsDark.main_purple_light;
     final buttonTextColor = widget.colorToggle == "light"
         ? AppColorsLight.light_grey
         : AppColorsDark.light_grey;

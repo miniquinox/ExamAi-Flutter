@@ -49,7 +49,6 @@ class StudentExamFeedbackScreen extends StatelessWidget {
         }
 
         final examDetails = snapshot.data!;
-        final String examName = examDetails['examName'] ?? 'Exam';
         final List<dynamic> examQuestions = examDetails['questions'] ?? [];
 
         print('Questions field in Exams > $examId: $examQuestions');

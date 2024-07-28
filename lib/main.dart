@@ -1,5 +1,4 @@
 import 'dart:html' as html; // Add this import for web support
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:examai_flutter/professor/professor_dashboard.dart';
 import 'package:examai_flutter/student/student_dashboard.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +6,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:html' as html;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
