@@ -426,8 +426,10 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              IntroductionPage(examId: exam['id']),
+                          builder: (context) => IntroductionPage(
+                            examId: exam['id'],
+                            colorToggle: widget.colorToggle,
+                          ),
                         ),
                       );
                     },
