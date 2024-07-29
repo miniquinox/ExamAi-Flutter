@@ -222,6 +222,17 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
             ? AppColorsLight.lightest_grey
             : AppColorsDark.pure_white,
         elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: widget.colorToggle == "light"
+                ? AppColorsLight.black
+                : AppColorsDark.black,
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
         title: Row(
           children: [
             Icon(
@@ -234,11 +245,12 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
             Text(
               ' Home',
               style: TextStyle(
-                  color: widget.colorToggle == "light"
-                      ? AppColorsLight.black
-                      : AppColorsDark.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold),
+                color: widget.colorToggle == "light"
+                    ? AppColorsLight.black
+                    : AppColorsDark.black,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(width: 4),
             Icon(
@@ -258,11 +270,12 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
             Text(
               ' Exam Analytics',
               style: TextStyle(
-                  color: widget.colorToggle == "light"
-                      ? AppColorsLight.main_purple
-                      : AppColorsDark.main_purple,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold),
+                color: widget.colorToggle == "light"
+                    ? AppColorsLight.main_purple
+                    : AppColorsDark.main_purple,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const Spacer(),
             CircleAvatar(

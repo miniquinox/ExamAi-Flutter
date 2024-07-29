@@ -833,7 +833,9 @@ class _StudentScreenState extends State<StudentScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => StudentPortalScreen()),
+                          builder: (context) => StudentPortalScreen(
+                                colorToggle: colorToggle,
+                              )),
                     );
                   },
                   child: MenuButton(

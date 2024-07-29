@@ -2,10 +2,14 @@ import 'package:examai_flutter/student/takeExam_instructions.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../professor/colors_professor.dart';
 import 'firebase_service.dart';
 
 class StudentPortalScreen extends StatefulWidget {
-  const StudentPortalScreen({Key? key}) : super(key: key);
+  final String colorToggle; // Add a color parameter
+
+  const StudentPortalScreen({Key? key, required this.colorToggle})
+      : super(key: key);
 
   @override
   _StudentPortalScreenState createState() => _StudentPortalScreenState();
@@ -97,30 +101,64 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xfffcfcfe),
+      backgroundColor: widget.colorToggle == "light"
+          ? AppColorsLight.lightest_grey
+          : AppColorsDark.pure_white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: widget.colorToggle == "light"
+            ? AppColorsLight.lightest_grey
+            : AppColorsDark.pure_white,
         elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: widget.colorToggle == "light"
+                ? AppColorsLight.black
+                : AppColorsDark.black,
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
         title: Row(
           children: [
-            const Icon(Icons.home, color: Colors.black),
+            Icon(
+              Icons.home,
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.black
+                  : AppColorsDark.black,
+            ),
             const SizedBox(width: 4),
-            const Text(
+            Text(
               'Home',
               style: TextStyle(
-                  color: Colors.black,
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.black
+                      : AppColorsDark.black,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
             const SizedBox(width: 4),
-            const Icon(Icons.chevron_right, color: Colors.black),
+            Icon(
+              Icons.chevron_right,
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.black
+                  : AppColorsDark.black,
+            ),
             const SizedBox(width: 4),
-            const Icon(Icons.assignment, color: Color(0xFF6938EF)),
+            Icon(
+              Icons.assignment,
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.main_purple
+                  : AppColorsDark.main_purple,
+            ),
             const SizedBox(width: 4),
-            const Text(
+            Text(
               'Exams',
               style: TextStyle(
-                  color: Color(0xFF6938EF),
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.main_purple
+                      : AppColorsDark.main_purple,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
@@ -130,7 +168,12 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
                   FirebaseAuth.instance.currentUser?.photoURL ?? ''),
               backgroundColor: Colors.transparent,
               child: FirebaseAuth.instance.currentUser?.photoURL == null
-                  ? const Icon(Icons.person, color: Colors.white)
+                  ? Icon(
+                      Icons.person,
+                      color: widget.colorToggle == "light"
+                          ? AppColorsLight.main_purple
+                          : AppColorsDark.main_purple,
+                    )
                   : null,
             ),
           ],
@@ -155,9 +198,15 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
       width: 500,
       child: Card(
         margin: const EdgeInsets.symmetric(vertical: 10),
-        color: Colors.white,
+        color: widget.colorToggle == "light"
+            ? AppColorsLight.pure_white
+            : AppColorsDark.card_background,
         shape: RoundedRectangleBorder(
-          side: BorderSide(color: Color(0xFFEEEEEE), width: 1.0),
+          side: BorderSide(
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.light_grey
+                  : AppColorsDark.light_grey,
+              width: 1.0),
           borderRadius: BorderRadius.circular(16.0),
         ),
         elevation: 0,
@@ -166,12 +215,26 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(exam['course'] ?? 'Placeholder',
-                  style: const TextStyle(fontSize: 16)),
+              Text(
+                exam['course'] ?? 'Placeholder',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.black
+                      : AppColorsDark.black,
+                ),
+              ),
               const SizedBox(height: 10),
-              Text(exam['examName'] ?? 'Placeholder',
-                  style: const TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold)),
+              Text(
+                exam['examName'] ?? 'Placeholder',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.black
+                      : AppColorsDark.black,
+                ),
+              ),
               const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -179,9 +242,16 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Professor',
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold)),
+                      Text(
+                        'Professor',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: widget.colorToggle == "light"
+                              ? AppColorsLight.black
+                              : AppColorsDark.black,
+                        ),
+                      ),
                       const SizedBox(height: 5),
                       Row(
                         children: [
@@ -189,19 +259,32 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
                               ? CircleAvatar(
                                   backgroundImage:
                                       NetworkImage(exam['professorURL']),
-                                  radius: 24)
-                              : const CircleAvatar(
-                                  backgroundColor: Colors.blue,
                                   radius: 24,
-                                  child:
-                                      Icon(Icons.person, color: Colors.white)),
+                                )
+                              : CircleAvatar(
+                                  backgroundColor: widget.colorToggle == "light"
+                                      ? AppColorsLight.main_purple_light
+                                      : AppColorsDark.main_purple_light,
+                                  radius: 24,
+                                  child: Icon(
+                                    Icons.person,
+                                    color: widget.colorToggle == "light"
+                                        ? AppColorsLight.main_purple_dark
+                                        : AppColorsDark.main_purple_dark,
+                                  ),
+                                ),
                           const SizedBox(width: 10),
                           Text(
                             exam['professorName'] != null &&
                                     exam['professorName'].length > 18
                                 ? '${exam['professorName'].substring(0, 18)}...'
                                 : exam['professorName'] ?? 'Unknown...',
-                            style: const TextStyle(fontSize: 16),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: widget.colorToggle == "light"
+                                  ? AppColorsLight.black
+                                  : AppColorsDark.black,
+                            ),
                           ),
                         ],
                       ),
@@ -213,9 +296,16 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Students',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold)),
+                        Text(
+                          'Students',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: widget.colorToggle == "light"
+                                ? AppColorsLight.black
+                                : AppColorsDark.black,
+                          ),
+                        ),
                         const SizedBox(height: 5),
                         Wrap(
                           spacing: 8,
@@ -242,37 +332,90 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
                                 radius: 12,
                                 child: Text(
                                   '+${(exam['students']?.length ?? 0) - 4}',
-                                  style: const TextStyle(
-                                      fontSize: 12, color: Colors.white),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: widget.colorToggle == "light"
+                                        ? AppColorsLight.black
+                                        : AppColorsDark.black,
+                                  ),
                                 ),
                               ),
                           ],
                         )
                       ],
                     ),
+                  )
+                ],
+              ),
+              const SizedBox(height: 15),
+              Text(
+                "Date and Time",
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.black
+                      : AppColorsDark.black,
+                ),
+              ),
+              SizedBox(height: 5),
+              Row(
+                children: [
+                  Icon(
+                    Icons.calendar_today,
+                    size: 16,
+                    color: widget.colorToggle == "light"
+                        ? AppColorsLight.black
+                        : AppColorsDark.black,
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    exam['date'] ?? 'Placeholder',
+                    style: TextStyle(
+                      color: widget.colorToggle == "light"
+                          ? AppColorsLight.black
+                          : AppColorsDark.black,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Icon(
+                    Icons.access_time,
+                    size: 16,
+                    color: widget.colorToggle == "light"
+                        ? AppColorsLight.black
+                        : AppColorsDark.black,
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    exam['time'] ?? 'Placeholder',
+                    style: TextStyle(
+                      color: widget.colorToggle == "light"
+                          ? AppColorsLight.black
+                          : AppColorsDark.black,
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
-              const Text("Date and Time",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              Row(
-                children: [
-                  const Icon(Icons.calendar_today, size: 16),
-                  const SizedBox(width: 5),
-                  Text(exam['date'] ?? 'Placeholder'),
-                  const SizedBox(width: 10),
-                  const Icon(Icons.access_time, size: 16),
-                  const SizedBox(width: 5),
-                  Text(exam['time'] ?? 'Placeholder'),
-                ],
+              const SizedBox(height: 20),
+              Text(
+                'Descriptions',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.black
+                      : AppColorsDark.black,
+                ),
               ),
-              const SizedBox(height: 10),
-              const Text('Descriptions',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
-              Text(exam['description'] ?? 'Placeholder',
-                  style: const TextStyle(color: Colors.grey)),
+              Text(
+                exam['description'] ?? 'Feature Not Supported yet',
+                style: TextStyle(
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.disabled_grey
+                      : AppColorsDark.disabled_grey,
+                ),
+              ),
               const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 10.0),
@@ -289,14 +432,26 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: const Color(0xFF6938EF),
+                      foregroundColor: widget.colorToggle == "light"
+                          ? AppColorsLight.pure_white
+                          : AppColorsDark.pure_white,
+                      backgroundColor: widget.colorToggle == "light"
+                          ? AppColorsLight.main_purple
+                          : AppColorsDark.main_purple,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 24, vertical: 12),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0)),
                     ),
-                    child: const Text('Start'),
+                    child: Text(
+                      'Start',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: widget.colorToggle == "light"
+                            ? AppColorsLight.pure_white
+                            : AppColorsDark.pure_white,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -307,5 +462,3 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
     );
   }
 }
-
-void main() => runApp(const MaterialApp(home: StudentPortalScreen()));
