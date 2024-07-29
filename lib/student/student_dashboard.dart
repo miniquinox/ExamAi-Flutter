@@ -746,7 +746,7 @@ class _StudentScreenState extends State<StudentScreen> {
                           Icon(Icons.school,
                               color: colorToggle == "light"
                                   ? AppColorsLight.pure_white
-                                  : AppColorsDark.pure_white),
+                                  : AppColorsDark.main_purple),
                           SizedBox(width: 8),
                           Text(' Exam AI',
                               style: TextStyle(
