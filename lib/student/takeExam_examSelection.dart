@@ -2,6 +2,7 @@ import 'package:examai_flutter/student/takeExam_instructions.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_svg/svg.dart';
 import '../professor/colors_professor.dart';
 import 'firebase_service.dart';
 
@@ -181,14 +182,43 @@ class _StudentPortalScreenState extends State<StudentPortalScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 60.0, vertical: 40.0),
-        child: SingleChildScrollView(
-          child: Wrap(
-            alignment: WrapAlignment.start,
-            spacing: 16,
-            runSpacing: 16,
-            children: exams.map((exam) => buildExamCard(exam)).toList(),
-          ),
-        ),
+        child: exams.isEmpty
+            ? Padding(
+                padding: const EdgeInsets.only(top: 50.0),
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'No upcoming exams yet...',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: widget.colorToggle == "light"
+                              ? AppColorsLight.black
+                              : AppColorsDark.black,
+                        ),
+                      ),
+                      SizedBox(
+                          height:
+                              20), // Add some space between the text and the image
+                      SvgPicture.asset(
+                        'assets/images/empty8.svg', // Replace with your SVG image path
+                        width: 100,
+                        height: 100,
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            : SingleChildScrollView(
+                child: Wrap(
+                  alignment: WrapAlignment.start,
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: exams.map((exam) => buildExamCard(exam)).toList(),
+                ),
+              ),
       ),
     );
   }

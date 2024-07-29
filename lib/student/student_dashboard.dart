@@ -673,22 +673,52 @@ class _StudentScreenState extends State<StudentScreen> {
                           ),
                           SizedBox(height: 10),
                           Expanded(
-                            child: ListView.builder(
-                              itemCount: upcomingExams.length,
-                              itemBuilder: (context, index) {
-                                final exam = upcomingExams[index];
-                                return ExamRowSimple(
-                                  examName: exam['examName'] ?? 'Placeholder',
-                                  description:
-                                      exam['description'] ?? 'Placeholder',
-                                  formattedDateTime:
-                                      exam['formattedDateTime'] ??
-                                          'Placeholder',
-                                  icon: Icons.calendar_today,
-                                  colorToggle: colorToggle,
-                                );
-                              },
-                            ),
+                            child: upcomingExams.isEmpty
+                                ? Padding(
+                                    padding: const EdgeInsets.only(top: 50.0),
+                                    child: Align(
+                                      alignment: Alignment.topCenter,
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            'No upcoming exams yet...',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: colorToggle == "light"
+                                                  ? AppColorsLight.black
+                                                  : AppColorsDark.black,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                              height:
+                                                  20), // Add some space between the text and the image
+                                          SvgPicture.asset(
+                                            'assets/images/empty8.svg', // Replace with your SVG image path
+                                            width: 100,
+                                            height: 100,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                : ListView.builder(
+                                    itemCount: upcomingExams.length,
+                                    itemBuilder: (context, index) {
+                                      final exam = upcomingExams[index];
+                                      return ExamRowSimple(
+                                        examName:
+                                            exam['examName'] ?? 'Placeholder',
+                                        description: exam['description'] ??
+                                            'Placeholder',
+                                        formattedDateTime:
+                                            exam['formattedDateTime'] ??
+                                                'Placeholder',
+                                        icon: Icons.calendar_today,
+                                        colorToggle: colorToggle,
+                                      );
+                                    },
+                                  ),
                           ),
                         ],
                       ),
