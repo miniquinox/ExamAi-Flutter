@@ -412,6 +412,11 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
                               TextField(
                                 controller: controllers[questionText],
                                 maxLines: null,
+                                style: TextStyle(
+                                  color: widget.colorToggle == "light"
+                                      ? AppColorsLight.black
+                                      : AppColorsDark.black,
+                                ),
                                 decoration: InputDecoration(
                                   hintText: 'Enter your answer here...',
                                   hintStyle: TextStyle(
