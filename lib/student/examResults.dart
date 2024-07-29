@@ -1106,7 +1106,12 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                   getTitlesWidget: (value, meta) {
                     return Text(
                       value.toInt().toString(),
-                      style: TextStyle(fontSize: 12),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: widget.colorToggle == "light"
+                            ? AppColorsLight.black
+                            : AppColorsDark.black,
+                      ),
                     );
                   },
                 ),
