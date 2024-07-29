@@ -237,7 +237,10 @@ class IntroductionPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => TakeExamFinal(examId: examId),
+                          builder: (context) => TakeExamFinal(
+                            examId: examId,
+                            colorToggle: colorToggle,
+                          ),
                         ),
                       );
                     },

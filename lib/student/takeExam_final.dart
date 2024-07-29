@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../professor/colors_professor.dart';
+
 class TakeExamFinal extends StatefulWidget {
   final String examId;
+  final String colorToggle; // Add a color parameter
 
-  TakeExamFinal({required this.examId});
+  TakeExamFinal({required this.examId, required this.colorToggle});
 
   @override
   _TakeExamFinalState createState() => _TakeExamFinalState();
@@ -28,10 +31,25 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          backgroundColor: Colors.white,
-          title: Text('Submit Assessment?'),
+          backgroundColor: widget.colorToggle == "light"
+              ? AppColorsLight.pure_white
+              : AppColorsDark.pure_white,
+          title: Text(
+            'Submit Assessment?',
+            style: TextStyle(
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.black
+                  : AppColorsDark.black,
+            ),
+          ),
           content: Text(
-              'Are you sure you want to submit your assessment? You will not be able to make any changes after submission.'),
+            'Are you sure you want to submit your assessment? You will not be able to make any changes after submission.',
+            style: TextStyle(
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.black
+                  : AppColorsDark.black,
+            ),
+          ),
           actions: [
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -41,14 +59,25 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
                     Navigator.of(dialogContext).pop();
                   },
                   style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.black,
-                    backgroundColor: Colors.white,
+                    foregroundColor: widget.colorToggle == "light"
+                        ? AppColorsLight.black
+                        : AppColorsDark.black,
+                    backgroundColor: widget.colorToggle == "light"
+                        ? AppColorsLight.pure_white
+                        : AppColorsDark.pure_white,
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: Text('Cancel'),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: widget.colorToggle == "light"
+                          ? AppColorsLight.black
+                          : AppColorsDark.black,
+                    ),
+                  ),
                 ),
                 SizedBox(width: 16),
                 ElevatedButton(
@@ -58,13 +87,23 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
                     _showThankYouDialog(context, exam);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF6938EF),
+                    backgroundColor: widget.colorToggle == "light"
+                        ? AppColorsLight.main_purple
+                        : AppColorsDark.main_purple,
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: Text('Submit', style: TextStyle(color: Colors.white)),
+                  child: Text(
+                    'Submit',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: widget.colorToggle == "light"
+                          ? AppColorsLight.pure_white
+                          : AppColorsDark.pure_white,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -99,7 +138,9 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          backgroundColor: Colors.white,
+          backgroundColor: widget.colorToggle == "light"
+              ? AppColorsLight.pure_white
+              : AppColorsDark.pure_white,
           title: Center(
             child: Icon(
               Icons.check_circle,
@@ -113,21 +154,34 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
               Text(
                 'Thank you for taking the test for the',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.black
+                      : AppColorsDark.black,
+                ),
               ),
               Text(
                 '"${exam['course']} - ${exam['examName']}"',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF6938EF)),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.main_purple
+                      : AppColorsDark.main_purple,
+                ),
               ),
               SizedBox(height: 10),
               Text(
-                "Please choose 'Finish' to go back to your dashboard.",
+                "Click 'Finish' to go back to your dashboard.",
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.black
+                      : AppColorsDark.black,
+                ),
               ),
             ],
           ),
@@ -140,14 +194,26 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
                       .popUntil((route) => route.isFirst);
                 },
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Color(0xFF6938EF),
+                  foregroundColor: widget.colorToggle == "light"
+                      ? AppColorsLight.pure_white
+                      : AppColorsDark.pure_white,
+                  backgroundColor: widget.colorToggle == "light"
+                      ? AppColorsLight.main_purple
+                      : AppColorsDark.main_purple,
                   padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
-                child: Text('Finish'),
+                child: Text(
+                  'Finish',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: widget.colorToggle == "light"
+                        ? AppColorsLight.pure_white
+                        : AppColorsDark.pure_white,
+                  ),
+                ),
               ),
             ),
           ],
@@ -167,40 +233,79 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFCFCFD),
+      backgroundColor: widget.colorToggle == "light"
+          ? AppColorsLight.lightest_grey
+          : AppColorsDark.pure_white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: widget.colorToggle == "light"
+            ? AppColorsLight.lightest_grey
+            : AppColorsDark.pure_white,
         elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: widget.colorToggle == "light"
+                ? AppColorsLight.black
+                : AppColorsDark.black,
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
         title: Row(
           children: [
-            const Icon(Icons.home, color: Colors.black),
+            Icon(
+              Icons.home,
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.black
+                  : AppColorsDark.black,
+            ),
             const SizedBox(width: 4),
-            const Text(
+            Text(
               'Home',
               style: TextStyle(
-                  color: Colors.black,
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.black
+                      : AppColorsDark.black,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
-            const SizedBox(width: 4),
-            const Icon(Icons.chevron_right, color: Colors.black),
-            const SizedBox(width: 4),
-            const Icon(Icons.assignment, color: Color(0xFF6938EF)),
-            const SizedBox(width: 4),
-            const Text(
+            SizedBox(width: 4),
+            Icon(
+              Icons.chevron_right,
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.black
+                  : AppColorsDark.black,
+            ),
+            SizedBox(width: 4),
+            Icon(
+              Icons.assignment,
+              color: widget.colorToggle == "light"
+                  ? AppColorsLight.main_purple
+                  : AppColorsDark.main_purple,
+            ),
+            SizedBox(width: 4),
+            Text(
               'Assessment',
               style: TextStyle(
-                  color: Color(0xFF6938EF),
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.main_purple
+                      : AppColorsDark.main_purple,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
-            const Spacer(),
+            Spacer(),
             CircleAvatar(
               backgroundImage: NetworkImage(
                   FirebaseAuth.instance.currentUser?.photoURL ?? ''),
               backgroundColor: Colors.transparent,
               child: FirebaseAuth.instance.currentUser?.photoURL == null
-                  ? const Icon(Icons.person, color: Colors.white)
+                  ? Icon(
+                      Icons.person,
+                      color: widget.colorToggle == "light"
+                          ? AppColorsLight.main_purple
+                          : AppColorsDark.main_purple,
+                    )
                   : null,
             ),
           ],
@@ -223,10 +328,14 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
               margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 40),
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: widget.colorToggle == "light"
+                    ? AppColorsLight.pure_white
+                    : AppColorsDark.pure_white,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                    color: const Color(0xFFEEEEEE),
+                    color: widget.colorToggle == "light"
+                        ? AppColorsLight.light_grey
+                        : AppColorsDark.light_grey,
                     width: 1), // Updated outline to #EEEEEE
               ),
               child: Column(
@@ -237,8 +346,13 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
                     alignment: Alignment.center,
                     child: Text(
                       '${exam['course']} - ${exam['examName']}',
-                      style: const TextStyle(
-                          fontSize: 28, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: widget.colorToggle == "light"
+                            ? AppColorsLight.black
+                            : AppColorsDark.black,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -265,9 +379,12 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
                                   Expanded(
                                     child: Text(
                                       'Question ${index + 1}: $questionText',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
+                                        color: widget.colorToggle == "light"
+                                            ? AppColorsLight.black
+                                            : AppColorsDark.black,
                                       ),
                                       textAlign: TextAlign
                                           .left, // Ensures text alignment
@@ -280,9 +397,12 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
                                     ), // Adjust this value as needed
                                     child: Text(
                                       '${question['weight']} pts',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
+                                        color: widget.colorToggle == "light"
+                                            ? AppColorsLight.black
+                                            : AppColorsDark.black,
                                       ),
                                     ),
                                   ),
@@ -292,23 +412,36 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
                               TextField(
                                 controller: controllers[questionText],
                                 maxLines: null,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   hintText: 'Enter your answer here...',
-                                  fillColor: Color(0xFFF2F4F7),
+                                  hintStyle: TextStyle(
+                                    color: widget.colorToggle == "light"
+                                        ? AppColorsLight.black
+                                        : AppColorsDark.black,
+                                  ),
+                                  fillColor: widget.colorToggle == "light"
+                                      ? AppColorsLight.light_grey
+                                      : AppColorsDark.card_background,
                                   filled: true,
                                   border: OutlineInputBorder(
                                     borderSide: BorderSide(
-                                      color: Color(0xFFD1D6DC),
+                                      color: widget.colorToggle == "light"
+                                          ? AppColorsLight.light_grey
+                                          : AppColorsDark.light_grey,
                                     ),
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderSide: BorderSide(
-                                      color: Color(0xFFD1D6DC),
+                                      color: widget.colorToggle == "light"
+                                          ? AppColorsLight.disabled_grey
+                                          : AppColorsDark.light_grey,
                                     ),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderSide: BorderSide(
-                                      color: Color(0xFF6938EF),
+                                      color: widget.colorToggle == "light"
+                                          ? AppColorsLight.main_purple
+                                          : AppColorsDark.main_purple,
                                       width:
                                           2.0, // Set border width to 3 pixels
                                     ),
@@ -336,15 +469,27 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
                             context, exam, answers); // Pass the exam data here
                       },
                       style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: const Color(0xFF6938EF),
+                        foregroundColor: widget.colorToggle == "light"
+                            ? AppColorsLight.pure_white
+                            : AppColorsDark.pure_white,
+                        backgroundColor: widget.colorToggle == "light"
+                            ? AppColorsLight.main_purple
+                            : AppColorsDark.main_purple,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24, vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
-                      child: const Text('Submit'),
+                      child: Text(
+                        'Submit',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: widget.colorToggle == "light"
+                              ? AppColorsLight.pure_white
+                              : AppColorsDark.pure_white,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -355,10 +500,4 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: TakeExamFinal(examId: 'sampleExamId'),
-  ));
 }

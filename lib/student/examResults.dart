@@ -1237,8 +1237,8 @@ class _HoverableCardState extends State<HoverableCard> {
                       CircularProgressIndicator(
                         value: finalGradeValue / maxGradeValue,
                         backgroundColor: widget.colorToggle == "light"
-                            ? AppColorsLight.disabled_grey
-                            : AppColorsDark.disabled_grey,
+                            ? AppColorsLight.light_grey
+                            : AppColorsDark.light_grey,
                         valueColor: AlwaysStoppedAnimation<Color>(
                           widget.colorToggle == "light"
                               ? AppColorsLight.main_purple
