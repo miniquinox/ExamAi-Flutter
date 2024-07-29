@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../professor/colors_professor.dart';
+
 class StudentExamFeedbackScreen extends StatelessWidget {
   final String examId;
+  final String colorToggle; // Add a color parameter
 
-  const StudentExamFeedbackScreen({Key? key, required this.examId})
+  const StudentExamFeedbackScreen(
+      {Key? key, required this.examId, required this.colorToggle})
       : super(key: key);
 
   Future<Map<String, dynamic>> fetchExamDetails(String examId) async {
@@ -69,42 +73,74 @@ class StudentExamFeedbackScreen extends StatelessWidget {
             final List<dynamic> questions = studentGrades['grades'] ?? [];
 
             return Scaffold(
-              backgroundColor: const Color(0xfffcfcfe),
+              backgroundColor: colorToggle == "light"
+                  ? AppColorsLight.pure_white
+                  : AppColorsDark.pure_white,
               appBar: AppBar(
-                backgroundColor: Colors.white,
+                backgroundColor: colorToggle == "light"
+                    ? AppColorsLight.pure_white
+                    : AppColorsDark.pure_white,
                 elevation: 0,
                 title: Row(
                   children: [
-                    const Icon(Icons.home, color: Colors.black),
+                    Icon(Icons.home,
+                        color: colorToggle == "light"
+                            ? AppColorsLight.black
+                            : AppColorsDark.black),
                     const SizedBox(width: 4),
-                    const Text(
+                    Text(
                       'Home',
                       style: TextStyle(
-                          color: Colors.black,
+                          color: colorToggle == "light"
+                              ? AppColorsLight.black
+                              : AppColorsDark.black,
                           fontSize: 16,
                           fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(width: 4),
-                    const Icon(Icons.chevron_right, color: Colors.black),
+                    Icon(
+                      Icons.chevron_right,
+                      color: colorToggle == "light"
+                          ? AppColorsLight.black
+                          : AppColorsDark.black,
+                    ),
                     const SizedBox(width: 4),
-                    const Icon(Icons.analytics, color: Colors.black),
+                    Icon(
+                      Icons.analytics,
+                      color: colorToggle == "light"
+                          ? AppColorsLight.black
+                          : AppColorsDark.black,
+                    ),
                     const SizedBox(width: 4),
-                    const Text(
+                    Text(
                       'Exam Analytics',
                       style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold),
+                        color: colorToggle == "light"
+                            ? AppColorsLight.black
+                            : AppColorsDark.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(width: 4),
-                    const Icon(Icons.chevron_right, color: Colors.black),
+                    Icon(
+                      Icons.chevron_right,
+                      color: colorToggle == "light"
+                          ? AppColorsLight.black
+                          : AppColorsDark.black,
+                    ),
                     const SizedBox(width: 4),
-                    const Icon(Icons.feedback, color: Color(0xFF6938EF)),
+                    Icon(Icons.feedback,
+                        color: colorToggle == "light"
+                            ? AppColorsLight.main_purple
+                            : AppColorsDark.main_purple),
                     const SizedBox(width: 4),
-                    const Text(
+                    Text(
                       'Feedback',
                       style: TextStyle(
-                          color: Color(0xFF6938EF),
+                          color: colorToggle == "light"
+                              ? AppColorsLight.main_purple
+                              : AppColorsDark.main_purple,
                           fontSize: 16,
                           fontWeight: FontWeight.bold),
                     ),
@@ -114,7 +150,10 @@ class StudentExamFeedbackScreen extends StatelessWidget {
                           FirebaseAuth.instance.currentUser?.photoURL ?? ''),
                       backgroundColor: Colors.transparent,
                       child: FirebaseAuth.instance.currentUser?.photoURL == null
-                          ? const Icon(Icons.person, color: Colors.white)
+                          ? Icon(Icons.person,
+                              color: colorToggle == "light"
+                                  ? AppColorsLight.main_purple
+                                  : AppColorsDark.main_purple)
                           : null,
                     ),
                   ],
@@ -127,11 +166,16 @@ class StudentExamFeedbackScreen extends StatelessWidget {
                     constraints: BoxConstraints(
                       maxWidth: 1200,
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 50, horizontal: 25),
+                    padding: EdgeInsets.symmetric(vertical: 25, horizontal: 25),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: colorToggle == "light"
+                          ? AppColorsLight.pure_white
+                          : AppColorsDark.pure_white,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.grey.shade300),
+                      border: Border.all(
+                          color: colorToggle == "light"
+                              ? AppColorsLight.light_grey
+                              : AppColorsDark.light_grey),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,21 +183,33 @@ class StudentExamFeedbackScreen extends StatelessWidget {
                         // Header
                         Row(
                           children: [
-                            Text('Exam Questions',
-                                style: TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold)),
+                            Text(
+                              'Exam Questions',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: colorToggle == "light"
+                                    ? AppColorsLight.black
+                                    : AppColorsDark.black,
+                              ),
+                            ),
                             SizedBox(width: 10),
                             Container(
                               padding: EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: Color(0xfff2f4f7),
+                                color: colorToggle == "light"
+                                    ? AppColorsLight.main_purple
+                                    : AppColorsDark.main_purple,
                                 borderRadius: BorderRadius.circular(16),
                               ),
                               child: Text(
                                 '${questions.length}',
                                 style: TextStyle(
-                                    fontSize: 14, color: Colors.black),
+                                    fontSize: 14,
+                                    color: colorToggle == "light"
+                                        ? AppColorsLight.pure_white
+                                        : AppColorsDark.pure_white),
                               ),
                             ),
                           ],
@@ -180,9 +236,16 @@ class StudentExamFeedbackScreen extends StatelessWidget {
                                 padding: const EdgeInsets.only(bottom: 8.0),
                                 child: Card(
                                   elevation: 0, // Remove shadow
-                                  color: Color(0xfff9fafb),
+                                  color: colorToggle == "light"
+                                      ? AppColorsLight.lightest_grey
+                                      : AppColorsDark.card_background,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
+                                    side: BorderSide(
+                                      color: colorToggle == "light"
+                                          ? AppColorsLight.light_grey
+                                          : AppColorsDark.light_grey,
+                                    ),
                                   ),
                                   child: Theme(
                                     data: Theme.of(context).copyWith(
@@ -194,19 +257,68 @@ class StudentExamFeedbackScreen extends StatelessWidget {
                                       title: Text(
                                         'Q${index + 1}. ${question['question_id']}',
                                         style: TextStyle(
-                                            fontWeight: FontWeight.bold),
+                                          fontWeight: FontWeight.bold,
+                                          color: colorToggle == "light"
+                                              ? AppColorsLight.black
+                                              : AppColorsDark.black,
+                                        ),
                                       ),
                                       trailing: Text(
                                         '${question['total_score'] ?? 0}/$possibleScore pts',
                                         style: TextStyle(
-                                            fontWeight: FontWeight.bold),
+                                          fontWeight: FontWeight.bold,
+                                          color: colorToggle == "light"
+                                              ? AppColorsLight.black
+                                              : AppColorsDark.black,
+                                        ),
                                       ),
                                       children: [
-                                        ListTile(
-                                          title: Text(
-                                            'Answer: ${question['answer'] ?? 'No answer provided'}',
-                                            style: TextStyle(
-                                                color: Colors.black87),
+                                        Container(
+                                          margin: const EdgeInsets.all(8.0),
+                                          padding: const EdgeInsets.all(8.0),
+                                          decoration: BoxDecoration(
+                                            color: colorToggle == "light"
+                                                ? AppColorsLight.lightest_grey
+                                                : AppColorsDark
+                                                    .card_light_background,
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            border: Border.all(
+                                              color: colorToggle == "light"
+                                                  ? AppColorsLight.light_grey
+                                                  : AppColorsDark.light_grey,
+                                            ),
+                                          ),
+                                          child: ListTile(
+                                            title: RichText(
+                                              text: TextSpan(
+                                                children: [
+                                                  TextSpan(
+                                                    text: 'Answer:\n\n',
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: colorToggle ==
+                                                              "light"
+                                                          ? AppColorsLight.black
+                                                          : AppColorsDark.black,
+                                                    ),
+                                                  ),
+                                                  TextSpan(
+                                                    text: question['answer'] ??
+                                                        'No answer provided',
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: colorToggle ==
+                                                              "light"
+                                                          ? AppColorsLight.black
+                                                          : AppColorsDark.black,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
                                           ),
                                         ),
                                         if (question['feedback'] != null)
@@ -214,11 +326,25 @@ class StudentExamFeedbackScreen extends StatelessWidget {
                                             margin: const EdgeInsets.all(8.0),
                                             padding: const EdgeInsets.all(8.0),
                                             decoration: BoxDecoration(
-                                              color: Color(0xfffbfaff),
+                                              gradient: LinearGradient(
+                                                begin: Alignment.topRight,
+                                                end: Alignment.bottomLeft,
+                                                colors: [
+                                                  Color.fromARGB(
+                                                      160, 0, 255, 234), // Gold
+                                                  Color.fromARGB(100, 187, 0,
+                                                      160), // Silver
+                                                  Color.fromARGB(160, 255, 106,
+                                                      0), // Bronze
+                                                ],
+                                              ),
                                               borderRadius:
                                                   BorderRadius.circular(8),
                                               border: Border.all(
-                                                  color: Color(0xffd2d5da)),
+                                                color: colorToggle == "light"
+                                                    ? AppColorsLight.light_grey
+                                                    : AppColorsDark.light_grey,
+                                              ),
                                             ),
                                             child: RichText(
                                               text: TextSpan(
@@ -226,25 +352,31 @@ class StudentExamFeedbackScreen extends StatelessWidget {
                                                   TextSpan(
                                                     text: 'Feedback from AI: ',
                                                     style: TextStyle(
-                                                      fontSize: 14,
+                                                      fontSize: 16,
                                                       fontWeight:
                                                           FontWeight.bold,
-                                                      color: Colors.black,
+                                                      color: colorToggle ==
+                                                              "light"
+                                                          ? AppColorsLight.black
+                                                          : AppColorsDark.black,
                                                     ),
                                                   ),
                                                   TextSpan(
                                                     text: question['feedback'],
                                                     style: TextStyle(
-                                                      fontSize: 14,
+                                                      fontSize: 16,
                                                       fontWeight:
                                                           FontWeight.normal,
-                                                      color: Colors.black,
+                                                      color: colorToggle ==
+                                                              "light"
+                                                          ? AppColorsLight.black
+                                                          : AppColorsDark.black,
                                                     ),
                                                   ),
                                                 ],
                                               ),
                                             ),
-                                          ),
+                                          )
                                       ],
                                     ),
                                   ),

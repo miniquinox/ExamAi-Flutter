@@ -27,6 +27,10 @@ class MyApp extends StatelessWidget {
 }
 
 class StudentScreen extends StatefulWidget {
+  final String? colorToggle;
+
+  StudentScreen({this.colorToggle});
+
   @override
   _StudentScreenState createState() => _StudentScreenState();
 }
@@ -38,11 +42,12 @@ class _StudentScreenState extends State<StudentScreen> {
   String? selectedExamId;
   String? feedbackExamId;
   double averageScore = 0.0;
-  String colorToggle = "light";
+  late String colorToggle;
 
   @override
   void initState() {
     super.initState();
+    colorToggle = widget.colorToggle ?? "light";
     fetchUser();
   }
 
@@ -696,7 +701,8 @@ class _StudentScreenState extends State<StudentScreen> {
         ),
       );
     } else if (feedbackExamId != null) {
-      mainContent = StudentExamFeedbackScreen(examId: feedbackExamId!);
+      mainContent = StudentExamFeedbackScreen(
+          examId: feedbackExamId!, colorToggle: colorToggle);
     } else {
       mainContent = ExamResultsScreen(
         examId: selectedExamId!,
@@ -800,7 +806,7 @@ class _StudentScreenState extends State<StudentScreen> {
                       context,
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                            StudentScreen(),
+                            StudentScreen(colorToggle: colorToggle),
                         transitionDuration: Duration(seconds: 0),
                         reverseTransitionDuration: Duration(seconds: 0),
                         transitionsBuilder:
@@ -834,8 +840,8 @@ class _StudentScreenState extends State<StudentScreen> {
                       icon: Icons.assignment,
                       label: 'Exams',
                       color: colorToggle == "light"
-                          ? AppColorsLight.disabled_grey
-                          : AppColorsDark.disabled_grey,
+                          ? AppColorsLight.pure_white
+                          : AppColorsDark.black,
                       colorToggle: colorToggle),
                 ),
                 MenuButton(

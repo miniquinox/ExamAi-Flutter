@@ -219,8 +219,8 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: widget.colorToggle == "light"
-            ? AppColorsLight.light_grey
-            : AppColorsDark.card_background,
+            ? AppColorsLight.lightest_grey
+            : AppColorsDark.pure_white,
         elevation: 0,
         title: Row(
           children: [
@@ -282,7 +282,7 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
         ),
       ),
       backgroundColor: widget.colorToggle == "light"
-          ? AppColorsLight.pure_white
+          ? AppColorsLight.lightest_grey
           : AppColorsDark.pure_white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -1198,10 +1198,10 @@ class _HoverableCardState extends State<HoverableCard> {
           decoration: BoxDecoration(
             color: _isHovering
                 ? widget.colorToggle == "light"
-                    ? AppColorsLight.black
+                    ? AppColorsLight.light_grey
                     : AppColorsDark.card_light_background
                 : widget.colorToggle == "light"
-                    ? AppColorsLight.black
+                    ? AppColorsLight.pure_white
                     : AppColorsDark.card_background,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
