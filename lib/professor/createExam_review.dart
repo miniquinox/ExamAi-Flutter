@@ -601,8 +601,8 @@ class CreateExamReview extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 18,
                           color: colorToggle == "light"
-                              ? AppColorsLight.pure_white
-                              : AppColorsDark.pure_white,
+                              ? AppColorsLight.black
+                              : AppColorsDark.black,
                         ),
                       ),
                     ],
@@ -834,8 +834,8 @@ class CreateExamReview extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: colorToggle == "light"
-                            ? AppColorsLight.disabled_grey
-                            : AppColorsDark.disabled_grey,
+                            ? AppColorsLight.black
+                            : AppColorsDark.black,
                       ),
                     ),
                     Text(
@@ -843,38 +843,37 @@ class CreateExamReview extends StatelessWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: colorToggle == "light"
-                            ? AppColorsLight.disabled_grey
-                            : AppColorsDark.disabled_grey,
+                            ? AppColorsLight.black
+                            : AppColorsDark.black,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16.0),
-                    decoration: BoxDecoration(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: colorToggle == "light"
+                        ? AppColorsLight.light_grey
+                        : AppColorsDark.card_light_background,
+                    borderRadius: BorderRadius.circular(8.0),
+                    border: Border.all(
                       color: colorToggle == "light"
-                          ? AppColorsLight.light_grey
-                          : AppColorsDark.card_light_background,
-                      borderRadius: BorderRadius.circular(8.0),
-                      border: Border.all(
-                        color: colorToggle == "light"
-                            ? AppColorsLight.lightest_grey
-                            : AppColorsDark.lightest_grey,
-                      ),
+                          ? AppColorsLight.lightest_grey
+                          : AppColorsDark.lightest_grey,
                     ),
-                    child: Flexible(
-                      child: Text(
-                        question['question'],
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          color: colorToggle == "light"
-                              ? AppColorsLight.disabled_grey
-                              : AppColorsDark.disabled_grey,
-                        ),
-                      ),
-                    )),
+                  ),
+                  child: Text(
+                    question['question'],
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: colorToggle == "light"
+                          ? AppColorsLight.black
+                          : AppColorsDark.disabled_grey,
+                    ),
+                  ),
+                ),
                 ...question['rubrics'].map<Widget>((rubric) {
                   return Padding(
                     padding: const EdgeInsets.only(left: 16.0, top: 16.0),
@@ -883,7 +882,7 @@ class CreateExamReview extends StatelessWidget {
                       padding: const EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
                         color: colorToggle == "light"
-                            ? AppColorsLight.lightest_grey
+                            ? AppColorsLight.light_grey
                             : AppColorsDark.light_grey,
                         borderRadius: BorderRadius.circular(8.0),
                         border: Border.all(
@@ -895,15 +894,13 @@ class CreateExamReview extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Flexible(
-                            child: Text(
-                              rubric['rubric'],
-                              style: TextStyle(
-                                fontSize: 16.0,
-                                color: colorToggle == "light"
-                                    ? AppColorsLight.disabled_grey
-                                    : AppColorsDark.disabled_grey,
-                              ),
+                          Text(
+                            rubric['rubric'],
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              color: colorToggle == "light"
+                                  ? AppColorsLight.black
+                                  : AppColorsDark.disabled_grey,
                             ),
                           ),
                           Text(
@@ -911,8 +908,8 @@ class CreateExamReview extends StatelessWidget {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: colorToggle == "light"
-                                  ? AppColorsLight.disabled_grey
-                                  : AppColorsDark.disabled_grey,
+                                  ? AppColorsLight.black
+                                  : AppColorsDark.black,
                             ),
                           ),
                         ],
