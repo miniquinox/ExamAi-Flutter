@@ -14,7 +14,7 @@ class AppColorsLight {
   static const Color chart_gradientStart = Color.fromARGB(135, 86, 39, 255);
   static const Color chart_gradientEnd = Color.fromARGB(84, 246, 67, 255);
   static const Color red = Color.fromARGB(255, 255, 0, 0);
-  static const Color green = Color.fromARGB(255, 51, 255, 0);
+  static const Color green = Color.fromARGB(255, 93, 222, 0);
 }
 
 class AppColorsDark {
@@ -31,7 +31,7 @@ class AppColorsDark {
   static const Color chart_gradientStart = Color.fromARGB(200, 155, 251, 12);
   static const Color chart_gradientEnd = Color.fromARGB(95, 0, 255, 238);
   static const Color red = Color.fromARGB(255, 255, 0, 0);
-  static const Color green = Color.fromARGB(255, 51, 255, 0);
+  static const Color green = Color.fromARGB(255, 88, 211, 0);
 
   static const Color leftMenu_background = Color.fromARGB(255, 30, 32, 36);
   static const Color card_background = Color.fromARGB(255, 39, 41, 45);

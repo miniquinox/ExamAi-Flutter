@@ -601,8 +601,8 @@ class CreateExamReview extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 18,
                           color: colorToggle == "light"
-                              ? AppColorsLight.black
-                              : AppColorsDark.black,
+                              ? AppColorsLight.pure_white
+                              : AppColorsDark.pure_white,
                         ),
                       ),
                     ],

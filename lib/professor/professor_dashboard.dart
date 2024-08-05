@@ -869,14 +869,14 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
                                       ? AppColorsLight.black
                                       : AppColorsDark
                                           .black))), // Adjusted flex value
-                      Expanded(
-                          flex: 3,
-                          child: Text('Exam ID',
-                              style: TextStyle(
-                                  color: colorToggle == "light"
-                                      ? AppColorsLight.black
-                                      : AppColorsDark
-                                          .black))), // Adjusted flex value
+                      // Expanded(
+                      //     flex: 3,
+                      //     child: Text('Exam ID',
+                      //         style: TextStyle(
+                      //             color: colorToggle == "light"
+                      //                 ? AppColorsLight.black
+                      //                 : AppColorsDark
+                      //                     .black))), // Adjusted flex value
                       Expanded(
                           flex: 2,
                           child: Text('Date last graded',
@@ -1780,11 +1780,11 @@ class _ExamRowState extends State<ExamRow> {
                   child: Text(widget.course,
                       style:
                           TextStyle(color: textColor))), // Adjusted flex value
-              Expanded(
-                  flex: 3,
-                  child: Text(widget.examId,
-                      style:
-                          TextStyle(color: textColor))), // Adjusted flex value
+              // Expanded(
+              //     flex: 3,
+              //     child: Text(widget.examId,
+              //         style:
+              //             TextStyle(color: textColor))), // Adjusted flex value
               Expanded(
                   flex: 2,
                   child: Text(widget.dateLastGraded,
@@ -1941,8 +1941,8 @@ class _ExamRowState extends State<ExamRow> {
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: widget.colorToggle == "light"
-                                ? AppColorsLight.green
-                                : AppColorsDark.green,
+                                ? AppColorsDark.expiration_background
+                                : AppColorsDark.expiration_background,
                             padding: EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 0),
                             shape: RoundedRectangleBorder(
@@ -1951,7 +1951,11 @@ class _ExamRowState extends State<ExamRow> {
                           ),
                           child: Text(
                             'Grade Exam',
-                            style: TextStyle(color: buttonTextColor),
+                            style: TextStyle(
+                              color: widget.colorToggle == "light"
+                                  ? AppColorsLight.pure_white
+                                  : AppColorsDark.pure_white,
+                            ),
                           ),
                         ),
                 ),
