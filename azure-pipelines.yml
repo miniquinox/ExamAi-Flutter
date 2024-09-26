@@ -1,0 +1,31 @@
+trigger:
+  none  # No automatic triggers, as you'll trigger it with a webhook or manual run.
+
+jobs:
+- job: 'grade_exam'
+  displayName: 'Grade Exams'
+  pool:
+    vmImage: 'ubuntu-latest'
+
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.x'  # You can specify '3.11' if needed.
+
+  - script: |
+      python -m pip install --upgrade pip
+      pip install requests firebase-admin google-generativeai
+    displayName: 'Install dependencies'
+
+  - script: |
+      echo "$FIREBASE_ADMINSDK_JSON_ENCODED" | base64 -d > firebase-adminsdk.json
+    displayName: 'Decode FIREBASE_ADMINSDK_JSON_ENCODED'
+
+  - script: |
+      echo "EXAM_ID=$(EXAM_ID)" >> $(Build.ArtifactStagingDirectory)/envfile
+      echo "GEMINI_API_KEY=$(GEMINI_API_KEY)" >> $(Build.ArtifactStagingDirectory)/envfile
+      echo "FIREBASE_ADMINSDK_JSON_PATH=firebase-adminsdk.json" >> $(Build.ArtifactStagingDirectory)/envfile
+    displayName: 'Set environment variables'
+
+  - script: python lib/exam_grading.py
+    displayName: 'Run grading script'
