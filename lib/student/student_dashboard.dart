@@ -10,6 +10,7 @@ import 'package:flutter_switch/flutter_switch.dart';
 import 'package:intl/intl.dart';
 import '../professor/colors_professor.dart';
 import 'examResults.dart';
+import 'package:go_router/go_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -183,12 +184,9 @@ class _StudentScreenState extends State<StudentScreen> {
     });
   }
 
-  Future<void> _signOut() async {
+  Future<void> _signOut(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => SignInScreen()),
-    );
+    context.go('/login'); // Redirect to the /login route after logout
   }
 
   void _showSignOutDialog() {
@@ -231,7 +229,7 @@ class _StudentScreenState extends State<StudentScreen> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              _signOut();
+              _signOut(context);
             },
             child: Text(
               'Yes',

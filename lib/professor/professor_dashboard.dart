@@ -14,7 +14,7 @@ import 'package:intl/intl.dart';
 import 'dart:async';
 import 'colors_professor.dart';
 import 'package:flutter_switch/flutter_switch.dart';
-
+import 'package:go_router/go_router.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 void main() async {
@@ -563,12 +563,9 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
     }
   }
 
-  Future<void> _signOut() async {
+  Future<void> _signOut(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => SignInScreen()),
-    );
+    context.go('/login'); // Redirect to the /login route after logout
   }
 
   void _showSignOutDialog() {
@@ -587,7 +584,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              _signOut();
+              _signOut(context);
             },
             child: const Text('Yes'),
           ),

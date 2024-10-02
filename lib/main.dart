@@ -6,10 +6,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_strategy/url_strategy.dart'; // Import this
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Firebase configuration
   const firebaseConfig = FirebaseOptions(
     apiKey: "AIzaSyBsFTP5FgFSDjvy59ckkjP796deHYpXLSA",
     authDomain: "examai-2024.firebaseapp.com",
@@ -28,65 +31,97 @@ void main() async {
     print('Firebase initialization error: $e');
   }
 
-  // Set the metadata and title
+  // Use path-based routing to remove the # from URLs
+  setPathUrlStrategy();
+
+  // Set metadata and title for the page
   setMetadata();
 
   runApp(MyApp());
 }
 
+// Method to set metadata for the page
 void setMetadata() {
   // Set the title
   html.document.title = 'ONEExamAi';
 
-  // Set the meta description
-  var descriptionMeta = html.MetaElement()
-    ..name = 'description'
-    ..content =
-        'ExamAi: AI-powered exam grading platform. Automate exam grading with the power of AI, a new way to grade coding, long answer questions, or even getting feedback on your physics homework.';
-  html.document.head!.append(descriptionMeta);
+  if (html.document.head != null) {
+    // Set the meta description
+    var descriptionMeta = html.MetaElement()
+      ..name = 'description'
+      ..content =
+          'ExamAi: AI-powered exam grading platform. Automate exam grading with the power of AI, a new way to grade coding, long answer questions, or even getting feedback on your physics homework.';
+    html.document.head!.append(descriptionMeta);
 
-  // Set the favicon
-  var link = html.LinkElement()
-    ..rel = 'icon'
-    ..type = 'image/png'
-    ..href = 'assets/images/appIcon.png';
-  html.document.head!.append(link);
+    // Set the favicon
+    var link = html.LinkElement()
+      ..rel = 'icon'
+      ..type = 'image/png'
+      ..href = 'assets/images/appIcon.png';
+    html.document.head!.append(link);
 
-  // Set Open Graph meta tags
-  var ogTitleMeta = html.MetaElement()
-    ..setAttribute('property', 'og:title')
-    ..content = 'TWOExamAi';
-  html.document.head!.append(ogTitleMeta);
+    // Set Open Graph meta tags
+    var ogTitleMeta = html.MetaElement()
+      ..setAttribute('property', 'og:title')
+      ..content = 'TWOExamAi';
+    html.document.head!.append(ogTitleMeta);
 
-  var ogDescriptionMeta = html.MetaElement()
-    ..setAttribute('property', 'og:description')
-    ..content =
-        'ExamAi: AI-powered exam grading platform. Automate exam grading with the power of AI, a new way to grade coding, long answer questions, or even getting feedback on your physics homework.';
-  html.document.head!.append(ogDescriptionMeta);
+    var ogDescriptionMeta = html.MetaElement()
+      ..setAttribute('property', 'og:description')
+      ..content =
+          'ExamAi: AI-powered exam grading platform. Automate exam grading with the power of AI, a new way to grade coding, long answer questions, or even getting feedback on your physics homework.';
+    html.document.head!.append(ogDescriptionMeta);
 
-  var ogImageMeta = html.MetaElement()
-    ..setAttribute('property', 'og:image')
-    ..content = 'assets/images/1200x630.png';
-  html.document.head!.append(ogImageMeta);
+    var ogImageMeta = html.MetaElement()
+      ..setAttribute('property', 'og:image')
+      ..content = 'assets/images/1200x630.png';
+    html.document.head!.append(ogImageMeta);
 
-  var ogUrlMeta = html.MetaElement()
-    ..setAttribute('property', 'og:url')
-    ..content = 'https://examai.ai';
-  html.document.head!.append(ogUrlMeta);
+    var ogUrlMeta = html.MetaElement()
+      ..setAttribute('property', 'og:url')
+      ..content = 'https://examai.ai';
+    html.document.head!.append(ogUrlMeta);
 
-  var ogTypeMeta = html.MetaElement()
-    ..setAttribute('property', 'og:type')
-    ..content = 'website';
-  html.document.head!.append(ogTypeMeta);
+    var ogTypeMeta = html.MetaElement()
+      ..setAttribute('property', 'og:type')
+      ..content = 'website';
+    html.document.head!.append(ogTypeMeta);
+  }
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: AuthCheck(),
+    return MaterialApp.router(
+      routerDelegate: _router.routerDelegate,
+      routeInformationParser: _router.routeInformationParser,
+      routeInformationProvider: _router.routeInformationProvider,
     );
   }
+
+  // GoRouter configuration with initial location and route definitions
+  final GoRouter _router = GoRouter(
+    initialLocation: '/login', // Sets the initial route to /login
+    routes: [
+      GoRoute(
+        path: '/login',
+        builder: (context, state) => AuthCheck(),
+      ),
+      GoRoute(
+        path: '/professor',
+        builder: (context, state) => ProfessorScreen(),
+      ),
+      GoRoute(
+        path: '/student',
+        builder: (context, state) => StudentScreen(),
+      ),
+      // Redirect root path to /login
+      GoRoute(
+        path: '/',
+        redirect: (context, state) => '/login',
+      ),
+    ],
+  );
 }
 
 class AuthCheck extends StatelessWidget {
@@ -96,22 +131,23 @@ class AuthCheck extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return Center(child: CircularProgressIndicator());
         } else if (snapshot.hasData) {
           // User is signed in, check role from Shared Preferences
           return FutureBuilder<String?>(
             future: _getUserRole(),
             builder: (context, roleSnapshot) {
               if (roleSnapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
+                return Center(child: CircularProgressIndicator());
               } else if (roleSnapshot.hasData) {
+                // Navigate based on user role using go_router
                 if (roleSnapshot.data == 'Professor') {
-                  return ProfessorScreen();
-                } else {
-                  return StudentScreen();
+                  context.go('/professor');
+                } else if (roleSnapshot.data == 'Student') {
+                  context.go('/student');
                 }
+                return Container(); // Return an empty container while navigating
               } else {
-                // Default to SignInScreen if role is not found
                 return SignInScreen();
               }
             },
