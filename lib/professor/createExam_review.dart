@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:examai_flutter/professor/professor_dashboard.dart';
-
+import 'package:go_router/go_router.dart';
 import 'colors_professor.dart';
 
 class CreateExamReview extends StatelessWidget {
@@ -457,37 +457,90 @@ class CreateExamReview extends StatelessWidget {
     );
   }
 
+  bool _validateExamData(BuildContext context) {
+    print("Validating exam data...");
+
+    if (examName.isEmpty) {
+      print("Validation Error: Exam name is empty.");
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showErrorDialog(context, "Exam name cannot be empty.");
+      });
+      return false;
+    }
+
+    if (questions.isEmpty) {
+      print("Validation Error: No questions added.");
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showErrorDialog(context, "Please add at least one question.");
+      });
+      return false;
+    }
+
+    if (students.isEmpty || students.contains('')) {
+      print("Validation Error: No students added or empty email.");
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showErrorDialog(
+            context, "Please ensure all students have valid email addresses.");
+      });
+      return false;
+    }
+
+    print("All validation checks passed.");
+    return true;
+  }
+
   Future<void> _publishExam(
       BuildContext parentContext, BuildContext loadingContext) async {
+    print("Running validation...");
+
+    // Step 1: Run validation before performing Firebase operations
+    if (!_validateExamData(parentContext)) {
+      print("Validation failed, stopping operation.");
+      // Close the loading dialog if validation fails
+      Navigator.of(loadingContext).pop(); // Close the loading dialog
+      return; // Exit early to ensure Firebase operations don't happen
+    }
+
+    print("Validation passed, proceeding with Firebase operations...");
+
     try {
       final String? professorName =
           FirebaseAuth.instance.currentUser?.displayName;
+      final String? professorEmail = FirebaseAuth.instance.currentUser?.email;
+
+      if (professorEmail == null) {
+        throw Exception("Professor email is null");
+      }
+
+      print("Professor name: $professorName, email: $professorEmail");
 
       final examData = {
         'examName': examName,
         'course': course,
         'date': date,
         'time': time,
-        'students': students,
+        'students': students.where((student) => student.isNotEmpty).toList(),
         'questions': questions,
-        'professorName': professorName, // Add professorName here
+        'professorName': professorName,
       };
 
       DocumentReference examRef;
 
+      // Step 2: Create or update the exam in Firestore
       if (examId != null) {
+        print("Updating existing exam with ID: $examId");
         examRef = FirebaseFirestore.instance.collection('Exams').doc(examId);
-        await examRef.update(examData);
+        await examRef.update(examData); // Update existing exam
+        print("Exam updated.");
       } else {
+        print("Creating new exam...");
         examRef =
             await FirebaseFirestore.instance.collection('Exams').add(examData);
+        print("New exam created with ID: ${examRef.id}");
       }
 
-      String? professorEmail = FirebaseAuth.instance.currentUser?.email;
-      if (professorEmail == null) {
-        throw Exception("Professor email is null");
-      }
-
+      // Step 3: Update professor's current exams
+      print("Updating professor's current exams...");
       DocumentReference professorRef = FirebaseFirestore.instance
           .collection('Professors')
           .doc(professorEmail);
@@ -496,10 +549,12 @@ class CreateExamReview extends StatelessWidget {
         DocumentSnapshot snapshot = await transaction.get(professorRef);
 
         if (!snapshot.exists) {
+          print("Professor document doesn't exist, creating new...");
           transaction.set(professorRef, {
-            'currentExams': [examRef.id]
+            'currentExams': [examRef.id],
           });
         } else {
+          print("Updating existing professor document...");
           List<dynamic> currentExams = snapshot.get('currentExams') ?? [];
           if (!currentExams.contains(examRef.id)) {
             currentExams.add(examRef.id);
@@ -508,8 +563,10 @@ class CreateExamReview extends StatelessWidget {
         }
       });
 
-      // Update each student's current exams
-      for (String studentEmail in students) {
+      // Step 4: Update each student's current exams (skipping empty strings)
+      for (String studentEmail
+          in students.where((student) => student.isNotEmpty)) {
+        print("Updating student: $studentEmail");
         DocumentReference studentRef =
             FirebaseFirestore.instance.collection('Students').doc(studentEmail);
 
@@ -517,10 +574,12 @@ class CreateExamReview extends StatelessWidget {
           DocumentSnapshot snapshot = await transaction.get(studentRef);
 
           if (!snapshot.exists) {
+            print("Student document doesn't exist, creating new...");
             transaction.set(studentRef, {
-              'currentExams': [examRef.id]
+              'currentExams': [examRef.id],
             });
           } else {
+            print("Updating existing student document...");
             List<dynamic> currentExams = snapshot.get('currentExams') ?? [];
             if (!currentExams.contains(examRef.id)) {
               currentExams.add(examRef.id);
@@ -530,28 +589,35 @@ class CreateExamReview extends StatelessWidget {
         });
       }
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(loadingContext).pop(); // Close the loading dialog
-        _showSuccessDialog(parentContext);
-      });
+      // Step 5: Success - Close the loading dialog and show success dialog
+      print("Firebase operations completed successfully.");
+      Navigator.of(loadingContext).pop(); // Close the loading dialog
+      _showSuccessDialog(parentContext); // Show success dialog
     } catch (e) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(loadingContext).pop(); // Close the loading dialog
-        showDialog(
-          context: parentContext,
-          builder: (context) => AlertDialog(
-            title: const Text('Error'),
-            content: const Text('Failed to publish exam. Please try again.'),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-        );
-      });
+      // Step 6: Error handling - Close the loading dialog and show error dialog
+      print("Error occurred during Firebase operation: $e");
+      Navigator.of(loadingContext).pop(); // Close the loading dialog
+      _showErrorDialog(
+          parentContext, "Failed to publish exam.\nPlease check all inputs.");
     }
+  }
+
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () => Navigator.of(dialogContext).pop(),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showSuccessDialog(BuildContext context) {
@@ -567,8 +633,7 @@ class CreateExamReview extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                MdiIcons
-                    .checkCircleOutline, // Updated to use an icon from the material_design_icons_flutter package
+                MdiIcons.checkCircleOutline,
                 color: Colors.green,
                 size: 50,
               ),
@@ -607,8 +672,7 @@ class CreateExamReview extends StatelessWidget {
                       ),
                     ],
                   ),
-                  textAlign:
-                      TextAlign.center, // This applies to the Text widget
+                  textAlign: TextAlign.center,
                 ),
               )
             ],
@@ -617,8 +681,9 @@ class CreateExamReview extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(dialogContext).popUntil((route) => route.isFirst);
-                Navigator.of(dialogContext).pushReplacement(MaterialPageRoute(
-                    builder: (context) => const ProfessorScreen()));
+                // Use GoRouter's go method to navigate back to the ProfessorScreen
+                context.go(
+                    '/professor'); // Replace '/professor' with the correct route
               },
               style: ElevatedButton.styleFrom(
                 foregroundColor: colorToggle == "light"
@@ -628,8 +693,7 @@ class CreateExamReview extends StatelessWidget {
                     ? AppColorsLight.main_purple
                     : AppColorsDark.main_purple,
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(8), // Set corner radius to 9
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
               child: Text(

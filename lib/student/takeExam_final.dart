@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:go_router/go_router.dart';
 import '../professor/colors_professor.dart';
 
 class TakeExamFinal extends StatefulWidget {
@@ -192,6 +192,9 @@ class _TakeExamFinalState extends State<TakeExamFinal> {
                 onPressed: () {
                   Navigator.of(dialogContext)
                       .popUntil((route) => route.isFirst);
+                  // Use GoRouter's go method to navigate back to the ProfessorScreen
+                  context.go(
+                      '/student'); // Replace '/professor' with the correct route
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor: widget.colorToggle == "light"

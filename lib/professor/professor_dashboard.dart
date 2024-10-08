@@ -1368,93 +1368,116 @@ class DeleteConfirmationDialog extends StatelessWidget {
           .doc(examId)
           .get();
 
-      List<String> students = List<String>.from(examSnapshot['students']);
+      if (examSnapshot.exists) {
+        List<String> students = List<String>.from(examSnapshot['students']);
 
-      // Remove examId from each student's currentExams and completedExams
-      for (String studentEmail in students) {
-        DocumentReference studentRef =
-            FirebaseFirestore.instance.collection('Students').doc(studentEmail);
+        // Filter out invalid (empty) student entries
+        students = students.where((student) => student.isNotEmpty).toList();
 
-        await FirebaseFirestore.instance.runTransaction((transaction) async {
+        if (students.isEmpty) {
+          // If no valid students, just delete the exam
+          await FirebaseFirestore.instance
+              .collection('Exams')
+              .doc(examId)
+              .delete();
+
+          // Close the warning window and navigate to the ProfessorScreen
+          Navigator.of(context).pop();
+          context.go('/professor');
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Exam deleted successfully.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          return; // Exit the function since the exam is deleted
+        }
+
+        // Remove examId from each student's currentExams and completedExams if there are valid students
+        for (String studentEmail in students) {
+          DocumentReference studentRef = FirebaseFirestore.instance
+              .collection('Students')
+              .doc(studentEmail);
+
           try {
-            DocumentSnapshot snapshot = await transaction.get(studentRef);
+            DocumentSnapshot studentSnapshot = await studentRef.get();
 
-            if (snapshot.exists) {
-              List<dynamic> currentExams = snapshot.get('currentExams') ?? [];
-              Map<String, dynamic> completedExams = {};
-              if ((snapshot.data() as Map<String, dynamic>)
-                  .containsKey('completedExams')) {
-                completedExams = snapshot.get('completedExams') ?? {};
-              }
+            if (studentSnapshot.exists) {
+              // Safely get 'currentExams' and check if 'completedExams' exists
+              List<dynamic> currentExams =
+                  studentSnapshot.get('currentExams') ?? [];
+              Map<String, dynamic> completedExams =
+                  (studentSnapshot.data() as Map<String, dynamic>)
+                              .containsKey('completedExams') ??
+                          false
+                      ? studentSnapshot.get('completedExams')
+                      : {};
 
+              // Remove the examId from currentExams and completedExams
               currentExams.remove(examId);
               completedExams.remove(examId);
 
-              transaction.update(studentRef, {
+              // Update the student's document with the modified currentExams and completedExams
+              await studentRef.update({
                 'currentExams': currentExams,
-                if ((snapshot.data() as Map<String, dynamic>)
-                    .containsKey('completedExams'))
-                  'completedExams': completedExams,
+                if (completedExams.isNotEmpty) 'completedExams': completedExams,
               });
             }
           } catch (e) {
             print('Error processing student $studentEmail: $e');
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Error updating student $studentEmail: $e')));
           }
-        });
-      }
+        }
 
-      // Remove examId from professor's currentExams
-      String? professorEmail = FirebaseAuth.instance.currentUser?.email;
-      if (professorEmail != null) {
-        DocumentReference professorRef = FirebaseFirestore.instance
-            .collection('Professors')
-            .doc(professorEmail);
+        // Remove examId from professor's currentExams
+        String? professorEmail = FirebaseAuth.instance.currentUser?.email;
+        if (professorEmail != null) {
+          DocumentReference professorRef = FirebaseFirestore.instance
+              .collection('Professors')
+              .doc(professorEmail);
 
-        await FirebaseFirestore.instance.runTransaction((transaction) async {
           try {
-            DocumentSnapshot snapshot = await transaction.get(professorRef);
+            DocumentSnapshot professorSnapshot = await professorRef.get();
 
-            if (snapshot.exists) {
-              List<dynamic> currentExams = snapshot.get('currentExams') ?? [];
-
+            if (professorSnapshot.exists) {
+              List<dynamic> currentExams =
+                  professorSnapshot.get('currentExams') ?? [];
               currentExams.remove(examId);
 
-              transaction.update(professorRef, {'currentExams': currentExams});
+              await professorRef.update({
+                'currentExams': currentExams,
+              });
             }
           } catch (e) {
             print('Error processing professor $professorEmail: $e');
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error updating professor: $e')));
           }
-        });
+        }
+
+        // Finally, delete the exam document
+        await FirebaseFirestore.instance
+            .collection('Exams')
+            .doc(examId)
+            .delete();
+
+        // Close the warning window and refresh the current route
+        Navigator.of(context).pop();
+        context.go('/professor');
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Exam deleted. Refresh to update.'),
+            backgroundColor: Colors.green,
+          ),
+        );
       }
-
-      // Finally, delete the exam document
-      await FirebaseFirestore.instance.collection('Exams').doc(examId).delete();
-
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Exam deleted successfully.'),
-          backgroundColor: colorToggle == "light"
-              ? AppColorsLight.green
-              : AppColorsDark.green,
-        ),
-      );
-
-      // Navigate back to ProfessorScreen
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => ProfessorScreen()),
-        (route) => false,
-      );
     } catch (e) {
       print('Error during deletion process: $e');
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Failed to delete exam. Please try again.'),
-          backgroundColor:
-              colorToggle == "light" ? AppColorsLight.red : AppColorsDark.red,
-        ),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Failed to delete exam: $e')));
     }
   }
 }

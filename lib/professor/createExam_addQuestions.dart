@@ -78,22 +78,57 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
     });
   }
 
-  void addRubric(int index) {
-    setState(() {
-      questions[index]['rubrics']
-          .add({'rubric': TextEditingController(), 'weight': 10});
-    });
-  }
-
   void removeQuestion(int index) {
     setState(() {
       questions.removeAt(index);
     });
   }
 
+  void addRubric(int index) {
+    setState(() {
+      questions[index]['rubrics']
+          .add({'rubric': TextEditingController(), 'weight': 10});
+      // Recalculate question total weight based on rubric weights
+      _recalculateQuestionWeight(index);
+    });
+  }
+
   void removeRubric(int questionIndex, int rubricIndex) {
     setState(() {
       questions[questionIndex]['rubrics'].removeAt(rubricIndex);
+      // Recalculate question total weight based on rubric weights
+      _recalculateQuestionWeight(questionIndex);
+    });
+  }
+
+  void _recalculateQuestionWeight(int questionIndex) {
+    int totalWeight = 0;
+    if (questions[questionIndex]['rubrics'].isNotEmpty) {
+      // Sum the weights of all rubrics
+      totalWeight = questions[questionIndex]['rubrics']
+          .fold(0, (sum, rubric) => sum + rubric['weight']);
+    } else {
+      // Default to 20 if no rubrics
+      totalWeight = 20;
+    }
+
+    setState(() {
+      questions[questionIndex]['weight'] = totalWeight;
+    });
+  }
+
+  void _changeRubricWeight(int questionIndex, int rubricIndex, int delta) {
+    setState(() {
+      // Modify the rubric weight
+      questions[questionIndex]['rubrics'][rubricIndex]['weight'] += delta;
+
+      // Prevent the weight from going below 1
+      if (questions[questionIndex]['rubrics'][rubricIndex]['weight'] < 1) {
+        questions[questionIndex]['rubrics'][rubricIndex]['weight'] = 1;
+      }
+
+      // Recalculate the total weight of the question
+      _recalculateQuestionWeight(questionIndex);
     });
   }
 
@@ -484,39 +519,14 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                       ),
                     ),
                     Spacer(),
-                    IconButton(
-                      icon: Icon(
-                        Icons.remove,
-                        color: widget.colorToggle == "light"
-                            ? AppColorsLight.black
-                            : AppColorsDark.black,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          questions[i]['weight']--;
-                        });
-                      },
-                    ),
+                    // No more +/- buttons for question weight
                     Text(
-                      '${questions[i]['weight']}',
+                      '${questions[i]['weight']} pts',
                       style: TextStyle(
                         color: widget.colorToggle == "light"
                             ? AppColorsLight.black
                             : AppColorsDark.black,
                       ),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.add,
-                        color: widget.colorToggle == "light"
-                            ? AppColorsLight.black
-                            : AppColorsDark.black,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          questions[i]['weight']++;
-                        });
-                      },
                     ),
                     IconButton(
                       icon: Icon(
@@ -668,13 +678,12 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                         : AppColorsDark.black,
                   ),
                   onPressed: () {
-                    setState(() {
-                      questions[questionIndex]['rubrics'][i]['weight']--;
-                    });
+                    _changeRubricWeight(
+                        questionIndex, i, -1); // Decrease the weight
                   },
                 ),
                 Text(
-                  '${questions[questionIndex]['rubrics'][i]['weight']}',
+                  '${questions[questionIndex]['rubrics'][i]['weight']} pts',
                   style: TextStyle(
                     color: widget.colorToggle == "light"
                         ? AppColorsLight.black
@@ -689,9 +698,8 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                         : AppColorsDark.black,
                   ),
                   onPressed: () {
-                    setState(() {
-                      questions[questionIndex]['rubrics'][i]['weight']++;
-                    });
+                    _changeRubricWeight(
+                        questionIndex, i, 1); // Increase the weight
                   },
                 ),
                 IconButton(

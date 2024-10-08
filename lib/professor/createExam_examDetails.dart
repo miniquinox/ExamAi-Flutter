@@ -309,7 +309,7 @@ class _CreateExamDetailsState extends State<CreateExamDetails> {
                       'Date', 'Time', _dateController, _timeController),
                   _buildTextField('Students', _studentsController,
                       labelDescription:
-                          'Ex: maria@ucdavis.edu, john@gmail.com'),
+                          'Emails separated by comma. Ex: maria@ucdavis.edu, john@gmail.com'),
                   Spacer(),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
