@@ -1,4 +1,4 @@
-import 'package:examai_flutter/main.dart';
+// import 'package:examai_flutter/main.dart';
 import 'package:examai_flutter/student/studentExam_feedback.dart';
 import 'package:examai_flutter/student/takeExam_examSelection.dart';
 import 'package:flutter/material.dart';
@@ -730,12 +730,28 @@ class _StudentScreenState extends State<StudentScreen> {
       );
     } else if (feedbackExamId != null) {
       mainContent = StudentExamFeedbackScreen(
-          examId: feedbackExamId!, colorToggle: colorToggle);
+        examId: feedbackExamId!,
+        colorToggle: colorToggle,
+        onBack: () {
+          // Reset the feedbackExamId to go back to the results screen
+          setState(() {
+            feedbackExamId = null;
+          });
+        },
+      );
     } else {
+      // Show the ExamResultsScreen with the back callback
       mainContent = ExamResultsScreen(
         examId: selectedExamId!,
         onFeedbackClick: onFeedbackClick,
         colorToggle: colorToggle,
+        onBack: () {
+          // Reset selectedExamId and feedbackExamId to go back to default state
+          setState(() {
+            selectedExamId = null;
+            feedbackExamId = null;
+          });
+        },
       );
     }
 

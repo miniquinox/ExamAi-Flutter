@@ -1,4 +1,3 @@
-import 'package:examai_flutter/main.dart';
 import 'package:examai_flutter/professor/ExamResults_professor.dart';
 import 'package:examai_flutter/professor/createExam_examDetails.dart';
 import 'package:examai_flutter/professor/examGrades.dart';
@@ -1409,8 +1408,7 @@ class DeleteConfirmationDialog extends StatelessWidget {
                   studentSnapshot.get('currentExams') ?? [];
               Map<String, dynamic> completedExams =
                   (studentSnapshot.data() as Map<String, dynamic>)
-                              .containsKey('completedExams') ??
-                          false
+                          .containsKey('completedExams')
                       ? studentSnapshot.get('completedExams')
                       : {};
 

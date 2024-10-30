@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:examai_flutter/professor/professor_dashboard.dart';
 import 'package:go_router/go_router.dart';
 import 'colors_professor.dart';
 

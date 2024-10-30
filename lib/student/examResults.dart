@@ -11,15 +11,16 @@ import '../professor/colors_professor.dart';
 class ExamResultsScreen extends StatefulWidget {
   final String examId;
   final Function(String examId) onFeedbackClick;
-  final String colorToggle; // Add a color parameter
+  final String colorToggle;
+  final VoidCallback onBack; // Add a callback for back action
 
-  const ExamResultsScreen(
-      {Key? key,
-      required this.examId,
-      required this.onFeedbackClick,
-      required this.colorToggle // Update the constructor
-      })
-      : super(key: key);
+  const ExamResultsScreen({
+    Key? key,
+    required this.examId,
+    required this.onFeedbackClick,
+    required this.colorToggle,
+    required this.onBack, // Include the onBack callback
+  }) : super(key: key);
 
   @override
   _ExamResultsScreenState createState() => _ExamResultsScreenState();
@@ -229,9 +230,7 @@ class _ExamResultsScreenState extends State<ExamResultsScreen> {
                 ? AppColorsLight.black
                 : AppColorsDark.black,
           ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          onPressed: widget.onBack, // Call the onBack callback when pressed
         ),
         title: Row(
           children: [

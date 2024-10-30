@@ -6,11 +6,15 @@ import '../professor/colors_professor.dart';
 
 class StudentExamFeedbackScreen extends StatelessWidget {
   final String examId;
-  final String colorToggle; // Add a color parameter
+  final String colorToggle;
+  final VoidCallback onBack; // Add onBack callback
 
-  const StudentExamFeedbackScreen(
-      {Key? key, required this.examId, required this.colorToggle})
-      : super(key: key);
+  const StudentExamFeedbackScreen({
+    Key? key,
+    required this.examId,
+    required this.colorToggle,
+    required this.onBack, // Include the onBack callback
+  }) : super(key: key);
 
   Future<Map<String, dynamic>> fetchExamDetails(String examId) async {
     final examSnapshot =
@@ -81,6 +85,10 @@ class StudentExamFeedbackScreen extends StatelessWidget {
                     ? AppColorsLight.pure_white
                     : AppColorsDark.pure_white,
                 elevation: 0,
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: onBack, // Call onBack callback when pressed
+                ),
                 title: Row(
                   children: [
                     Icon(Icons.home,
