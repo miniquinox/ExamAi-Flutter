@@ -25,6 +25,7 @@
   <meta property="og:image" content="https://framerusercontent.com/assets/CVJXosMjyIQGMVFNhiqDsF3xSS4.png">
   <meta name="twitter:image" content="https://framerusercontent.com/assets/CVJXosMjyIQGMVFNhiqDsF3xSS4.png">
 
+  <!-- Firebase setup -->
   <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-analytics.js"></script>
@@ -42,10 +43,13 @@
     firebase.initializeApp(firebaseConfig);
     firebase.analytics();
 
+    // Detect mobile devices and redirect them to www.examai.ai/login
     function detectMobile() {
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+      // Redirect all mobile users to www.examai.ai/login
       if (isMobile) {
-        window.location.href = "https://examai.framer.website/";
+        window.location.href = "https://www.examai.ai/login";
       }
     }
 

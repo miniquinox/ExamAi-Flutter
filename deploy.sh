@@ -20,7 +20,7 @@ if [ -d "build/web" ]; then
   echo "Build directory exists, proceeding with deployment..."
 
   # Create CNAME file
-  echo 'examai.ai' > build/web/CNAME
+  echo 'app.examai.ai' > build/web/CNAME
 
   # Navigate to the build directory
   cd build/web
