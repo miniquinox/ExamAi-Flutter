@@ -194,6 +194,7 @@ class _SignInScreenState extends State<SignInScreen> {
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
+      print('User signed in: ${userCredential.user?.email}');
       await _saveUserRole();
       _navigateToDashboard();
     } catch (e) {
@@ -207,6 +208,7 @@ class _SignInScreenState extends State<SignInScreen> {
     try {
       final googleUser =
           await FirebaseAuth.instance.signInWithPopup(GoogleAuthProvider());
+      print('Google user signed in: ${googleUser.user?.email}');
       await _saveUserRole();
       _navigateToDashboard();
     } catch (e) {
