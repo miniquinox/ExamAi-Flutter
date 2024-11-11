@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import '../student/studentExam_feedback.dart';
 import 'colors_professor.dart';
 
 class ExamDetailsScreen extends StatelessWidget {
@@ -243,6 +243,38 @@ class ExamDetailsScreen extends StatelessWidget {
                             )),
                             DataCell(Row(
                               children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            StudentExamFeedbackScreen(
+                                          examId: examId,
+                                          colorToggle: colorToggle,
+                                          onBack: () {
+                                            Navigator.pop(context);
+                                          },
+                                          studentEmail: student[
+                                              'email'], // Pass the student email
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: colorToggle == "light"
+                                        ? AppColorsLight.main_purple
+                                        : AppColorsDark.main_purple,
+                                  ),
+                                  child: Text(
+                                    'View Feedback',
+                                    style: TextStyle(
+                                      color: colorToggle == "light"
+                                          ? AppColorsLight.pure_white
+                                          : AppColorsDark.pure_white,
+                                    ), // black font color
+                                  ),
+                                ),
                                 IconButton(
                                   icon: const Icon(Icons.edit),
                                   onPressed: () {

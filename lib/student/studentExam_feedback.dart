@@ -7,13 +7,15 @@ import '../professor/colors_professor.dart';
 class StudentExamFeedbackScreen extends StatelessWidget {
   final String examId;
   final String colorToggle;
-  final VoidCallback onBack; // Add onBack callback
+  final VoidCallback onBack;
+  final String? studentEmail; // Add optional studentEmail parameter
 
   const StudentExamFeedbackScreen({
     Key? key,
     required this.examId,
     required this.colorToggle,
-    required this.onBack, // Include the onBack callback
+    required this.onBack,
+    this.studentEmail, // Include the optional studentEmail parameter
   }) : super(key: key);
 
   Future<Map<String, dynamic>> fetchExamDetails(String examId) async {
@@ -61,9 +63,12 @@ class StudentExamFeedbackScreen extends StatelessWidget {
 
         print('Questions field in Exams > $examId: $examQuestions');
 
+        final email = studentEmail ??
+            FirebaseAuth
+                .instance.currentUser!.email!; // Use studentEmail if provided
+
         return FutureBuilder<Map<String, dynamic>?>(
-          future: fetchStudentGrades(
-              examId, FirebaseAuth.instance.currentUser!.email!),
+          future: fetchStudentGrades(examId, email),
           builder: (context, gradesSnapshot) {
             if (gradesSnapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
