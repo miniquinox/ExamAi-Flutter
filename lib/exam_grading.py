@@ -116,7 +116,7 @@ def grade_exam(exam_id):
                 "The question includes a set of rubrics, and weights assigned to each rubric. "
                 "The answer includes both the question and the student's response. "
                 "The output must be a json following this format using double quotes for keys: "
-                '{"question_id": "<insert the Question here>", "rubric_scores": [<score1>, <score2>, ...], "total_score": <sum of all rubrics scores>, "feedback": "<Constructive feedback based on the students answer and how it could be improved>"}'
+                '{"question_id": "<insert the Question here>", "rubric_scores": [<score1>, <score2>, ...], "total_score": <sum of all rubrics scores>, "feedback": "<Constructive feedback based on the students answer and how it could be improved. The student doesn't know these rubrics, so don't mention them directly.>"}'
                 "Add your graded scores per rubric in the rubric_scores list based on your best assessment."
                 "DO NOT DEVIATE FROM THIS FORMAT, DOING SO WILL HURT MY PROGRAM. Print everything in one line.\n\n"
                 f"=============Question: {question_text}\n\n"
