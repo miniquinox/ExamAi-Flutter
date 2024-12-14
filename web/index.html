@@ -53,7 +53,21 @@
       }
     }
 
-    window.onload = detectMobile;
+    // Redirect unknown paths to the main page
+    function handleUnknownPaths() {
+      const knownPaths = ['/', '/professor', '/student'];
+      const currentPath = window.location.pathname;
+
+      // Redirect to main page if the path is not recognized
+      if (!knownPaths.includes(currentPath)) {
+        window.location.replace('/');
+      }
+    }
+
+    window.onload = () => {
+      detectMobile();
+      handleUnknownPaths();
+    };
   </script>
 </head>
 

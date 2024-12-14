@@ -192,52 +192,21 @@ class _StudentScreenState extends State<StudentScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: colorToggle == "light"
-            ? AppColorsLight.pure_white
-            : AppColorsDark.pure_white,
-        title: Text(
-          'Sign Out',
-          style: TextStyle(
-            color: colorToggle == "light"
-                ? AppColorsLight.black
-                : AppColorsDark.black,
-          ),
-        ),
-        content: Text(
-          'Are you sure you would like to sign out?',
-          style: TextStyle(
-            color: colorToggle == "light"
-                ? AppColorsLight.black
-                : AppColorsDark.black,
-          ),
-        ),
+        title: const Text('Sign Out'),
+        content: const Text('Are you sure you would like to sign out?'),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: Text(
-              'Cancel',
-              style: TextStyle(
-                color: colorToggle == "light"
-                    ? AppColorsLight.main_purple
-                    : AppColorsDark.main_purple,
-              ),
-            ),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               _signOut(context);
             },
-            child: Text(
-              'Yes',
-              style: TextStyle(
-                color: colorToggle == "light"
-                    ? AppColorsLight.main_purple
-                    : AppColorsDark.main_purple,
-              ),
-            ),
+            child: const Text('Yes'),
           ),
         ],
       ),
