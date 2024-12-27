@@ -984,7 +984,7 @@ class _ProfessorScreenState extends State<ProfessorScreen> {
     }
 
     final DateTime today = DateTime.now();
-    final DateTime endDate = DateTime(2024, 12, 31);
+    final DateTime endDate = DateTime(2025, 5, 31);
     final int daysLeft = endDate.difference(today).inDays;
 
     // Calculate the progress for the year
@@ -1693,52 +1693,21 @@ class _ExamRowState extends State<ExamRow> {
   bool _isHovered = false;
 
   Future<void> triggerGrading(String examId) async {
-    const url =
-        'https://api.github.com/repos/miniquinox/ExamAi-Flutter/actions/workflows/grading.yml/dispatches';
+    const url = 'https://examaifunctionapp.azurewebsites.net/api/grade_exam';
 
-    // Split the key into multiple obfuscated parts
-    List<List<int>> keyParts = [
-      [103, 104, 112, 95],
-      [101, 105, 111, 108],
-      [119, 50],
-      [104, 106, 51],
-      [70, 110, 52],
-      [86, 119],
-      [82, 114],
-      [99, 99],
-      [48, 97],
-      [87, 115],
-      [81, 51],
-      [75, 111],
-      [106, 71],
-      [76, 120],
-      [51, 112],
-      [83, 50],
-      [69, 65]
-    ];
-
-    // Decode the parts without shuffling to maintain the correct key
-    String apiKey =
-        String.fromCharCodes(keyParts.expand((part) => part).toList());
-
-    final response = await http.post(
-      Uri.parse(url),
+    final response = await http.get(
+      Uri.parse('$url?exam_id=$examId'),
       headers: {
-        'Authorization': 'Bearer $apiKey',
-        'Accept': 'application/vnd.github.v3+json',
+        'Accept': 'application/json',
       },
-      body: json.encode({
-        'ref': 'main',
-        'inputs': {
-          'EXAM_ID': examId,
-        },
-      }),
     );
 
-    if (response.statusCode == 204) {
+    if (response.statusCode == 200) {
       print('Grading triggered successfully.');
+      // You can add further logic here to notify the user or update the UI
     } else {
       print('Failed to trigger grading: ${response.body}');
+      // Handle error case, e.g., show an alert or log the error
     }
   }
 

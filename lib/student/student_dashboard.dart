@@ -725,7 +725,7 @@ class _StudentScreenState extends State<StudentScreen> {
 
     // Calculate the number of days from today until December 31, 2024
     final DateTime today = DateTime.now();
-    final DateTime endDate = DateTime(2024, 12, 31);
+    final DateTime endDate = DateTime(2025, 5, 31);
     final int daysLeft = endDate.difference(today).inDays;
 
     // Calculate the progress for the year
