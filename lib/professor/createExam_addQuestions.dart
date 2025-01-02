@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'colors_professor.dart';
 import 'createExam_review.dart'; // Ensure you have this import
+import 'dart:math';
 
 class CreateExamAddQuestions extends StatefulWidget {
   final String examName;
@@ -26,18 +27,31 @@ class CreateExamAddQuestions extends StatefulWidget {
   _CreateExamAddQuestionsState createState() => _CreateExamAddQuestionsState();
 }
 
-class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
+class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions>
+    with SingleTickerProviderStateMixin {
   List<Map<String, dynamic>> questions = [
     {'question': TextEditingController(), 'weight': 20, 'rubrics': []}
   ];
   User? user = FirebaseAuth.instance.currentUser;
+  late AnimationController _animationController;
 
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 2),
+    )..repeat();
+
     if (widget.examId != null) {
       _loadExamData(widget.examId!);
     }
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadExamData(String examId) async {
@@ -145,6 +159,53 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
         }).toList(),
       };
     }).toList();
+  }
+
+  Widget _buildAnimatedButton() {
+    return AnimatedBuilder(
+      animation: _animationController,
+      builder: (context, child) {
+        final double progress = _animationController.value;
+        final Color color = HSVColor.fromAHSV(
+          1.0,
+          (progress * 360) % 360,
+          1.0,
+          1.0,
+        ).toColor();
+
+        return OutlinedButton(
+          style: OutlinedButton.styleFrom(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            side: BorderSide(
+              color: color,
+              width: 2,
+            ),
+            backgroundColor: Colors.black,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          onPressed: () {
+            // AI generation logic
+            print('Generate Exam with AI');
+          },
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.lightbulb, color: Colors.white),
+              SizedBox(width: 8),
+              Text(
+                'Generate Exam with AI',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -383,15 +444,21 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    Text(
-                      'Add Questions',
-                      style: TextStyle(
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.bold,
-                        color: widget.colorToggle == "light"
-                            ? AppColorsLight.black
-                            : AppColorsDark.black,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          'Add Questions',
+                          style: TextStyle(
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.bold,
+                            color: widget.colorToggle == "light"
+                                ? AppColorsLight.black
+                                : AppColorsDark.black,
+                          ),
+                        ),
+                        SizedBox(width: 30), // Add 30 pixels of space
+                        _buildAnimatedButton(),
+                      ],
                     ),
                     SizedBox(height: 16),
                     Expanded(
