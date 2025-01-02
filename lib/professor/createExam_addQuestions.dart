@@ -3,7 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'colors_professor.dart';
 import 'createExam_review.dart'; // Ensure you have this import
-import 'dart:math';
+import 'package:file_picker/file_picker.dart';
+import 'package:http/http.dart' as http;
+import 'dart:typed_data';
 
 class CreateExamAddQuestions extends StatefulWidget {
   final String examName;
@@ -186,8 +188,11 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions>
             ),
           ),
           onPressed: () {
-            // AI generation logic
-            print('Generate Exam with AI');
+            showDialog(
+              context: context,
+              builder: (context) => GenerateExamPopup(
+                  colorToggle: "light"), // Pass appropriate value
+            );
           },
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -787,5 +792,253 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions>
       );
     }
     return rubricFields;
+  }
+}
+
+class GenerateExamPopup extends StatefulWidget {
+  final String colorToggle;
+
+  const GenerateExamPopup({Key? key, required this.colorToggle})
+      : super(key: key);
+
+  @override
+  _GenerateExamPopupState createState() => _GenerateExamPopupState();
+}
+
+class _GenerateExamPopupState extends State<GenerateExamPopup> {
+  List<Uint8List> selectedFilesBytes = [];
+  List<String> selectedFilesNames = [];
+  bool hasFiles = false;
+  TextEditingController additionalTextController = TextEditingController();
+
+  void _pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'png', 'pdf'],
+      allowMultiple: true,
+      withData: true,
+    );
+
+    if (result != null) {
+      final safeFiles = result.files.where((file) => file.bytes != null);
+
+      setState(() {
+        // Append new files to the existing list
+        selectedFilesBytes
+            .addAll(safeFiles.map((file) => file.bytes!).toList());
+        selectedFilesNames.addAll(safeFiles.map((file) => file.name).toList());
+        hasFiles = selectedFilesBytes.isNotEmpty;
+
+        // Debugging logs
+        print('Selected files: ${selectedFilesNames.join(', ')}');
+        print('File count: ${selectedFilesBytes.length}');
+      });
+    } else {
+      print('No files selected or file picker error.');
+    }
+  }
+
+  void _sendDataToAPI() {
+    if (selectedFilesBytes.isEmpty || additionalTextController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select a file and enter text.')),
+      );
+      return;
+    }
+
+    // Simulate sending data to API
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Files and data submitted successfully!')),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(
+        'Generate Exam with AI',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: widget.colorToggle == "light" ? Colors.black : Colors.white,
+        ),
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            GestureDetector(
+              onTap: _pickFile,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: widget.colorToggle == "light"
+                      ? Colors.grey[200]
+                      : Colors.grey[800],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: widget.colorToggle == "light"
+                        ? Colors.grey
+                        : Colors.grey[600]!,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.upload_file,
+                        size: 40,
+                        color: hasFiles ? Colors.green : Colors.black,
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Drop or upload images/PDFs',
+                        style: TextStyle(
+                          color: widget.colorToggle == "light"
+                              ? Colors.black
+                              : Colors.white,
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      // File icons section
+                      if (selectedFilesBytes.isNotEmpty)
+                        Column(
+                          children:
+                              List.generate(selectedFilesBytes.length, (index) {
+                            String fileName = selectedFilesNames[index];
+                            bool isImage = [
+                              'jpg',
+                              'png'
+                            ].contains(fileName.split('.').last.toLowerCase());
+
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 4.0),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      color: widget.colorToggle == "light"
+                                          ? Colors.grey[300]
+                                          : Colors.grey[700],
+                                    ),
+                                    child: isImage
+                                        ? ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            child: Image.memory(
+                                              selectedFilesBytes[index],
+                                              fit: BoxFit.cover,
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
+                                                print(
+                                                    'Error rendering image: $fileName');
+                                                return Icon(
+                                                  Icons.error,
+                                                  size: 24,
+                                                  color: Colors.red,
+                                                );
+                                              },
+                                            ),
+                                          )
+                                        : Icon(
+                                            Icons.picture_as_pdf,
+                                            size: 24,
+                                            color: widget.colorToggle == "light"
+                                                ? Colors.black
+                                                : Colors.white,
+                                          ),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      fileName.length > 40
+                                          ? '${fileName.substring(0, 37)}...'
+                                          : fileName,
+                                      style: TextStyle(
+                                        color: widget.colorToggle == "light"
+                                            ? Colors.black
+                                            : Colors.white,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+            SizedBox(height: 16),
+            Text(
+              "Describe in detail how you want your exam to be generated",
+              style: TextStyle(
+                color:
+                    widget.colorToggle == "light" ? Colors.black : Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 8),
+            TextField(
+              controller: additionalTextController,
+              decoration: InputDecoration(
+                labelText: 'Instructions',
+                labelStyle: TextStyle(
+                  color: widget.colorToggle == "light"
+                      ? Colors.black
+                      : Colors.white,
+                ),
+                border: OutlineInputBorder(),
+                fillColor: widget.colorToggle == "light"
+                    ? Colors.grey[100]
+                    : Colors.grey[700],
+                filled: true,
+              ),
+              style: TextStyle(
+                color:
+                    widget.colorToggle == "light" ? Colors.black : Colors.white,
+              ),
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text(
+            'Cancel',
+            style: TextStyle(
+              color:
+                  widget.colorToggle == "light" ? Colors.black : Colors.white,
+            ),
+          ),
+        ),
+        ElevatedButton(
+          onPressed: _sendDataToAPI,
+          style: ElevatedButton.styleFrom(
+            backgroundColor:
+                widget.colorToggle == "light" ? Colors.blue : Colors.deepPurple,
+          ),
+          child: Text(
+            'Generate',
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
