@@ -840,6 +840,7 @@ class _GenerateExamPopupState extends State<GenerateExamPopup> {
   }
 
   void _sendDataToAPI() async {
+    // Ensure both text and files are provided
     if (selectedFilesBytes.isEmpty || additionalTextController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please select a file and enter text.')),
@@ -847,15 +848,17 @@ class _GenerateExamPopupState extends State<GenerateExamPopup> {
       return;
     }
 
-    // Prepare the multipart request
-    var uri = Uri.parse(
-        'http://localhost:7071/api/analyze_input'); // Replace with your API endpoint
+    // Define the API endpoint
+    var uri =
+        Uri.parse('https://create-exam-func.azurewebsites.net/analyze_input');
+
+    // Create the multipart request
     var request = http.MultipartRequest('POST', uri);
 
-    // Add text field
+    // Add the text field to the request
     request.fields['additionalText'] = additionalTextController.text;
 
-    // Add files
+    // Add files to the request
     for (int i = 0; i < selectedFilesBytes.length; i++) {
       request.files.add(
         http.MultipartFile.fromBytes(
@@ -866,26 +869,72 @@ class _GenerateExamPopupState extends State<GenerateExamPopup> {
       );
     }
 
+    print('--- Preparing API Request ---');
+    print('URI: $uri');
+    print('Text Data: ${additionalTextController.text}');
+    print('Number of Files: ${selectedFilesBytes.length}');
+    for (int i = 0; i < selectedFilesBytes.length; i++) {
+      print('File $i Name: ${selectedFilesNames[i]}');
+    }
+
     try {
-      // Send the request
+      print('--- Sending Request to API ---');
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
 
-      if (response.statusCode == 200) {
-        // Print the response in the terminal
-        print('API Response: ${response.body}');
+      print('--- API Response ---');
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 500) {
+        // Clean up the response to remove extra "\n" or text around the JSON.
+        String sanitizedBody = response.body
+            .replaceAll('\n', ' ')
+            .replaceAll(RegExp(r'\s{2,}'), ' ')
+            .trim();
+
+        // If the response contains a ```json block, extract only the JSON portion.
+        final blockMatch =
+            RegExp(r'```json([\s\S]*?)```').firstMatch(sanitizedBody);
+        if (blockMatch != null) {
+          sanitizedBody = blockMatch.group(1)!.trim();
+        }
+
+        // Ensure any trailing newlines or extra text after '}' are removed.
+        sanitizedBody = sanitizedBody.replaceAll(RegExp(r'}(\s|\n)*$'), '}');
+
+        try {
+          var jsonResponse = jsonDecode(sanitizedBody);
+          print('--- Parsed Response ---');
+          print(jsonEncode(jsonResponse));
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content:
+                    Text('Response received! Check terminal for details.')),
+          );
+        } catch (e) {
+          print('--- JSON Parsing Error ---');
+          print('Error: $e');
+          print('Sanitized Response: $sanitizedBody');
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    'Error parsing the response. Check terminal for details.')),
+          );
+        }
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text('Response received! Check terminal for details.')),
-        );
-      } else {
-        print('Failed to send data. Status Code: ${response.statusCode}');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to submit data to the API.')),
+              content: Text(
+                  'Failed to submit data. Status Code: ${response.statusCode}')),
         );
       }
     } catch (e) {
-      print('Error sending data to the API: $e');
+      print('--- Error Sending Data ---');
+      print('Error: $e');
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text('An error occurred. Check terminal for details.')),
