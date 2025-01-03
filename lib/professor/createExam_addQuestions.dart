@@ -6,6 +6,7 @@ import 'createExam_review.dart'; // Ensure you have this import
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:typed_data';
+import 'dart:convert';
 
 class CreateExamAddQuestions extends StatefulWidget {
   final String examName;
@@ -838,7 +839,7 @@ class _GenerateExamPopupState extends State<GenerateExamPopup> {
     }
   }
 
-  void _sendDataToAPI() {
+  void _sendDataToAPI() async {
     if (selectedFilesBytes.isEmpty || additionalTextController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please select a file and enter text.')),
@@ -846,10 +847,50 @@ class _GenerateExamPopupState extends State<GenerateExamPopup> {
       return;
     }
 
-    // Simulate sending data to API
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Files and data submitted successfully!')),
-    );
+    // Prepare the multipart request
+    var uri = Uri.parse(
+        'http://localhost:7071/api/analyze_input'); // Replace with your API endpoint
+    var request = http.MultipartRequest('POST', uri);
+
+    // Add text field
+    request.fields['additionalText'] = additionalTextController.text;
+
+    // Add files
+    for (int i = 0; i < selectedFilesBytes.length; i++) {
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'files',
+          selectedFilesBytes[i],
+          filename: selectedFilesNames[i],
+        ),
+      );
+    }
+
+    try {
+      // Send the request
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        // Print the response in the terminal
+        print('API Response: ${response.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Response received! Check terminal for details.')),
+        );
+      } else {
+        print('Failed to send data. Status Code: ${response.statusCode}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to submit data to the API.')),
+        );
+      }
+    } catch (e) {
+      print('Error sending data to the API: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('An error occurred. Check terminal for details.')),
+      );
+    }
   }
 
   @override
