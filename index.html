@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base href="/">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description"
+    content="ExamAi: AI-powered exam grading platform. Automate exam grading with the power of AI, a new way to grade coding, long answer questions, or even getting feedback on your physics homework.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="examai_flutter">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.ico">
+  <title>ExamAi</title>
+
+  <!-- Open Graph Meta Tags for Social Media Previews -->
+  <meta property="og:title" content="ExamAi">
+  <meta property="og:description"
+    content="ExamAi: AI-powered exam grading platform. Automate exam grading with the power of AI, a new way to grade coding, long answer questions, or even getting feedback on your physics homework.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://framerusercontent.com/assets/CVJXosMjyIQGMVFNhiqDsF3xSS4.png">
+  <meta name="twitter:image" content="https://framerusercontent.com/assets/CVJXosMjyIQGMVFNhiqDsF3xSS4.png">
+
+  <!-- Firebase setup -->
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-storage.js"></script>
+  <script>
+    var firebaseConfig = {
+      apiKey: "AIzaSyBsFTP5FgFSDjvy59ckkjP796deHYpXLSA",
+      authDomain: "examai-2024.firebaseapp.com",
+      projectId: "examai-2024",
+      storageBucket: "examai-2024.appspot.com",
+      messagingSenderId: "752229224213",
+      appId: "1:752229224213:web:b2cba258179e731ca0a31c",
+      measurementId: "G-RVWYJE0Y0X"
+    };
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+
+    // Detect mobile devices and redirect them to www.examai.ai/login
+    function detectMobile() {
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+      // Redirect all mobile users to www.examai.ai/login
+      if (isMobile) {
+        window.location.href = "https://www.examai.ai/login";
+      }
+    }
+
+    // Redirect unknown paths to the main page
+    function handleUnknownPaths() {
+      const knownPaths = ['/', '/professor', '/student'];
+      const currentPath = window.location.pathname;
+
+      // Redirect to main page if the path is not recognized
+      if (!knownPaths.includes(currentPath)) {
+        window.location.replace('/');
+      }
+    }
+
+    window.onload = () => {
+      detectMobile();
+      handleUnknownPaths();
+    };
+  </script>
+</head>
+
+<body>
+  <div id="app-container">
+    <script src="flutter_bootstrap.js" async></script>
+  </div>
+</body>
+
+</html>
