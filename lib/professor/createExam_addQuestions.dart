@@ -183,7 +183,7 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions>
               color: color,
               width: 2,
             ),
-            backgroundColor: Colors.black,
+            backgroundColor: AppColorsDark.card_light_background,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
@@ -191,13 +191,19 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions>
           onPressed: () {
             showDialog(
               context: context,
-              builder: (context) => GenerateExamPopup(
-                colorToggle: "light",
-                updateQuestions: (newQuestions) {
-                  setState(() {
-                    questions = newQuestions;
-                  });
-                },
+              builder: (context) => StatefulBuilder(
+                builder: (context, setState) => ClipRRect(
+                  borderRadius: BorderRadius.circular(1),
+                  child: GenerateExamPopup(
+                    colorToggle: widget
+                        .colorToggle, // Dynamically pass the updated value
+                    updateQuestions: (newQuestions) {
+                      setState(() {
+                        questions = newQuestions;
+                      });
+                    },
+                  ),
+                ),
               ),
             );
           },
@@ -935,12 +941,21 @@ class _GenerateExamPopupState extends State<GenerateExamPopup> {
     return Stack(
       children: [
         AlertDialog(
-          title: Text(
-            'Generate Exam with AI',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color:
-                  widget.colorToggle == "light" ? Colors.black : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12), // Large corner radius
+          ),
+          backgroundColor: widget.colorToggle == "light"
+              ? AppColorsLight.pure_white
+              : AppColorsDark.pure_white,
+          title: Center(
+            child: Text(
+              'Generate Exam with AI',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: widget.colorToggle == "light"
+                    ? AppColorsLight.black
+                    : AppColorsDark.black,
+              ),
             ),
           ),
           content: SingleChildScrollView(
@@ -952,8 +967,8 @@ class _GenerateExamPopupState extends State<GenerateExamPopup> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: widget.colorToggle == "light"
-                          ? Colors.grey[200]
-                          : Colors.grey[800],
+                          ? AppColorsLight.light_grey
+                          : AppColorsDark.light_grey,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
                         color: widget.colorToggle == "light"
@@ -1034,8 +1049,8 @@ class _GenerateExamPopupState extends State<GenerateExamPopup> {
                                       SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
-                                          fileName.length > 40
-                                              ? '${fileName.substring(0, 37)}...'
+                                          fileName.length > 60
+                                              ? '${fileName.substring(0, 57)}...'
                                               : fileName,
                                           style: TextStyle(
                                             color: widget.colorToggle == "light"
@@ -1067,28 +1082,40 @@ class _GenerateExamPopupState extends State<GenerateExamPopup> {
                   ),
                 ),
                 SizedBox(height: 8),
-                TextField(
-                  controller: additionalTextController,
-                  decoration: InputDecoration(
-                    labelText: 'Instructions',
-                    labelStyle: TextStyle(
+                Container(
+                  width: 500,
+                  child: TextField(
+                    controller: additionalTextController,
+                    decoration: InputDecoration(
+                      labelText: 'Instructions',
+                      labelStyle: TextStyle(
+                        color: widget.colorToggle == "light"
+                            ? Colors.black
+                            : Colors.white,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius:
+                            BorderRadius.circular(8), // Set corner radius to 8
+                      ),
+                      fillColor: widget.colorToggle == "light"
+                          ? Colors.grey[100]
+                          : Colors.grey[700],
+                      filled: true,
+                      alignLabelWithHint: true, // Align label to the top-left
+                    ),
+                    style: TextStyle(
                       color: widget.colorToggle == "light"
                           ? Colors.black
                           : Colors.white,
                     ),
-                    border: OutlineInputBorder(),
-                    fillColor: widget.colorToggle == "light"
-                        ? Colors.grey[100]
-                        : Colors.grey[700],
-                    filled: true,
+                    keyboardType: TextInputType.multiline,
+                    minLines: 4,
+                    maxLines: 4,
+                    textAlign:
+                        TextAlign.start, // Align text to the start (left)
+                    textAlignVertical:
+                        TextAlignVertical.top, // Align text to the top
                   ),
-                  style: TextStyle(
-                    color: widget.colorToggle == "light"
-                        ? Colors.black
-                        : Colors.white,
-                  ),
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
                 ),
               ],
             ),
@@ -1111,13 +1138,15 @@ class _GenerateExamPopupState extends State<GenerateExamPopup> {
               onPressed: _sendDataToAPI,
               style: ElevatedButton.styleFrom(
                 backgroundColor: widget.colorToggle == "light"
-                    ? Colors.blue
-                    : Colors.deepPurple,
+                    ? AppColorsLight.main_purple
+                    : AppColorsDark.main_purple,
               ),
               child: Text(
                 'Generate',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: widget.colorToggle == "light"
+                      ? AppColorsLight.pure_white
+                      : AppColorsDark.pure_white,
                 ),
               ),
             ),
