@@ -192,7 +192,13 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions>
             showDialog(
               context: context,
               builder: (context) => GenerateExamPopup(
-                  colorToggle: "light"), // Pass appropriate value
+                colorToggle: "light",
+                updateQuestions: (newQuestions) {
+                  setState(() {
+                    questions = newQuestions;
+                  });
+                },
+              ),
             );
           },
           child: Row(
@@ -798,9 +804,13 @@ class _CreateExamAddQuestionsState extends State<CreateExamAddQuestions>
 
 class GenerateExamPopup extends StatefulWidget {
   final String colorToggle;
+  final Function(List<Map<String, dynamic>>) updateQuestions;
 
-  const GenerateExamPopup({Key? key, required this.colorToggle})
-      : super(key: key);
+  const GenerateExamPopup({
+    Key? key,
+    required this.colorToggle,
+    required this.updateQuestions,
+  }) : super(key: key);
 
   @override
   _GenerateExamPopupState createState() => _GenerateExamPopupState();
@@ -810,6 +820,7 @@ class _GenerateExamPopupState extends State<GenerateExamPopup> {
   List<Uint8List> selectedFilesBytes = [];
   List<String> selectedFilesNames = [];
   bool hasFiles = false;
+  bool isLoading = false; // New variable for loading state
   TextEditingController additionalTextController = TextEditingController();
 
   void _pickFile() async {
@@ -840,7 +851,6 @@ class _GenerateExamPopupState extends State<GenerateExamPopup> {
   }
 
   void _sendDataToAPI() async {
-    // Ensure both text and files are provided
     if (selectedFilesBytes.isEmpty || additionalTextController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please select a file and enter text.')),
@@ -848,17 +858,16 @@ class _GenerateExamPopupState extends State<GenerateExamPopup> {
       return;
     }
 
-    // Define the API endpoint
+    setState(() {
+      isLoading = true; // Show loading spinner
+    });
+
     var uri =
         Uri.parse('https://create-exam-func.azurewebsites.net/analyze_input');
-
-    // Create the multipart request
     var request = http.MultipartRequest('POST', uri);
 
-    // Add the text field to the request
     request.fields['additionalText'] = additionalTextController.text;
 
-    // Add files to the request
     for (int i = 0; i < selectedFilesBytes.length; i++) {
       request.files.add(
         http.MultipartFile.fromBytes(
@@ -869,265 +878,258 @@ class _GenerateExamPopupState extends State<GenerateExamPopup> {
       );
     }
 
-    print('--- Preparing API Request ---');
-    print('URI: $uri');
-    print('Text Data: ${additionalTextController.text}');
-    print('Number of Files: ${selectedFilesBytes.length}');
-    for (int i = 0; i < selectedFilesBytes.length; i++) {
-      print('File $i Name: ${selectedFilesNames[i]}');
-    }
-
     try {
-      print('--- Sending Request to API ---');
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
 
-      print('--- API Response ---');
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
+      if (response.statusCode == 200) {
+        String sanitizedBody = response.body.trim();
+        var jsonResponse = jsonDecode(sanitizedBody);
 
-      if (response.statusCode == 200 || response.statusCode == 500) {
-        // Clean up the response to remove extra "\n" or text around the JSON.
-        String sanitizedBody = response.body
-            .replaceAll('\n', ' ')
-            .replaceAll(RegExp(r'\s{2,}'), ' ')
-            .trim();
+        if (jsonResponse.containsKey('questions')) {
+          var newQuestions = (jsonResponse['questions'] as List)
+              .map((q) => {
+                    'question': TextEditingController(text: q['question']),
+                    'weight': q['weight'],
+                    'rubrics': (q['rubrics'] as List).map((r) {
+                      return {
+                        'rubric': TextEditingController(text: r['rubric']),
+                        'weight': r['weight'],
+                      };
+                    }).toList(),
+                  })
+              .toList();
 
-        // If the response contains a ```json block, extract only the JSON portion.
-        final blockMatch =
-            RegExp(r'```json([\s\S]*?)```').firstMatch(sanitizedBody);
-        if (blockMatch != null) {
-          sanitizedBody = blockMatch.group(1)!.trim();
-        }
-
-        // Ensure any trailing newlines or extra text after '}' are removed.
-        sanitizedBody = sanitizedBody.replaceAll(RegExp(r'}(\s|\n)*$'), '}');
-
-        try {
-          var jsonResponse = jsonDecode(sanitizedBody);
-          print('--- Parsed Response ---');
-          print(jsonEncode(jsonResponse));
+          widget.updateQuestions(newQuestions);
 
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content:
-                    Text('Response received! Check terminal for details.')),
+            SnackBar(content: Text('Questions updated successfully!')),
           );
-        } catch (e) {
-          print('--- JSON Parsing Error ---');
-          print('Error: $e');
-          print('Sanitized Response: $sanitizedBody');
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(
-                    'Error parsing the response. Check terminal for details.')),
-          );
+        } else {
+          throw Exception('Invalid response format');
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  'Failed to submit data. Status Code: ${response.statusCode}')),
+                  'Failed to generate questions. Status Code: ${response.statusCode}')),
         );
       }
     } catch (e) {
-      print('--- Error Sending Data ---');
       print('Error: $e');
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text('An error occurred. Check terminal for details.')),
+            content:
+                Text('An error occurred. Check the terminal for details.')),
       );
+    } finally {
+      setState(() {
+        isLoading = false; // Hide loading spinner
+      });
+      Navigator.of(context).pop(); // Close the popup
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(
-        'Generate Exam with AI',
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: widget.colorToggle == "light" ? Colors.black : Colors.white,
-        ),
-      ),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            GestureDetector(
-              onTap: _pickFile,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: widget.colorToggle == "light"
-                      ? Colors.grey[200]
-                      : Colors.grey[800],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: widget.colorToggle == "light"
-                        ? Colors.grey
-                        : Colors.grey[600]!,
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.upload_file,
-                        size: 40,
-                        color: hasFiles ? Colors.green : Colors.black,
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Drop or upload images/PDFs',
-                        style: TextStyle(
-                          color: widget.colorToggle == "light"
-                              ? Colors.black
-                              : Colors.white,
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      // File icons section
-                      if (selectedFilesBytes.isNotEmpty)
-                        Column(
-                          children:
-                              List.generate(selectedFilesBytes.length, (index) {
-                            String fileName = selectedFilesNames[index];
-                            bool isImage = [
-                              'jpg',
-                              'png'
-                            ].contains(fileName.split('.').last.toLowerCase());
-
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 4.0),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      color: widget.colorToggle == "light"
-                                          ? Colors.grey[300]
-                                          : Colors.grey[700],
-                                    ),
-                                    child: isImage
-                                        ? ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            child: Image.memory(
-                                              selectedFilesBytes[index],
-                                              fit: BoxFit.cover,
-                                              errorBuilder:
-                                                  (context, error, stackTrace) {
-                                                print(
-                                                    'Error rendering image: $fileName');
-                                                return Icon(
-                                                  Icons.error,
-                                                  size: 24,
-                                                  color: Colors.red,
-                                                );
-                                              },
-                                            ),
-                                          )
-                                        : Icon(
-                                            Icons.picture_as_pdf,
-                                            size: 24,
-                                            color: widget.colorToggle == "light"
-                                                ? Colors.black
-                                                : Colors.white,
-                                          ),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      fileName.length > 40
-                                          ? '${fileName.substring(0, 37)}...'
-                                          : fileName,
-                                      style: TextStyle(
-                                        color: widget.colorToggle == "light"
-                                            ? Colors.black
-                                            : Colors.white,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-            SizedBox(height: 16),
-            Text(
-              "Describe in detail how you want your exam to be generated",
-              style: TextStyle(
-                color:
-                    widget.colorToggle == "light" ? Colors.black : Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 8),
-            TextField(
-              controller: additionalTextController,
-              decoration: InputDecoration(
-                labelText: 'Instructions',
-                labelStyle: TextStyle(
-                  color: widget.colorToggle == "light"
-                      ? Colors.black
-                      : Colors.white,
-                ),
-                border: OutlineInputBorder(),
-                fillColor: widget.colorToggle == "light"
-                    ? Colors.grey[100]
-                    : Colors.grey[700],
-                filled: true,
-              ),
-              style: TextStyle(
-                color:
-                    widget.colorToggle == "light" ? Colors.black : Colors.white,
-              ),
-              keyboardType: TextInputType.multiline,
-              maxLines: null,
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: Text(
-            'Cancel',
+    return Stack(
+      children: [
+        AlertDialog(
+          title: Text(
+            'Generate Exam with AI',
             style: TextStyle(
+              fontWeight: FontWeight.bold,
               color:
                   widget.colorToggle == "light" ? Colors.black : Colors.white,
             ),
           ),
-        ),
-        ElevatedButton(
-          onPressed: _sendDataToAPI,
-          style: ElevatedButton.styleFrom(
-            backgroundColor:
-                widget.colorToggle == "light" ? Colors.blue : Colors.deepPurple,
-          ),
-          child: Text(
-            'Generate',
-            style: TextStyle(
-              color: Colors.white,
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: _pickFile,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: widget.colorToggle == "light"
+                          ? Colors.grey[200]
+                          : Colors.grey[800],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: widget.colorToggle == "light"
+                            ? Colors.grey
+                            : Colors.grey[600]!,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.upload_file,
+                            size: 40,
+                            color: hasFiles ? Colors.green : Colors.black,
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Drop or upload images/PDFs',
+                            style: TextStyle(
+                              color: widget.colorToggle == "light"
+                                  ? Colors.black
+                                  : Colors.white,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          if (selectedFilesBytes.isNotEmpty)
+                            Column(
+                              children: List.generate(selectedFilesBytes.length,
+                                  (index) {
+                                String fileName = selectedFilesNames[index];
+                                bool isImage = ['jpg', 'png'].contains(
+                                    fileName.split('.').last.toLowerCase());
+
+                                return Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 4.0),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          color: widget.colorToggle == "light"
+                                              ? Colors.grey[300]
+                                              : Colors.grey[700],
+                                        ),
+                                        child: isImage
+                                            ? ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                child: Image.memory(
+                                                  selectedFilesBytes[index],
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (context, error,
+                                                      stackTrace) {
+                                                    print(
+                                                        'Error rendering image: $fileName');
+                                                    return Icon(
+                                                      Icons.error,
+                                                      size: 24,
+                                                      color: Colors.red,
+                                                    );
+                                                  },
+                                                ),
+                                              )
+                                            : Icon(
+                                                Icons.picture_as_pdf,
+                                                size: 24,
+                                                color: widget.colorToggle ==
+                                                        "light"
+                                                    ? Colors.black
+                                                    : Colors.white,
+                                              ),
+                                      ),
+                                      SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          fileName.length > 40
+                                              ? '${fileName.substring(0, 37)}...'
+                                              : fileName,
+                                          style: TextStyle(
+                                            color: widget.colorToggle == "light"
+                                                ? Colors.black
+                                                : Colors.white,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  "Describe in detail how you want your exam to be generated",
+                  style: TextStyle(
+                    color: widget.colorToggle == "light"
+                        ? Colors.black
+                        : Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 8),
+                TextField(
+                  controller: additionalTextController,
+                  decoration: InputDecoration(
+                    labelText: 'Instructions',
+                    labelStyle: TextStyle(
+                      color: widget.colorToggle == "light"
+                          ? Colors.black
+                          : Colors.white,
+                    ),
+                    border: OutlineInputBorder(),
+                    fillColor: widget.colorToggle == "light"
+                        ? Colors.grey[100]
+                        : Colors.grey[700],
+                    filled: true,
+                  ),
+                  style: TextStyle(
+                    color: widget.colorToggle == "light"
+                        ? Colors.black
+                        : Colors.white,
+                  ),
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                ),
+              ],
             ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: widget.colorToggle == "light"
+                      ? Colors.black
+                      : Colors.white,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: _sendDataToAPI,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: widget.colorToggle == "light"
+                    ? Colors.blue
+                    : Colors.deepPurple,
+              ),
+              child: Text(
+                'Generate',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
         ),
+        if (isLoading)
+          Container(
+            color: Colors.black.withOpacity(0.5),
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
       ],
     );
   }
